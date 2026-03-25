@@ -1,0 +1,137 @@
+:root {
+  --bg: #121113;
+  --surface: #1a191c;
+  --surface-muted: #242226;
+  --surface-card: #2c282d;
+  --text: #e4dfd9;
+  --text-muted: #b8afae;
+  --accent: #5f8787;
+  --accent-strong: #9db7b7;
+  --border: #3a3439;
+  --border-strong: #554c54;
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Avenir Next", "Segoe UI", "Roboto", sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Orb Animations & States */
+.orb {
+  border: 4px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface-muted);
+  position: relative;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+  padding: 0;
+  overflow: hidden;
+}
+
+.orb:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.orb:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(95, 135, 135, 0.2);
+}
+
+.orb-core {
+  width: 60%;
+  height: 60%;
+  border-radius: 999px;
+  background: var(--accent-strong);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 25px rgba(95, 135, 135, 0.6);
+  transition: all 0.3s ease;
+}
+
+.orb::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  pointer-events: none;
+  transition: all 0.4s ease;
+}
+
+.orb-idle::before {
+  background: rgba(95, 135, 135, 0.05);
+}
+
+.orb-listening::before {
+  background: rgba(95, 135, 135, 0.25);
+  animation: breathe 2s ease-in-out infinite;
+  box-shadow: inset 0 0 20px rgba(95, 135, 135, 0.5);
+}
+
+.orb-speaking .orb-core {
+  background: #fbcb97;
+  box-shadow: 0 0 35px rgba(251, 203, 151, 0.7);
+}
+
+.orb-speaking::before {
+  background: rgba(251, 203, 151, 0.2);
+  animation: pulse-fast 0.6s ease-in-out infinite;
+}
+
+.orb-holding::before {
+  background: rgba(95, 135, 135, 0.4);
+  animation: pulse-fast 0.4s ease-in-out infinite;
+}
+
+.orb-awaiting::before {
+  background: rgba(153, 153, 153, 0.2);
+  animation: breathe 1.2s ease-in-out infinite;
+}
+
+.orb-error .orb-core {
+  background: #e78a53;
+  box-shadow: 0 0 25px rgba(231, 138, 83, 0.5);
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(0.95); opacity: 0.6; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+@keyframes pulse-fast {
+  0%, 100% { transform: scale(0.98); opacity: 0.8; }
+  50% { transform: scale(1.02); opacity: 1; }
+}
+
+/* Custom Scrollbar for MUI components */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

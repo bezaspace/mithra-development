@@ -1,0 +1,4 @@
+# Environment files only
+.env
+**/.env
+.vercel

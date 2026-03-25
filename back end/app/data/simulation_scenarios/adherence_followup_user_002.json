@@ -1,0 +1,16 @@
+{
+  "scenario_id": "adherence_followup_user_002",
+  "title": "Adherence follow-up after partial completion for patient user-002",
+  "patient_user_id": "user-002",
+  "starting_prompt": "I only did part of my rehab activity today and I am not sure if that is okay.",
+  "conversation_plan": "Answer the assistant's adherence questions naturally, mention partial completion and mild uncertainty, and stay in the conversation until the assistant saves one adherence report.",
+  "user_persona": "Cooperative patient who gives details only when asked and may need reassurance.",
+  "max_turns": 6,
+  "expected_signals": [
+    "tool:save_adherence_report",
+    "event:adherence_report_saved"
+  ],
+  "end_when": [
+    "The assistant has logged one adherence report."
+  ]
+}
