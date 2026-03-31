@@ -2,7 +2,7 @@ services:
   - type: web
     name: raksha-backend
     runtime: python
-    repo: https://github.com/bezaspace/mithra.git
+    repo: https://github.com/bezaspace/mithra-development.git
     rootDir: "back end"
     plan: free
     region: oregon
@@ -16,7 +16,7 @@ services:
       - key: APP_NAME
         value: raksha
       - key: GEMINI_MODEL
-        value: gemini-2.5-flash-native-audio-preview-12-2025
+        value: gemini-3.1-flash-live-preview
       - key: FRONTEND_ORIGIN
         value: https://your-frontend-domain.vercel.app
       - key: LOG_LEVEL
