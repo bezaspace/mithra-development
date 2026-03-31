@@ -19,8 +19,6 @@ from typing import TYPE_CHECKING
 
 from google.genai import types
 
-logger = logging.getLogger("raksha.monkey_patch")
-
 if TYPE_CHECKING:
     from google.adk.models.gemini_llm_connection import GeminiLlmConnection
 
@@ -71,9 +69,14 @@ def patch_gemini_3_1_support():
                     )
 
         gemini_llm_connection.GeminiLlmConnection.send_content = patched_send_content
-        logger.info("Applied Gemini 3.1 Flash Live monkey-patch to send_content()")
+
+        # Use print for startup confirmation since logging may not be configured yet
+        print("[RAKSHA] Applied Gemini 3.1 Flash Live monkey-patch to send_content()")
 
     except ImportError as e:
-        logger.error("Failed to import gemini_llm_connection for monkey-patch: %s", e)
+        print(f"[RAKSHA] Failed to import gemini_llm_connection for monkey-patch: {e}")
     except Exception as e:
-        logger.error("Failed to apply Gemini 3.1 monkey-patch: %s", e)
+        print(f"[RAKSHA] Failed to apply Gemini 3.1 monkey-patch: {e}")
+
+
+logger = logging.getLogger("raksha.monkey_patch")
