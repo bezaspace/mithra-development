@@ -7,6 +7,7 @@ import platform
 from importlib import metadata
 from typing import TYPE_CHECKING, Any
 
+from google.genai import live
 from google.genai import types
 
 if TYPE_CHECKING:
@@ -89,6 +90,40 @@ async def _patched_send_realtime(
     raise ValueError("Unsupported input type: %s" % type(input))
 
 
+def _build_patched_send_realtime_input(original_send_realtime_input):
+    async def patched_send_realtime_input(
+        self,
+        *,
+        media: types.Blob | dict[str, Any] | None = None,
+        audio: types.Blob | dict[str, Any] | None = None,
+        audio_stream_end: bool | None = None,
+        video: Any | None = None,
+        text: str | None = None,
+        activity_start: Any | None = None,
+        activity_end: Any | None = None,
+    ) -> None:
+        # Some ADK builds still send audio blobs through media=, which Gemini 3.1
+        # now rejects with the deprecated media_chunks wire format.
+        if audio is None and isinstance(media, types.Blob):
+            mime_type = media.mime_type or ""
+            if mime_type.startswith("audio/"):
+                audio = media
+                media = None
+
+        await original_send_realtime_input(
+            self,
+            media=media,
+            audio=audio,
+            audio_stream_end=audio_stream_end,
+            video=video,
+            text=text,
+            activity_start=activity_start,
+            activity_end=activity_end,
+        )
+
+    return patched_send_realtime_input
+
+
 def patch_gemini_3_1_support():
     """Apply monkey-patches to ADK for Gemini 3.1 Flash Live compatibility."""
     try:
@@ -96,13 +131,16 @@ def patch_gemini_3_1_support():
 
         gemini_llm_connection.GeminiLlmConnection.send_content = _patched_send_content
         gemini_llm_connection.GeminiLlmConnection.send_realtime = _patched_send_realtime
+        live.AsyncSession.send_realtime_input = _build_patched_send_realtime_input(
+            live.AsyncSession.send_realtime_input
+        )
 
         print(
             "[RAKSHA] ADK live compatibility patch active "
             f"(python={platform.python_version()}, "
             f"google-adk={_package_version('google-adk')}, "
             f"google-genai={_package_version('google-genai')}, "
-            "patched=send_content,send_realtime)"
+            "patched=send_content,send_realtime,send_realtime_input)"
         )
 
     except ImportError as e:

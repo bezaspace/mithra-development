@@ -4,6 +4,7 @@ import pytest
 from google.genai import types
 
 from app.monkey_patch import (
+    _build_patched_send_realtime_input,
     _is_gemini_3_1_model,
     _patched_send_content,
     _patched_send_realtime,
@@ -89,3 +90,29 @@ def test_detects_gemini_3_1_models() -> None:
     assert _is_gemini_3_1_model("gemini-3.1-flash-live-preview") is True
     assert _is_gemini_3_1_model("gemini-2.0-flash-live-001") is False
     assert _is_gemini_3_1_model(None) is False
+
+
+@pytest.mark.asyncio
+async def test_patched_send_realtime_input_rewrites_audio_media_to_audio_field() -> None:
+    calls: list[dict[str, object]] = []
+
+    async def original_send_realtime_input(self, **kwargs: object) -> None:
+        calls.append(kwargs)
+
+    patched = _build_patched_send_realtime_input(original_send_realtime_input)
+    session = object()
+    audio_blob = types.Blob(data=b"\x00\x01", mime_type="audio/pcm;rate=16000")
+
+    await patched(session, media=audio_blob)
+
+    assert calls == [
+        {
+            "media": None,
+            "audio": audio_blob,
+            "audio_stream_end": None,
+            "video": None,
+            "text": None,
+            "activity_start": None,
+            "activity_end": None,
+        }
+    ]
