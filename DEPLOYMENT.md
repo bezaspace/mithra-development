@@ -20,7 +20,7 @@ Raksha MVP is deployed as two separate services:
 
 **Frontend (Vercel)**
 - Project Name: `mithra`
-- Production URL: https://mithra-b2euf6his-bezaspaces-projects.vercel.app
+- Production URL: https://mithra-p4vtdxnya-bezaspaces-projects.vercel.app
 - Aliased URL: https://mithra-kappa.vercel.app (primary domain)
 - GitHub Repo: https://github.com/bezaspace/mithra-development.git
 
