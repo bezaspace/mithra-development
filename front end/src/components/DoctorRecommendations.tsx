@@ -52,7 +52,7 @@ export function DoctorRecommendations({ symptomsSummary, doctors }: Props) {
 
       <Grid container spacing={2}>
         {doctors.map((doctor) => (
-          <Grid item xs={12} sm={6} key={doctor.doctorId}>
+          <Grid size={{ xs: 12, sm: 6 }} key={doctor.doctorId}>
             <Box
               sx={{
                 p: 2.5,

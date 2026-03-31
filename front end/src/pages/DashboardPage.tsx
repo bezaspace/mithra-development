@@ -188,7 +188,7 @@ export function DashboardPage() {
 
       {/* Quick Summary Widgets (Desktop Only or Row on Tablet) */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
-        <Grid item xs={6} md={3}>
+        <Grid size={{ xs: 6, md: 3 }}>
           <Paper sx={{ p: 2, bgcolor: "background.paper", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: 3 }}>
             <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: 1 }}>Recovery Score</Typography>
             <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mt: 0.5 }}>
@@ -197,19 +197,19 @@ export function DashboardPage() {
             </Box>
           </Paper>
         </Grid>
-        <Grid item xs={6} md={3}>
+        <Grid size={{ xs: 6, md: 3 }}>
           <Paper sx={{ p: 2, bgcolor: "background.paper", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: 3 }}>
             <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: 1 }}>Next Medication</Typography>
             <Typography variant="h6" sx={{ color: "text.primary", mt: 0.5, fontWeight: 600 }}>12:30 PM</Typography>
           </Paper>
         </Grid>
-        <Grid item xs={6} md={3}>
+        <Grid size={{ xs: 6, md: 3 }}>
           <Paper sx={{ p: 2, bgcolor: "background.paper", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: 3 }}>
             <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: 1 }}>Post-Op Day</Typography>
             <Typography variant="h4" sx={{ color: "text.primary", mt: 0.5, fontWeight: 700 }}>12</Typography>
           </Paper>
         </Grid>
-        <Grid item xs={6} md={3}>
+        <Grid size={{ xs: 6, md: 3 }}>
           <Paper sx={{ p: 2, bgcolor: "background.paper", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: 3 }}>
             <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: 1 }}>Care Team</Typography>
             <Typography variant="h6" sx={{ color: "text.primary", mt: 0.5, fontWeight: 600 }}>3 Active</Typography>
@@ -253,10 +253,10 @@ export function DashboardPage() {
       <Box sx={{ minHeight: "50vh" }}>
         {activeTab === "overview" && (
           <Grid container spacing={3}>
-            <Grid item xs={12} lg={4}>
+            <Grid size={{ xs: 12, lg: 4 }}>
               <PatientInfoCard patient={patient} />
             </Grid>
-            <Grid item xs={12} lg={8}>
+            <Grid size={{ xs: 12, lg: 8 }}>
               <ProgressChartsCard patient={patient} />
             </Grid>
           </Grid>

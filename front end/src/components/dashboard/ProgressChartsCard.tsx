@@ -34,27 +34,27 @@ export function ProgressChartsCard({ patient }: ProgressChartsCardProps) {
 
         <Grid container spacing={4}>
           {/* Main Visuals Area */}
-          <Grid item xs={12} lg={8}>
+          <Grid size={{ xs: 12, lg: 8 }}>
             <Grid container spacing={4} alignItems="center">
-              <Grid item xs={12} sm={5} md={4}>
+              <Grid size={{ xs: 12, sm: 5, md: 4 }}>
                 <AdherenceDoughnut adherence={progress.overallAdherence} />
               </Grid>
-              <Grid item xs={12} sm={7} md={8}>
+              <Grid size={{ xs: 12, sm: 7, md: 8 }}>
                 <WeeklyTrendBar weeklyAdherence={progress.weeklyAdherence} />
               </Grid>
               
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Divider sx={{ my: 1, opacity: 0.1 }} />
               </Grid>
 
-              <Grid item xs={12} sx={{ mt: -2 }}>
+              <Grid size={{ xs: 12 }} sx={{ mt: -2 }}>
                 <ActivityBreakdown activityBreakdown={progress.activityBreakdown} />
               </Grid>
             </Grid>
           </Grid>
 
           {/* Supporting Info Area */}
-          <Grid item xs={12} lg={4}>
+          <Grid size={{ xs: 12, lg: 4 }}>
             <RecoveryTimeline patient={patient} />
           </Grid>
         </Grid>
