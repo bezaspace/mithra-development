@@ -18,18 +18,6 @@ class _RepositoryStub:
     def get_by_user_id(self, _user_id: str) -> PatientProfile | None:
         return self._profile
 
-    def get_simulation_patient(self, user_id: str) -> dict[str, object] | None:
-        if self._profile is None:
-            return None
-        return {
-            "user_id": user_id,
-            "full_name": self._profile.full_name,
-            "age": self._profile.age,
-            "sex": self._profile.sex,
-            "surgery_info": {"type": "Mock Surgery", "date": "2026-02-20"},
-            "profile": self._profile.model_dump(mode="json"),
-        }
-
 
 def test_load_profile_context_returns_profile_state() -> None:
     profile = PatientProfile(
@@ -62,26 +50,6 @@ def test_load_profile_context_returns_soft_fallback_when_missing() -> None:
     assert result.source == "none"
     assert result.state[PROFILE_AVAILABLE_STATE_KEY] is False
     assert "No saved patient profile found" in result.message
-
-
-def test_load_simulation_context_returns_patient_grounding() -> None:
-    profile = PatientProfile(
-        user_id="patient-3",
-        full_name="Demo Simulation",
-        age=61,
-        sex="Female",
-        conditions=[ConditionRecord(name="Hypertension", status="active")],
-        treatments=[TreatmentRecord(name="Amlodipine", status="ongoing")],
-    )
-    service = PatientProfileService(_RepositoryStub(profile))
-
-    result = service.load_simulation_context("patient-3")
-
-    assert result is not None
-    assert result.patient_user_id == "patient-3"
-    assert result.patient_name == "Demo Simulation"
-    assert "Mock Surgery" in result.prompt_context
-    assert "Clinical summary" in result.prompt_context
 
 
 def test_load_profile_context_summarizes_structured_allergies() -> None:

@@ -5,6 +5,7 @@ from typing import Any
 
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from app.assistant_runtime import AssistantRuntimeFactory
 from app.config import get_settings
@@ -13,14 +14,18 @@ from app.dashboard_repository import DashboardRepository
 from app.dashboard_service import DashboardService
 from app.live_bridge import LiveBridge
 from app.logging_config import configure_logging
+from app.patient_profile_models import (
+    PatientProfile,
+    ConditionRecord,
+    TreatmentRecord,
+    AllergyRecord,
+    BiomarkerTarget,
+)
 from app.patient_profile_repository import PatientProfileRepository
 from app.patient_profile_service import PatientProfileService
 from app.schedule_api import build_schedule_router
 from app.schedule_repository import ScheduleRepository
 from app.schedule_service import ScheduleService
-from app.simulation_api import build_simulation_router
-from app.simulation_service import GeminiSimulatedPatientClient
-from app.simulation_service import SimulationService
 
 
 settings = get_settings()
@@ -94,29 +99,6 @@ assistant_runtime_factory = AssistantRuntimeFactory(
     schedule_service=schedule_service,
 )
 
-simulation_output_dir = Path(settings.simulation_output_dir)
-if not simulation_output_dir.is_absolute():
-    simulation_output_dir = (backend_root / simulation_output_dir).resolve()
-
-simulation_scenarios_dir = Path(settings.simulation_scenarios_dir)
-if not simulation_scenarios_dir.is_absolute():
-    simulation_scenarios_dir = (backend_root / simulation_scenarios_dir).resolve()
-
-simulation_service = SimulationService(
-    assistant_runtime_factory=assistant_runtime_factory,
-    patient_profile_service=patient_profile_service,
-    schedule_service=schedule_service,
-    simulated_patient_client=GeminiSimulatedPatientClient(
-        api_key=settings.gemini_api_key,
-        default_model=settings.gemini_simulator_model,
-    ),
-    output_dir=simulation_output_dir,
-    scenarios_dir=simulation_scenarios_dir,
-    default_simulator_model=settings.gemini_simulator_model,
-    default_assistant_model=settings.gemini_model,
-    default_max_turns=settings.simulation_max_turns_default,
-)
-
 bridge = LiveBridge(
     app_name=settings.app_name,
     model=settings.gemini_model,
@@ -127,7 +109,19 @@ bridge = LiveBridge(
 )
 app.include_router(build_schedule_router(schedule_service))
 app.include_router(build_dashboard_router(dashboard_service))
-app.include_router(build_simulation_router(simulation_service))
+
+
+class CreatePatientRequest(BaseModel):
+    full_name: str
+    age: int | None = None
+    sex: str | None = None
+    conditions: list[dict[str, Any]] | None = None
+    treatments: list[dict[str, Any]] | None = None
+    allergies: list[str | dict[str, Any]] | None = None
+    contraindications: list[str] | None = None
+    family_history: list[str] | None = None
+    biomarker_targets: list[dict[str, Any]] | None = None
+    notes: str | None = None
 
 
 @app.get("/health")
@@ -138,6 +132,45 @@ async def health() -> dict[str, str]:
 @app.get("/api/patients")
 async def list_patients() -> list[dict[str, Any]]:
     return patient_profile_service.list_patients()
+
+
+@app.post("/api/patients")
+async def create_patient(request: CreatePatientRequest) -> dict[str, str]:
+    """Create a new patient profile."""
+    # Generate user_id from full_name (slugify + random suffix)
+    import uuid
+    import re
+
+    # Create URL-safe ID from name
+    name_slug = re.sub(r"[^a-zA-Z0-9\s]", "", request.full_name).lower().strip()
+    name_slug = re.sub(r"\s+", "-", name_slug)
+
+    # Add random suffix to ensure uniqueness
+    random_suffix = uuid.uuid4().hex[:6]
+    user_id = f"{name_slug}-{random_suffix}"
+
+    # Build the profile
+    profile = PatientProfile(
+        user_id=user_id,
+        full_name=request.full_name,
+        age=request.age,
+        sex=request.sex,
+        conditions=[ConditionRecord(**c) for c in (request.conditions or [])],
+        treatments=[TreatmentRecord(**t) for t in (request.treatments or [])],
+        allergies=request.allergies or [],
+        contraindications=request.contraindications or [],
+        family_history=request.family_history or [],
+        biomarker_targets=[
+            BiomarkerTarget(**b) for b in (request.biomarker_targets or [])
+        ],
+        notes=request.notes,
+    )
+
+    created_user_id = patient_profile_service.create_patient(profile)
+    return {
+        "user_id": created_user_id,
+        "message": "Patient profile created successfully",
+    }
 
 
 @app.websocket("/ws/live")

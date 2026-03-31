@@ -40,12 +40,18 @@ def test_schedule_tools_emit_expected_payloads() -> None:
     assert len(tools) == 4
 
     get_today_schedule = tools[0]
+    get_current_schedule_item = tools[1]
     get_adherence_stats = tools[2]
     save_adherence_report = tools[3]
 
     snapshot = get_today_schedule(tool_context=_ToolContextStub())
     assert snapshot["type"] == "schedule_snapshot"
     assert snapshot["timezone"] == "Asia/Kolkata"
+
+    current_activity = get_current_schedule_item(tool_context=_ToolContextStub())
+    assert current_activity["type"] == "current_activity"
+    assert current_activity["inWindow"] is True
+    assert current_activity["message"] == "Lunch now."
 
     stats = get_adherence_stats(tool_context=_ToolContextStub())
     assert stats["type"] == "adherence_stats"

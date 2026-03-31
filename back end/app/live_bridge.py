@@ -87,7 +87,9 @@ class LiveBridge:
         data_path = Path(__file__).resolve().parent / "data" / "mock_doctors.json"
         self._doctor_repository = DoctorRepository.from_json_file(data_path)
 
-    async def build_context(self, user_id: str, timezone_name: str | None = None) -> LiveSessionContext:
+    async def build_context(
+        self, user_id: str, timezone_name: str | None = None
+    ) -> LiveSessionContext:
         os.environ["GOOGLE_API_KEY"] = self._gemini_api_key
         os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", "FALSE")
 
@@ -132,7 +134,9 @@ class LiveBridge:
             },
         )
 
-    async def run_websocket(self, websocket: WebSocket, user_id: str, timezone_name: str | None = None) -> None:
+    async def run_websocket(
+        self, websocket: WebSocket, user_id: str, timezone_name: str | None = None
+    ) -> None:
         trace_id = uuid.uuid4().hex[:8]
         metrics = SessionMetrics(started_at=perf_counter())
         turn_state = TurnState()
@@ -143,7 +147,9 @@ class LiveBridge:
 
         try:
             while True:
-                context = await self.build_context(user_id=user_id, timezone_name=timezone_name)
+                context = await self.build_context(
+                    user_id=user_id, timezone_name=timezone_name
+                )
                 logger.info(
                     "[%s] live_context_ready session_id=%s model=%s",
                     trace_id,
@@ -151,9 +157,15 @@ class LiveBridge:
                     self._model,
                 )
 
-                await websocket.send_json({"type": "session_ready", "sessionId": context.session.id})
+                await websocket.send_json(
+                    {"type": "session_ready", "sessionId": context.session.id}
+                )
                 metrics.outgoing_text_events += 1
-                logger.info("[%s] tx_event type=session_ready session_id=%s", trace_id, context.session.id)
+                logger.info(
+                    "[%s] tx_event type=session_ready session_id=%s",
+                    trace_id,
+                    context.session.id,
+                )
                 await websocket.send_json(context.profile_status_event)
                 metrics.outgoing_text_events += 1
                 logger.info(
@@ -211,10 +223,14 @@ class LiveBridge:
                         logger.info("[%s] websocket_disconnected", trace_id)
                         should_end_websocket = True
                         continue
-                    if isinstance(exc, genai_errors.APIError) and getattr(exc, "code", None) in {1007, 1008}:
+                    if isinstance(exc, genai_errors.APIError) and getattr(
+                        exc, "code", None
+                    ) in {1007, 1008}:
                         recoverable_api_error = exc
                         continue
-                    logger.exception("[%s] websocket_task_failed", trace_id, exc_info=exc)
+                    logger.exception(
+                        "[%s] websocket_task_failed", trace_id, exc_info=exc
+                    )
                     raise exc
 
                 if recoverable_api_error:
@@ -277,7 +293,9 @@ class LiveBridge:
                     )
                     if turn_state.active:
                         turn_state.current_turn_audio_chunks += 1
-                    audio_blob = types.Blob(mime_type="audio/pcm;rate=16000", data=raw_bytes)
+                    audio_blob = types.Blob(
+                        mime_type="audio/pcm;rate=16000", data=raw_bytes
+                    )
                     queue.send_realtime(audio_blob)
                     logger.info(
                         "[%s] queue_send_realtime seq=%s bytes=%s",
@@ -289,7 +307,11 @@ class LiveBridge:
 
                 text_payload = message.get("text")
                 if not text_payload:
-                    logger.info("[%s] rx_non_text_non_binary_message keys=%s", trace_id, list(message.keys()))
+                    logger.info(
+                        "[%s] rx_non_text_non_binary_message keys=%s",
+                        trace_id,
+                        list(message.keys()),
+                    )
                     continue
 
                 try:
@@ -316,7 +338,9 @@ class LiveBridge:
                 if event_type == "text_input":
                     text = str(data.get("text", "")).strip()
                     if not text:
-                        logger.info("[%s] rx_text_input_ignored reason=empty_text", trace_id)
+                        logger.info(
+                            "[%s] rx_text_input_ignored reason=empty_text", trace_id
+                        )
                         continue
 
                     content = types.Content(role="user", parts=[types.Part(text=text)])
@@ -334,20 +358,29 @@ class LiveBridge:
                     continue
 
                 turn_state.active = next_active
-                logger.info("[%s] control_event_handled type=%s action=%s", trace_id, event_type, action)
+                logger.info(
+                    "[%s] control_event_handled type=%s action=%s",
+                    trace_id,
+                    event_type,
+                    action,
+                )
 
                 if action == "start":
                     turn_state.turn_id += 1
                     turn_state.current_turn_audio_chunks = 0
                     turn_state.current_turn_started_at = perf_counter()
                     turn_state.current_turn_transcript = ""
-                    logger.info("[%s] turn_open turn_id=%s", trace_id, turn_state.turn_id)
+                    logger.info(
+                        "[%s] turn_open turn_id=%s", trace_id, turn_state.turn_id
+                    )
                     continue
 
                 if action == "end":
                     duration_ms = 0
                     if turn_state.current_turn_started_at is not None:
-                        duration_ms = int((perf_counter() - turn_state.current_turn_started_at) * 1000)
+                        duration_ms = int(
+                            (perf_counter() - turn_state.current_turn_started_at) * 1000
+                        )
                     logger.info(
                         "[%s] turn_close turn_id=%s duration_ms=%s rx_audio_chunks=%s",
                         trace_id,
@@ -362,7 +395,9 @@ class LiveBridge:
                             turn_state.turn_id,
                             turn_state.current_turn_audio_chunks,
                         )
-                    turn_state.last_closed_turn_transcript = turn_state.current_turn_transcript.strip()
+                    turn_state.last_closed_turn_transcript = (
+                        turn_state.current_turn_transcript.strip()
+                    )
                     turn_state.awaiting_response_turn_id = turn_state.turn_id
                     turn_state.current_turn_transcript = ""
                     turn_state.current_turn_audio_chunks = 0
@@ -370,7 +405,11 @@ class LiveBridge:
                     continue
 
                 if action in {"duplicate_start", "duplicate_end"}:
-                    logger.info("[%s] control_event_ignored_duplicate type=%s", trace_id, event_type)
+                    logger.info(
+                        "[%s] control_event_ignored_duplicate type=%s",
+                        trace_id,
+                        event_type,
+                    )
                     continue
 
                 if action == "stop":
@@ -391,7 +430,9 @@ class LiveBridge:
     ) -> None:
         announced_sample_rate: int | None = None
         async for event in live_events:
-            logger.info("[%s] live_event_received event_type=%s", trace_id, type(event).__name__)
+            logger.info(
+                "[%s] live_event_received event_type=%s", trace_id, type(event).__name__
+            )
 
             if getattr(event, "interrupted", None):
                 await websocket.send_json({"type": "assistant_interrupted"})
@@ -399,11 +440,31 @@ class LiveBridge:
                 logger.info("[%s] tx_event type=assistant_interrupted", trace_id)
 
             for function_response in self._get_function_responses(event):
-                payload = self._extract_ui_payload_from_function_response(function_response)
+                payload = self._extract_ui_payload_from_function_response(
+                    function_response
+                )
                 if payload:
                     await websocket.send_json(payload)
                     metrics.outgoing_text_events += 1
-                    logger.info("[%s] tx_event type=%s payload=%s", trace_id, payload.get("type"), payload)
+                    logger.info(
+                        "[%s] tx_event type=%s payload=%s",
+                        trace_id,
+                        payload.get("type"),
+                        payload,
+                    )
+
+                # Check for profile creation
+                profile_payload = self._extract_profile_created_payload(
+                    function_response
+                )
+                if profile_payload:
+                    await websocket.send_json(profile_payload)
+                    metrics.outgoing_text_events += 1
+                    logger.info(
+                        "[%s] tx_event type=profile_created user_id=%s",
+                        trace_id,
+                        profile_payload.get("user_id"),
+                    )
 
             output_t = getattr(event, "output_transcription", None)
             if output_t and getattr(output_t, "text", None):
@@ -412,9 +473,15 @@ class LiveBridge:
                     trace_id=trace_id,
                     source="assistant_text_output_transcription",
                 )
-                await websocket.send_json({"type": "assistant_text", "text": output_t.text})
+                await websocket.send_json(
+                    {"type": "assistant_text", "text": output_t.text}
+                )
                 metrics.outgoing_text_events += 1
-                logger.info("[%s] tx_event type=assistant_text source=output_transcription text=%r", trace_id, output_t.text)
+                logger.info(
+                    "[%s] tx_event type=assistant_text source=output_transcription text=%r",
+                    trace_id,
+                    output_t.text,
+                )
 
             input_t = getattr(event, "input_transcription", None)
             if input_t and getattr(input_t, "text", None):
@@ -425,18 +492,28 @@ class LiveBridge:
                         normalized_input_t,
                     )
                     if turn_state.active:
-                        turn_state.current_turn_transcript = self._merge_partial_transcript(
-                            turn_state.current_turn_transcript,
-                            normalized_input_t,
+                        turn_state.current_turn_transcript = (
+                            self._merge_partial_transcript(
+                                turn_state.current_turn_transcript,
+                                normalized_input_t,
+                            )
                         )
                     elif turn_state.awaiting_response_turn_id is not None:
-                        turn_state.last_closed_turn_transcript = self._merge_partial_transcript(
-                            turn_state.last_closed_turn_transcript,
-                            normalized_input_t,
+                        turn_state.last_closed_turn_transcript = (
+                            self._merge_partial_transcript(
+                                turn_state.last_closed_turn_transcript,
+                                normalized_input_t,
+                            )
                         )
-                await websocket.send_json({"type": "partial_transcript", "text": input_t.text})
+                await websocket.send_json(
+                    {"type": "partial_transcript", "text": input_t.text}
+                )
                 metrics.outgoing_text_events += 1
-                logger.info("[%s] tx_event type=partial_transcript text=%r", trace_id, input_t.text)
+                logger.info(
+                    "[%s] tx_event type=partial_transcript text=%r",
+                    trace_id,
+                    input_t.text,
+                )
 
             content = getattr(event, "content", None)
             if not content:
@@ -449,19 +526,40 @@ class LiveBridge:
                         trace_id=trace_id,
                         source="assistant_text_content_part",
                     )
-                    await websocket.send_json({"type": "assistant_text", "text": part.text})
+                    await websocket.send_json(
+                        {"type": "assistant_text", "text": part.text}
+                    )
                     metrics.outgoing_text_events += 1
-                    logger.info("[%s] tx_event type=assistant_text source=content_part text=%r", trace_id, part.text)
+                    logger.info(
+                        "[%s] tx_event type=assistant_text source=content_part text=%r",
+                        trace_id,
+                        part.text,
+                    )
                 inline_data = getattr(part, "inline_data", None)
                 if inline_data and getattr(inline_data, "data", None):
-                    sample_rate = self._extract_sample_rate(getattr(inline_data, "mime_type", None))
+                    sample_rate = self._extract_sample_rate(
+                        getattr(inline_data, "mime_type", None)
+                    )
                     if sample_rate and sample_rate != announced_sample_rate:
                         announced_sample_rate = sample_rate
-                        await websocket.send_json({"type": "assistant_audio_format", "sampleRate": sample_rate})
+                        await websocket.send_json(
+                            {
+                                "type": "assistant_audio_format",
+                                "sampleRate": sample_rate,
+                            }
+                        )
                         metrics.outgoing_text_events += 1
-                        logger.info("[%s] tx_event type=assistant_audio_format sample_rate=%s", trace_id, sample_rate)
+                        logger.info(
+                            "[%s] tx_event type=assistant_audio_format sample_rate=%s",
+                            trace_id,
+                            sample_rate,
+                        )
                     payload = inline_data.data
-                    payload_bytes = base64.b64decode(payload) if isinstance(payload, str) else payload
+                    payload_bytes = (
+                        base64.b64decode(payload)
+                        if isinstance(payload, str)
+                        else payload
+                    )
 
                     self._mark_turn_response_started_if_needed(
                         turn_state=turn_state,
@@ -490,7 +588,9 @@ class LiveBridge:
         turn_state: TurnState,
         error: genai_errors.APIError,
     ) -> bool:
-        logger.warning("[%s] gemini_api_error code=%s triggering_fallback", trace_id, error.code)
+        logger.warning(
+            "[%s] gemini_api_error code=%s triggering_fallback", trace_id, error.code
+        )
 
         fallback_text = self._select_fallback_text(turn_state)
         current_turn_id = turn_state.turn_id
@@ -542,7 +642,9 @@ class LiveBridge:
             }
         )
         metrics.outgoing_text_events += 1
-        await websocket.send_json({"type": "session_recovering", "mode": "reconnect_live"})
+        await websocket.send_json(
+            {"type": "session_recovering", "mode": "reconnect_live"}
+        )
         metrics.outgoing_text_events += 1
 
         turn_state.awaiting_response_turn_id = None
@@ -574,7 +676,9 @@ class LiveBridge:
             logger.warning("[%s] fallback_skipped reason=missing_transcript", trace_id)
             return False
 
-        logger.info("[%s] fallback_run_async_started chars=%s", trace_id, len(normalized))
+        logger.info(
+            "[%s] fallback_run_async_started chars=%s", trace_id, len(normalized)
+        )
         content = types.Content(role="user", parts=[types.Part(text=normalized)])
         try:
             async for event in runner.run_async(
@@ -584,7 +688,9 @@ class LiveBridge:
                 run_config=self._build_text_fallback_run_config(),
             ):
                 for function_response in self._get_function_responses(event):
-                    payload = self._extract_ui_payload_from_function_response(function_response)
+                    payload = self._extract_ui_payload_from_function_response(
+                        function_response
+                    )
                     if not payload:
                         continue
                     await websocket.send_json(payload)
@@ -597,7 +703,9 @@ class LiveBridge:
 
                 output_t = getattr(event, "output_transcription", None)
                 if output_t and getattr(output_t, "text", None):
-                    await websocket.send_json({"type": "assistant_text", "text": output_t.text})
+                    await websocket.send_json(
+                        {"type": "assistant_text", "text": output_t.text}
+                    )
                     metrics.outgoing_text_events += 1
 
                 event_content = getattr(event, "content", None)
@@ -605,7 +713,9 @@ class LiveBridge:
                     continue
                 for part in getattr(event_content, "parts", []) or []:
                     if getattr(part, "text", None):
-                        await websocket.send_json({"type": "assistant_text", "text": part.text})
+                        await websocket.send_json(
+                            {"type": "assistant_text", "text": part.text}
+                        )
                         metrics.outgoing_text_events += 1
             logger.info("[%s] fallback_run_async_completed status=ok", trace_id)
             return True
@@ -614,6 +724,21 @@ class LiveBridge:
             return False
 
     def _load_profile_context(self, user_id: str) -> ProfileContextResult:
+        # Check if this is a guest user (no profile needed)
+        if user_id.startswith("guest-"):
+            return ProfileContextResult(
+                state={
+                    "app:profile_available": False,
+                    "app:patient_profile": {},
+                    "app:biomarker_targets": [],
+                    "app:profile_summary": "",
+                },
+                profile_summary=None,
+                loaded=False,
+                source="guest",
+                message="Guest mode - No profile loaded. I'm here to provide general healthcare guidance.",
+            )
+
         if self._patient_profile_service is None:
             return ProfileContextResult(
                 state={
@@ -659,7 +784,35 @@ class LiveBridge:
         return False, ptt_active, "ignored"
 
     @staticmethod
-    def _extract_ui_payload_from_function_response(function_response: Any) -> dict[str, Any] | None:
+    def _extract_profile_created_payload(
+        function_response: Any,
+    ) -> dict[str, Any] | None:
+        """Extract profile creation payload from create_patient_profile tool response."""
+        raw_response = getattr(function_response, "response", None)
+        if isinstance(raw_response, str):
+            try:
+                parsed = json.loads(raw_response)
+            except json.JSONDecodeError:
+                return None
+        elif isinstance(raw_response, dict):
+            parsed = raw_response
+        else:
+            return None
+
+        # Check if this is a create_patient_profile response
+        if parsed.get("success") and parsed.get("user_id"):
+            return {
+                "type": "profile_created",
+                "user_id": parsed.get("user_id"),
+                "full_name": parsed.get("full_name"),
+                "message": parsed.get("message"),
+            }
+        return None
+
+    @staticmethod
+    def _extract_ui_payload_from_function_response(
+        function_response: Any,
+    ) -> dict[str, Any] | None:
         raw_response = getattr(function_response, "response", None)
         if isinstance(raw_response, str):
             try:
@@ -672,7 +825,14 @@ class LiveBridge:
             return None
 
         payload_type = parsed.get("type")
-        if payload_type in {"doctor_recommendations", "booking_update", "schedule_snapshot", "adherence_report_saved", "adherence_stats"}:
+        if payload_type in {
+            "doctor_recommendations",
+            "booking_update",
+            "schedule_snapshot",
+            "adherence_report_saved",
+            "adherence_stats",
+            "current_activity",
+        }:
             return parsed
         return None
 

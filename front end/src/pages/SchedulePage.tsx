@@ -24,6 +24,7 @@ import {
   PendingOutlined as PendingIcon,
   WarningAmber as WarningIcon,
   InfoOutlined as InfoIcon,
+  CalendarToday as CalendarIcon,
 } from "@mui/icons-material";
 
 import { getTodaySchedule } from "../lib/scheduleApi";
@@ -47,6 +48,10 @@ type Props = {
 };
 
 const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+
+const isGuestUser = (userId: string): boolean => {
+  return userId.startsWith("guest-");
+};
 
 export function SchedulePage({ backendHttpUrl, userId, liveSnapshot, liveReportUpdate }: Props) {
   const [snapshot, setSnapshot] = useState<ScheduleSnapshotPayload | null>(null);
@@ -145,7 +150,19 @@ export function SchedulePage({ backendHttpUrl, userId, liveSnapshot, liveReportU
           <Typography sx={{ mt: 2, color: "text.secondary" }}>Synchronizing schedule...</Typography>
         </Box>
       ) : error ? (
-        <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>
+        isGuestUser(userId) ? (
+          <Paper sx={{ p: 4, textAlign: "center", bgcolor: "background.paper", borderRadius: 4 }}>
+            <CalendarIcon sx={{ fontSize: 48, color: "primary.main", mb: 2 }} />
+            <Typography variant="h6" sx={{ color: "text.primary", mb: 1 }}>
+              No Schedule Yet
+            </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              Start a conversation with the AI assistant and it can help create your personalized health schedule.
+            </Typography>
+          </Paper>
+        ) : (
+          <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>
+        )
       ) : mismatchHint ? (
         <Alert severity="info" sx={{ mb: 3 }}>{mismatchHint}</Alert>
       ) : null}
@@ -154,8 +171,15 @@ export function SchedulePage({ backendHttpUrl, userId, liveSnapshot, liveReportU
         <Box>
           {snapshot.items.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: "center", bgcolor: "background.paper", borderRadius: 4 }}>
-              <Typography variant="h6" color="text.secondary">No items scheduled for today</Typography>
-              <Typography variant="body2" color="text.secondary">Your schedule will appear here once medical tasks are assigned.</Typography>
+              <CalendarIcon sx={{ fontSize: 48, color: "primary.main", mb: 2 }} />
+              <Typography variant="h6" color="text.primary" sx={{ mb: 1 }}>
+                No Activities Scheduled
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {isGuestUser(userId) 
+                  ? "Your personalized schedule will appear here after you create your health profile."
+                  : "Your schedule will appear here once medical tasks are assigned."}
+              </Typography>
             </Paper>
           ) : (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>

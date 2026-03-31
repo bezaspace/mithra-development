@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -73,47 +74,8 @@ class PatientProfileRepository:
         with Session(self._engine) as session:
             rows = session.exec(select(PatientProfileRow)).all()
             return [
-                {"user_id": row.user_id, "full_name": row.full_name}
-                for row in rows
+                {"user_id": row.user_id, "full_name": row.full_name} for row in rows
             ]
-
-    def get_simulation_patient(self, user_id: str) -> dict[str, Any] | None:
-        normalized_user_id = user_id.strip()
-        if not normalized_user_id:
-            return None
-
-        with Session(self._engine) as session:
-            row = session.exec(
-                select(PatientProfileRow).where(
-                    PatientProfileRow.user_id == normalized_user_id
-                )
-            ).first()
-            if row is None:
-                return None
-
-        profile = self._row_to_profile(row)
-        if profile is None:
-            return None
-
-        return {
-            "user_id": row.user_id,
-            "full_name": row.full_name,
-            "age": row.age,
-            "sex": row.sex,
-            "phone": row.phone,
-            "email": row.email,
-            "emergency_contact": self._decode_object(
-                row.emergency_contact_json,
-                field_name="emergency_contact_json",
-                user_id=row.user_id,
-            ),
-            "surgery_info": self._decode_object(
-                row.surgery_info_json,
-                field_name="surgery_info_json",
-                user_id=row.user_id,
-            ),
-            "profile": profile.model_dump(mode="json"),
-        }
 
     def _row_to_profile(self, row: PatientProfileRow) -> PatientProfile | None:
         try:
@@ -244,7 +206,9 @@ class PatientProfileRepository:
         raise ValueError(field_name)
 
     @staticmethod
-    def _decode_object(raw: str | None, *, field_name: str, user_id: str) -> dict[str, Any]:
+    def _decode_object(
+        raw: str | None, *, field_name: str, user_id: str
+    ) -> dict[str, Any]:
         if raw is None:
             return {}
         try:
@@ -266,3 +230,37 @@ class PatientProfileRepository:
             field_name,
         )
         return {}
+
+    def insert(self, profile: PatientProfile) -> str:
+        """Insert a new patient profile into the database."""
+        row = PatientProfileRow(
+            user_id=profile.user_id,
+            full_name=profile.full_name,
+            age=profile.age,
+            sex=profile.sex,
+            conditions_json=json.dumps(
+                [c.model_dump(mode="json") for c in profile.conditions]
+            ),
+            treatments_json=json.dumps(
+                [t.model_dump(mode="json") for t in profile.treatments]
+            ),
+            allergies_json=json.dumps(
+                [
+                    a.model_dump(mode="json") if isinstance(a, AllergyRecord) else a
+                    for a in profile.allergies
+                ]
+            ),
+            contraindications_json=json.dumps(profile.contraindications),
+            family_history_json=json.dumps(profile.family_history),
+            biomarker_targets_json=json.dumps(
+                [b.model_dump(mode="json") for b in profile.biomarker_targets]
+            ),
+            notes=profile.notes,
+            updated_at=profile.updated_at or datetime.now(timezone.utc).isoformat(),
+        )
+
+        with Session(self._engine) as session:
+            session.add(row)
+            session.commit()
+            logger.info("patient_profile_created user_id=%s", profile.user_id)
+            return profile.user_id

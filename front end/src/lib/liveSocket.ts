@@ -123,13 +123,38 @@ export type AdherenceStatsEvent = {
   message: string;
 };
 
+export type CurrentActivityEvent = {
+  type: "current_activity";
+  timezone: string;
+  localNowIso: string;
+  inWindow: boolean;
+  currentItem: {
+    scheduleItemId: string;
+    activityType: "diet" | "medication" | "sleep" | "activity";
+    title: string;
+    instructions: string[];
+    windowStartLocal: string;
+    windowEndLocal: string;
+  } | null;
+  upcomingItem: {
+    scheduleItemId: string;
+    activityType: "diet" | "medication" | "sleep" | "activity";
+    title: string;
+    instructions: string[];
+    windowStartLocal: string;
+    windowEndLocal: string;
+  } | null;
+  message: string;
+};
+
 export type ServerEvent =
   | { type: "session_ready"; sessionId: string }
   | { type: "partial_transcript"; text: string }
   | { type: "assistant_text"; text: string }
   | { type: "assistant_audio_format"; sampleRate: number }
   | { type: "assistant_interrupted" }
-  | { type: "profile_status"; loaded: boolean; source: "db" | "none"; message: string }
+  | { type: "profile_status"; loaded: boolean; source: "db" | "none" | "guest"; message: string }
+  | { type: "profile_created"; user_id: string; full_name: string; message: string }
   | { type: "warning"; message: string }
   | { type: "fallback_started"; reason: string; turnId: string }
   | { type: "fallback_completed"; turnId: string; result: "ok" | "failed" }
@@ -149,7 +174,8 @@ export type ServerEvent =
     }
   | ({ type: "schedule_snapshot" } & ScheduleSnapshotPayload)
   | AdherenceReportSavedEvent
-  | AdherenceStatsEvent;
+  | AdherenceStatsEvent
+  | CurrentActivityEvent;
 
 export type LiveSocketHandlers = {
   onOpen?: () => void;

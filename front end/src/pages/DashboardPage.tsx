@@ -20,6 +20,7 @@ import {
   MedicalServices as TreatmentIcon,
   History as HistoryIcon,
   TrendingUp as TrendingIcon,
+  PersonAdd as PersonAddIcon,
 } from "@mui/icons-material";
 
 import { fetchDashboard } from "../components/dashboard/dashboardApi";
@@ -32,6 +33,10 @@ import { DailyScheduleCard } from "../components/dashboard/DailyScheduleCard";
 import { ProgressChartsCard } from "../components/dashboard/ProgressChartsCard";
 
 type TabId = "overview" | "schedule" | "treatment" | "history";
+
+const isGuestUser = (userId: string | null): boolean => {
+  return !!userId && userId.startsWith("guest-");
+};
 
 const TABS: { id: TabId; label: string; icon: JSX.Element }[] = [
   { id: "overview",  label: "Overview",         icon: <OverviewIcon /> },
@@ -77,6 +82,60 @@ export function DashboardPage() {
   }
 
   if (!patient) {
+    // Check if this is a guest user - show welcome screen instead of error
+    if (isGuestUser(userId)) {
+      return (
+        <Container maxWidth="xl" sx={{ py: 6 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 6,
+              textAlign: "center",
+              bgcolor: "background.paper",
+              border: "1px solid",
+              borderColor: "rgba(255, 255, 255, 0.05)",
+              borderRadius: 4,
+            }}
+          >
+            <PersonAddIcon sx={{ fontSize: 64, color: "primary.main", mb: 3 }} />
+            <Typography variant="h4" sx={{ color: "text.primary", fontWeight: 700, mb: 2 }}>
+              Welcome to RAKSHA!
+            </Typography>
+            <Typography variant="body1" sx={{ color: "text.secondary", mb: 4, maxWidth: 600, mx: "auto" }}>
+              You&apos;re currently in guest mode. Start a voice conversation with the AI assistant 
+              and it can help create your personalized health profile. Once your profile is created, 
+              you&apos;ll see your health dashboard here.
+            </Typography>
+            <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+              <Paper sx={{ p: 3, bgcolor: "rgba(95, 135, 135, 0.1)", borderRadius: 3, minWidth: 200 }}>
+                <Typography variant="h6" sx={{ color: "primary.light", fontWeight: 600, mb: 1 }}>
+                  Step 1
+                </Typography>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  Start a conversation
+                </Typography>
+              </Paper>
+              <Paper sx={{ p: 3, bgcolor: "rgba(95, 135, 135, 0.1)", borderRadius: 3, minWidth: 200 }}>
+                <Typography variant="h6" sx={{ color: "primary.light", fontWeight: 600, mb: 1 }}>
+                  Step 2
+                </Typography>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  Share your health info
+                </Typography>
+              </Paper>
+              <Paper sx={{ p: 3, bgcolor: "rgba(95, 135, 135, 0.1)", borderRadius: 3, minWidth: 200 }}>
+                <Typography variant="h6" sx={{ color: "primary.light", fontWeight: 600, mb: 1 }}>
+                  Step 3
+                </Typography>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  Get personalized care
+                </Typography>
+              </Paper>
+            </Box>
+          </Paper>
+        </Container>
+      );
+    }
     return (
       <Container maxWidth="xl" sx={{ py: 4 }}>
         <Alert severity="error">{error || "Failed to load dashboard data."}</Alert>

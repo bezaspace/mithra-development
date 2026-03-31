@@ -22,10 +22,11 @@ import {
 import { BookingUpdates, type BookingUpdate } from "./components/BookingUpdates";
 import { DoctorRecommendations } from "./components/DoctorRecommendations";
 import { AdherenceDoughnut } from "./components/dashboard/AdherenceDoughnut";
+import { ActivityCard } from "./components/ActivityCard";
 import { backendHttpUrl, backendWsUrl } from "./lib/backendUrls";
 import { startMicCapture, type AudioInputController } from "./lib/audioIn";
 import { AudioPlayer } from "./lib/audioOut";
-import { LiveSocket, type AdherenceReportSavedEvent, type AdherenceStatsEvent, type DoctorCard, type ServerEvent } from "./lib/liveSocket";
+import { LiveSocket, type AdherenceReportSavedEvent, type AdherenceStatsEvent, type CurrentActivityEvent, type DoctorCard, type ServerEvent } from "./lib/liveSocket";
 import { SchedulePage } from "./pages/SchedulePage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { PatientSelectionPage } from "./pages/PatientSelectionPage";
@@ -56,8 +57,9 @@ function AppContent() {
   const [liveScheduleSnapshot, setLiveScheduleSnapshot] = useState<ScheduleSnapshotEvent | null>(null);
   const [latestAdherenceEvent, setLatestAdherenceEvent] = useState<AdherenceReportSavedEvent | null>(null);
   const [adherenceStats, setAdherenceStats] = useState<AdherenceStatsEvent | null>(null);
+  const [currentActivity, setCurrentActivity] = useState<CurrentActivityEvent | null>(null);
 
-  const { userId } = usePatient();
+  const { userId, setUserId } = usePatient();
   const navigate = useNavigate();
 
   const socket = useMemo(() => new LiveSocket(), []);
@@ -130,6 +132,7 @@ function AppContent() {
     setLiveScheduleSnapshot(null);
     setLatestAdherenceEvent(null);
     setAdherenceStats(null);
+    setCurrentActivity(null);
     markPttActive(false);
     assistantSampleRateRef.current = 24000;
 
@@ -241,6 +244,17 @@ function AppContent() {
         }
         if (evt.type === "adherence_stats") {
           setAdherenceStats(evt);
+          return;
+        }
+        if (evt.type === "current_activity") {
+          setCurrentActivity(evt);
+          return;
+        }
+        if (evt.type === "profile_created") {
+          // Update the userId when a profile is created
+          logUi("PROFILE_CREATED", { user_id: evt.user_id, full_name: evt.full_name });
+          setUserId(evt.user_id);
+          setWarning(`Profile created for ${evt.full_name}!`);
           return;
         }
       },
@@ -355,6 +369,7 @@ function AppContent() {
               recommendedDoctors={recommendedDoctors}
               bookingUpdates={bookingUpdates}
               adherenceStats={adherenceStats}
+              currentActivity={currentActivity}
               isPttActive={isPttActive}
               onConnect={connect}
               onDisconnect={disconnect}
@@ -399,6 +414,7 @@ function VoiceSessionPage({
   recommendedDoctors,
   bookingUpdates,
   adherenceStats,
+  currentActivity,
   isPttActive,
   onConnect,
   onDisconnect,
@@ -412,25 +428,13 @@ function VoiceSessionPage({
   recommendedDoctors: DoctorCard[];
   bookingUpdates: BookingUpdate[];
   adherenceStats: AdherenceStatsEvent | null;
+  currentActivity: CurrentActivityEvent | null;
   isPttActive: boolean;
   onConnect: () => Promise<void>;
   onDisconnect: () => Promise<void>;
   onBeginPtt: () => void;
   onEndPtt: () => void;
 }) {
-  const statusText =
-    state === "connecting"
-      ? "Connecting..."
-      : state === "error"
-        ? "Connection error"
-        : isPttActive
-          ? "Listening..."
-          : visualState === "speaking"
-            ? "Speaking..."
-            : visualState === "awaiting"
-              ? "Processing..."
-              : "Ready";
-
   return (
     <Box sx={{ 
       position: "relative", 
@@ -479,6 +483,22 @@ function VoiceSessionPage({
               </Typography>
             )}
           </Paper>
+        )}
+        {currentActivity?.currentItem && (
+          <ActivityCard
+            item={currentActivity.currentItem}
+            status={currentActivity.inWindow ? "pending" : "pending"}
+            isCurrent={currentActivity.inWindow}
+            message={currentActivity.message}
+          />
+        )}
+        {currentActivity?.upcomingItem && !currentActivity?.currentItem && (
+          <ActivityCard
+            item={currentActivity.upcomingItem}
+            status="pending"
+            isUpcoming={true}
+            message={currentActivity.message}
+          />
         )}
         {recommendedDoctors.length > 0 && (
           <DoctorRecommendations symptomsSummary={symptomsSummary} doctors={recommendedDoctors} />
@@ -554,9 +574,6 @@ function VoiceSessionPage({
             </Button>
           ) : (
             <>
-              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>
-                {statusText}
-              </Typography>
               <button
                 className={`orb orb-${visualState}`}
                 aria-label="Hold to talk"

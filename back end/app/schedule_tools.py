@@ -56,7 +56,7 @@ def build_schedule_tools(
     ) -> dict[str, Any]:
         """
         Resolves the current schedule item for the local time window.
-        Use this before answering questions like "what should I do now?"
+        Use this before answering questions like "what should I do now?" or "what's my next activity?"
         """
         user_id = _resolve_user_id(tool_context)
         resolved_timezone = _resolve_timezone(tool_context, timezone)
@@ -66,6 +66,7 @@ def build_schedule_tools(
             now_iso=now_iso,
         )
         return {
+            "type": "current_activity",
             "timezone": result.timezone,
             "localNowIso": result.local_now_iso,
             "inWindow": result.in_window,

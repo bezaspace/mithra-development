@@ -23,18 +23,10 @@ class ProfileContextResult:
     message: str
 
 
-@dataclass
-class SimulationPatientContext:
-    patient_user_id: str
-    patient_name: str
-    profile_summary: str
-    prompt_context: str
-    raw_context: dict[str, Any]
-
-
 class PatientProfileLoader(Protocol):
     def get_by_user_id(self, user_id: str) -> PatientProfile | None: ...
     def list_all(self) -> list[dict[str, Any]]: ...
+    def insert(self, profile: PatientProfile) -> str: ...
 
 
 class PatientProfileService:
@@ -43,6 +35,10 @@ class PatientProfileService:
 
     def list_patients(self) -> list[dict[str, Any]]:
         return self._repository.list_all()
+
+    def create_patient(self, profile: PatientProfile) -> str:
+        """Create a new patient profile and return the user_id."""
+        return self._repository.insert(profile)
 
     def load_profile_context(self, user_id: str) -> ProfileContextResult:
         profile = self._repository.get_by_user_id(user_id)
@@ -75,44 +71,6 @@ class PatientProfileService:
             loaded=True,
             source="db",
             message="Loaded saved patient profile for personalized guidance.",
-        )
-
-    def load_simulation_context(self, user_id: str) -> SimulationPatientContext | None:
-        profile = self._repository.get_by_user_id(user_id)
-        if profile is None:
-            return None
-
-        summary = self._build_summary(profile)
-        detailed_payload: dict[str, Any] = {}
-        loader = getattr(self._repository, "get_simulation_patient", None)
-        if callable(loader):
-            loaded = loader(user_id)
-            if isinstance(loaded, dict):
-                detailed_payload = loaded
-
-        patient_name = (
-            str(detailed_payload.get("full_name", "")).strip()
-            or str(profile.full_name or "").strip()
-            or user_id
-        )
-        raw_context = {
-            "user_id": user_id,
-            "full_name": patient_name,
-            "age": detailed_payload.get("age", profile.age),
-            "sex": detailed_payload.get("sex", profile.sex),
-            "phone": detailed_payload.get("phone"),
-            "email": detailed_payload.get("email"),
-            "surgery_info": detailed_payload.get("surgery_info", {}),
-            "emergency_contact": detailed_payload.get("emergency_contact", {}),
-            "profile": detailed_payload.get("profile", profile.model_dump(mode="json")),
-        }
-
-        return SimulationPatientContext(
-            patient_user_id=user_id,
-            patient_name=patient_name,
-            profile_summary=summary,
-            prompt_context=self._build_simulation_prompt_context(raw_context, summary),
-            raw_context=raw_context,
         )
 
     @staticmethod
@@ -163,31 +121,3 @@ class PatientProfileService:
         if isinstance(allergy, str):
             return allergy.strip()
         return allergy.allergen.strip()
-
-    @staticmethod
-    def _build_simulation_prompt_context(raw_context: dict[str, Any], summary: str) -> str:
-        surgery = raw_context.get("surgery_info") or {}
-        surgery_parts: list[str] = []
-        surgery_type = str(surgery.get("type", "")).strip()
-        surgery_reason = str(surgery.get("reason", "")).strip()
-        surgery_date = str(surgery.get("date", "")).strip()
-        if surgery_type:
-            surgery_parts.append(f"Surgery: {surgery_type}.")
-        if surgery_reason:
-            surgery_parts.append(f"Reason: {surgery_reason}.")
-        if surgery_date:
-            surgery_parts.append(f"Surgery date: {surgery_date}.")
-
-        demographic_parts: list[str] = []
-        if raw_context.get("full_name"):
-            demographic_parts.append(f"Patient name: {raw_context['full_name']}.")
-        if raw_context.get("age") is not None:
-            demographic_parts.append(f"Age: {raw_context['age']}.")
-        if raw_context.get("sex"):
-            demographic_parts.append(f"Sex: {raw_context['sex']}.")
-
-        context_parts = demographic_parts + surgery_parts
-        if summary:
-            context_parts.append(f"Clinical summary: {summary}")
-
-        return " ".join(context_parts).strip()
