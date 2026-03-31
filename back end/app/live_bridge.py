@@ -293,8 +293,8 @@ class LiveBridge:
                     )
                     if turn_state.active:
                         turn_state.current_turn_audio_chunks += 1
-                    # Use new API format: explicit audio field in RealtimeInput
-                    realtime_input = types.RealtimeInput(
+                    # Use new API format: explicit audio field in LiveClientRealtimeInput
+                    realtime_input = types.LiveClientRealtimeInput(
                         audio=types.Blob(
                             mime_type="audio/pcm;rate=16000", data=raw_bytes
                         )
