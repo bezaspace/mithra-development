@@ -27,6 +27,12 @@ from app.schedule_api import build_schedule_router
 from app.schedule_repository import ScheduleRepository
 from app.schedule_service import ScheduleService
 
+# Apply monkey-patch for Gemini 3.1 Flash Live compatibility
+# This must be done before any ADK components are initialized
+from app.monkey_patch import patch_gemini_3_1_support
+
+patch_gemini_3_1_support()
+
 
 settings = get_settings()
 configure_logging(settings.log_level)
