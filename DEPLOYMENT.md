@@ -1,275 +1,244 @@
 # Mithra Deployment Guide
 
-This document is the current deployment reference for this repo. Older deployment details from the previous app version have been removed.
+This document is the current deployment reference for the Raksha MVP app.
 
-## Current Scope
+## Current Production Architecture
 
-- GitHub repo: `https://github.com/bezaspace/mithra.git`
-- Backend host: Render
-- Frontend host: Vercel
-- Backend root: `back end/`
-- Primary backend config: `render.yaml`
-- Primary Vercel config (monorepo root): `vercel.json`
+Raksha MVP is deployed as two separate services:
 
-This repo is now deployed as a split setup:
+- **Frontend**: Vercel - https://mithra-kappa.vercel.app
+- **Backend**: Render - https://raksha-mvp-backend.onrender.com
 
-- backend on Render
-- frontend on Vercel
+### Service Details
 
-## Backend Architecture
+**Backend (Render)**
+- Service Name: `raksha-mvp-backend`
+- Service ID: `srv-d75j68dm5p6s73c2d7rg`
+- URL: https://raksha-mvp-backend.onrender.com
+- WebSocket: wss://raksha-mvp-backend.onrender.com/ws/live
+- Health Check: https://raksha-mvp-backend.onrender.com/health
 
-The backend is a FastAPI service that currently exposes:
+**Frontend (Vercel)**
+- Project Name: `mithra`
+- Production URL: https://mithra-b2euf6his-bezaspaces-projects.vercel.app
+- Aliased URL: https://mithra-kappa.vercel.app (primary domain)
+- GitHub Repo: https://github.com/bezaspace/mithra-development.git
 
-- `GET /health`
-- `WS /ws/live`
-- `GET /api/dashboard/{user_id}`
-- schedule APIs under `/api/schedule`
+## Production Request Flow
 
-The entrypoint is `app.main:app` in `back end/app/main.py`.
+1. Browser loads the React app from Vercel (mithra-kappa.vercel.app)
+2. Frontend HTTP API calls use the Vercel origin and are rewritten to Render backend
+3. Frontend voice WebSocket connects directly to Render (WebSocket is NOT proxied through Vercel)
 
-## Render Configuration
+In practice:
+- HTTP API requests go to paths like `/api/...` and `/health` on the Vercel domain
+- WebSocket voice traffic goes straight to Render at `wss://raksha-mvp-backend.onrender.com/ws/live`
 
-The Render blueprint lives at `render.yaml` and is currently aligned to this repo:
+## Why We Split the Deployment
 
-- repo: `https://github.com/bezaspace/mithra.git`
-- root directory: `back end`
-- runtime: Python
-- build command: `pip install uv && uv sync --frozen`
-- start command: `.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-- health check path: `/health`
+- **Vercel**: Perfect for static Vite React builds and SPA routing
+- **Render**: Needed for FastAPI + persistent WebSocket server for live voice
+- SQLite databases work fine on Render free tier for this MVP
 
-The blueprint intentionally keeps `GEMINI_API_KEY` as a Render-managed secret with `sync: false`.
+## Repository Structure
 
-## Required Backend Environment Variables
-
-Set these in Render before expecting the backend to work correctly:
-
-- `GEMINI_API_KEY` - required secret
-- `FRONTEND_ORIGIN` - browser origin allowed by FastAPI CORS
-
-Also configured in `render.yaml`:
-
-- `PYTHON_VERSION=3.11.11`
-- `APP_NAME=raksha`
-- `GEMINI_MODEL=gemini-2.5-flash-native-audio-preview-12-2025`
-- `LOG_LEVEL=info`
-
-The backend also supports these database-related values through `back end/app/config.py`:
-
-- `PROFILE_DB_URL`
-- `PROFILE_SEED_SQL_PATH`
-- `SCHEDULE_DB_URL`
-- `SCHEDULE_SEED_SQL_PATH`
-
-If you do not override them, the app uses the defaults defined in code.
-
-## Render Deployment Flow
-
-### 1. Confirm the backend repo target
-
-Render should deploy from:
-
-- `https://github.com/bezaspace/mithra.git`
-
-Do not use the old `rak4` repo.
-
-### 2. Create or update the Render web service
-
-Use the Render CLI with the current workspace selected.
-
-Typical service settings:
-
-- type: web service
-- repo: `https://github.com/bezaspace/mithra.git`
-- root directory: `back end`
-- runtime: `python`
-- region: your preferred Render region
-- plan: your preferred Render plan
-
-If you create the service with CLI flags instead of the blueprint UI, keep the commands exactly aligned with `render.yaml`.
-
-### 3. Set environment variables in Render
-
-At minimum, set:
-
-- `GEMINI_API_KEY`
-- `FRONTEND_ORIGIN`
-
-Recommended: also mirror the non-secret values from `render.yaml` unless you have a reason to override them.
-
-### 4. Deploy from GitHub through Render
-
-Once the service exists and points at `bezaspace/mithra`, trigger a deploy from the connected GitHub repo.
-
-Important: Render deploys from GitHub commits, not your local uncommitted changes.
-If you fix code locally but do not push, Render will still build the previous commit and the fix will not be included.
-
-Useful CLI commands:
-
-```bash
-render workspace current --output json
-render services --output json
-render deploys create <service-id> --wait
+```
+back end/          # FastAPI backend
+front end/         # Vite + React frontend
+render.yaml        # Render blueprint for backend deployment
+vercel.json        # Vercel config (root level - deploys from repo root)
 ```
 
-### 5. Verify the deployment
+## Environment Variables
 
-After the deploy finishes, verify:
+### Backend (Render)
 
-- `https://<your-render-service>.onrender.com/health` returns `{"status":"ok"}`
-- `wss://<your-render-service>.onrender.com/ws/live` accepts a WebSocket connection
-- Render logs show successful FastAPI startup
+Required (set via Render dashboard or API):
+- `GEMINI_API_KEY` - Google Gemini API key (secret, never committed)
 
-## Standard Change-to-Prod Pipeline (Follow Every Time)
+Non-secret (set via render.yaml):
+- `GEMINI_MODEL` - `gemini-3.1-flash-live-preview` ⚠️ **CRITICAL**: NOT the deprecated 2.5 model
+- `APP_NAME` - `raksha`
+- `FRONTEND_ORIGIN` - `https://mithra-kappa.vercel.app`
+- `LOG_LEVEL` - `info`
+- `PYTHON_VERSION` - `3.11.11`
 
-Use this exact sequence for backend changes.
+### Frontend (Vercel)
 
-### 1. Fix and verify locally
+No env vars strictly required - the frontend uses relative URLs in production.
 
-Make the backend fix in `back end/` and run at least one quick import/start sanity check before pushing.
+Optional (for explicit configuration):
+- `VITE_BACKEND_HTTP_URL` - Production frontend URL for HTTP
+- `VITE_BACKEND_WS_URL` - Direct Render WebSocket URL
 
-Example sanity check:
+## Backend Deployment Process (Render)
 
-```bash
-uv run python -c "import app.main; print('backend import ok')"
-```
-
-### 2. Commit only the required backend change
-
-Keep the commit focused so deployment rollback and debugging stay simple.
-
-```bash
-git add "back end/<changed-file>.py"
-git commit -m "fix <short backend issue description>"
-```
-
-### 3. Push to GitHub main
+### 1. Create Render Service
 
 ```bash
-git push origin main
+# Set workspace (if not already set)
+render workspace set tea-d6rmqcfdiees73btepbg
+
+# Create new service
+render services create --type web_service \
+  --name raksha-mvp-backend \
+  --repo https://github.com/bezaspace/mithra-development.git \
+  --branch master \
+  --root-directory "back end" \
+  --runtime python \
+  --plan free \
+  --region oregon \
+  --build-command "pip install uv && uv sync --frozen" \
+  --start-command ".venv/bin/uvicorn app.main:app --host 0.0.0.0 --port \$PORT" \
+  --health-check-path /health \
+  --env-var "PYTHON_VERSION=3.11.11" \
+  --env-var "APP_NAME=raksha" \
+  --env-var "GEMINI_MODEL=gemini-3.1-flash-live-preview" \
+  --env-var "FRONTEND_ORIGIN=https://mithra-kappa.vercel.app" \
+  --env-var "LOG_LEVEL=info" \
+  --auto-deploy=false \
+  --confirm
 ```
 
-### 4. Redeploy Render from the pushed commit
+### 2. Set Secret Environment Variables
 
-Trigger a deploy on the Render service after the push completes.
+**CRITICAL**: Set `GEMINI_API_KEY` via Render dashboard or API. Never commit this to git.
 
 ```bash
-render deploys create <service-id> --wait --confirm
+# Using Render API (requires RENDER_API_KEY env var)
+curl -X PUT "https://api.render.com/v1/services/srv-d75j68dm5p6s73c2d7rg/env-vars" \
+  -H "Authorization: Bearer $RENDER_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '[{"key": "GEMINI_API_KEY", "value": "YOUR_GEMINI_KEY_HERE"}]'
 ```
 
-Optional: pin deploy to a specific commit.
+### 3. Deploy Backend
 
 ```bash
-render deploys create <service-id> --commit <git-sha> --wait --confirm
+# Trigger manual deploy
+render deploys create srv-d75j68dm5p6s73c2d7rg --confirm
+
+# Watch logs
+render logs --resources srv-d75j68dm5p6s73c2d7rg --tail
 ```
 
-### 5. Validate with curl + logs
+## Frontend Deployment Process (Vercel)
 
-Run functional checks from your machine:
+### Deploy from Local (Linked Project)
 
 ```bash
-curl -i "https://<your-render-service>.onrender.com/health"
-curl -i "https://<your-render-service>.onrender.com/api/schedule/today?user_id=raksha-user"
-render logs --resources <service-id> --limit 40 --output text
+# Deploy to production
+vercel --yes --prod
+
+# Or for a preview deployment
+vercel --yes
 ```
 
-If health fails, always inspect Render logs first to identify startup/import/runtime errors.
+### Deploy from GitHub (Recommended)
 
-## Current Service Reference (This Deployment)
+Vercel automatically deploys when you push to the connected GitHub repo.
 
-- Render service name: `mithra-backend`
-- Render service id: `srv-d6sgl1chg0os73f6nsl0`
-- Render URL: `https://mithra-backend-0f0r.onrender.com`
-- Latest known successful deploy commit: `9745fe4b78883757bf081c858280c591f73717ad`
+1. Ensure GitHub repo is connected in Vercel dashboard
+2. Push changes to master branch
+3. Vercel will auto-deploy (if auto-deploy is enabled) or you can trigger manually
 
-Keep these values updated whenever the service is recreated or renamed.
+## Verification Checklist
 
-## Frontend Deployment Reference (Vercel)
+### Backend
+- [ ] `GET https://raksha-mvp-backend.onrender.com/health` returns `{"status":"ok"}`
+- [ ] `wss://raksha-mvp-backend.onrender.com/ws/live` accepts WebSocket connection
+- [ ] Render logs show successful FastAPI startup with Gemini 3.1 model
+- [ ] No errors about deprecated model (config.py blocks old models)
 
-- Vercel scope/team: `bezaspaces-projects`
-- Vercel project name: `mithra-fresh`
-- Production alias: `https://mithra-fresh.vercel.app`
-- Git integration: connected to `https://github.com/bezaspace/mithra`
-- Current monorepo build config source: root `vercel.json`
+### Frontend
+- [ ] `https://mithra-kappa.vercel.app` loads without authentication
+- [ ] `/dashboard`, `/schedule`, `/select-patient` work on hard refresh
+- [ ] `https://mithra-kappa.vercel.app/health` returns backend health via proxy
+- [ ] Voice session can start from browser
+- [ ] Push-to-talk and assistant audio both work
 
-Frontend deploy behavior for this project:
+## Backend Control Commands
 
-- Deployments are triggered from GitHub commits on `main`.
-- Vercel project root is repo root (`.`), and root `vercel.json` runs frontend build from `front end/`.
-- HTTP requests to `/api/*` and `/health` on Vercel are rewritten to `https://mithra-backend-0f0r.onrender.com`.
-- WebSocket remains direct to Render via `VITE_BACKEND_WS_URL`.
-
-### Frontend change pipeline (GitHub -> Vercel)
-
-Use this sequence for frontend changes:
+Control scripts are available in the repo root:
 
 ```bash
-bun run build --cwd "front end"
-git add "front end/<changed-files>" vercel.json
-git commit -m "update frontend <short description>"
-git push origin main
-vercel list mithra-fresh --scope bezaspaces-projects
-curl -i "https://mithra-fresh.vercel.app/health"
+# Check backend status
+./bstatus srv-d75j68dm5p6s73c2d7rg
+
+# Suspend backend (turn off)
+./boff srv-d75j68dm5p6s73c2d7rg
+
+# Resume backend (turn on)
+./bon srv-d75j68dm5p6s73c2d7rg
 ```
 
-Expected verification:
+## API Endpoints
 
-- `https://mithra-fresh.vercel.app` loads the app shell
-- `https://mithra-fresh.vercel.app/health` returns backend health JSON
-- dashboard API calls on Vercel domain return `200`
+### Health
+- `GET /health` - Returns `{"status": "ok"}`
 
-## Frontend Integration References
+### Patient Profile
+- `GET /api/patients` - List all patients
+- `POST /api/patients` - Create new patient
 
-These files still matter because the frontend expects to talk to the deployed backend:
+### Schedule
+- `GET /api/schedule/today?user_id={}&timezone={}&date={}` - Get today's schedule
+- `POST /api/schedule/items/{id}/reports` - Submit adherence report
 
-- `vercel.json` (repo root, used by Vercel project)
-- `front end/vercel.json`
-- `front end/src/lib/backendUrls.ts`
+### Dashboard
+- `GET /api/dashboard/{user_id}?timezone={}&date={}` - Get full patient dashboard
 
-Current expectations:
+### WebSocket
+- `ws://host/ws/live?user_id={}&timezone={}` - Live voice session
 
-- root `vercel.json` is the active config for the current Vercel project and currently rewrites HTTP to `https://mithra-backend-0f0r.onrender.com`.
-- `front end/vercel.json` mirrors equivalent rewrite/build settings for the frontend directory and should be kept aligned for consistency.
-- `front end/src/lib/backendUrls.ts` prefers `VITE_BACKEND_WS_URL` in production. Keep it set to `wss://mithra-backend-0f0r.onrender.com/ws/live`.
+## Important Notes
 
-## Backend Control Helpers
+1. **GEMINI MODEL**: Must use `gemini-3.1-flash-live-preview` - the old `gemini-2.5-flash-native-audio-preview-12-2025` is deprecated and blocked by config.py validator
 
-The repo includes:
+2. **WebSocket Direct**: Voice WebSocket connects directly to Render, NOT through Vercel proxy
 
-- `./boff`
-- `./bon`
-- `./bstatus`
+3. **CORS**: Backend CORS is configured from `FRONTEND_ORIGIN` env var
 
-These wrappers call `scripts/backend-control`.
+4. **SQLite**: Uses local SQLite files on Render - acceptable for MVP but not production scale
 
-Because this repo should no longer hardcode an old Render service, you must provide the current backend service id when using them.
+5. **Free Tier Cold Start**: Render free tier may cold start after inactivity (15+ min)
 
-Examples:
+## Troubleshooting
 
-```bash
-RENDER_BACKEND_SERVICE_ID=srv-xxxx ./bstatus
-RENDER_BACKEND_SERVICE_ID=srv-xxxx ./boff
-RENDER_BACKEND_SERVICE_ID=srv-xxxx ./bon
-```
+### Frontend loads but API fails
+- Check `vercel.json` rewrites point to correct Render URL
+- Verify backend is not suspended (`./bstatus srv-d75j68dm5p6s73c2d7rg`)
+- Check `/health` endpoint: `curl https://raksha-mvp-backend.onrender.com/health`
 
-You can also pass the service id directly:
+### Voice doesn't connect
+- Ensure WebSocket URL is direct to Render (`wss://raksha-mvp-backend.onrender.com`)
+- Verify `GEMINI_API_KEY` is set in Render
+- Check browser console for WebSocket errors
 
-```bash
-scripts/backend-control status srv-xxxx
-```
+### Vercel site requires login
+- Disable deployment protection in Vercel project settings (Project → Settings → Deployment Protection)
 
-## Notes and Caveats
+### Backend starts but data looks reset
+- Expected on Render free tier (ephemeral storage)
+- Long-term: migrate to PostgreSQL or persistent storage
 
-- Render free services may cold start after inactivity.
-- The backend currently uses local SQLite-backed files under `back end/app/data`, so persistence is still MVP-grade rather than production-grade.
-- `FRONTEND_ORIGIN` must match the browser origin you actually use, otherwise CORS will fail.
-- Keep secrets only in local `.env` files and hosting platform secrets, never in git.
+### Build failures with MUI Grid
+- MUI v7 changed Grid API: use `size={{ xs: 12, md: 6 }}` instead of `item xs={12} md={6}`
+- See fix in commit `04d8479e`
+
+## Files That Make Production Work
+
+- `render.yaml` - Render blueprint with all service config
+- `vercel.json` (root) - Vercel build config with backend rewrites
+- `front end/vercel.json` - Alternative frontend-only config
+- `back end/.env.example` - Template for local dev
+- `front end/.env.example` - Template for local dev
+- `scripts/backend-control` - Backend control helper script
 
 ## Quick Reference
 
-- Repo: `https://github.com/bezaspace/mithra.git`
-- Backend root: `back end/`
-- Render config: `render.yaml`
-- Backend entrypoint: `back end/app/main.py`
-- Frontend rewrite config: `front end/vercel.json`
-- Backend control helper: `scripts/backend-control`
+- **Repo**: https://github.com/bezaspace/mithra-development.git
+- **Backend**: https://raksha-mvp-backend.onrender.com (srv-d75j68dm5p6s73c2d7rg)
+- **Frontend**: https://mithra-kappa.vercel.app
+- **Health**: https://raksha-mvp-backend.onrender.com/health
+- **WebSocket**: wss://raksha-mvp-backend.onrender.com/ws/live
