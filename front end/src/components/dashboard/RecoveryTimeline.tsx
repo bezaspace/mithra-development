@@ -12,45 +12,38 @@ export function RecoveryTimeline({ patient }: RecoveryTimelineProps) {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       {/* Metrics Row */}
-      <Box
-        sx={{
-          p: 2.5,
-          bgcolor: "rgba(255, 255, 255, 0.02)",
-          borderRadius: 4,
-          border: "1px solid rgba(255, 255, 255, 0.05)",
-        }}
-      >
-        <Typography variant="subtitle2" sx={{ color: "primary.light", mb: 2, fontWeight: 700, textTransform: "uppercase", fontSize: "0.75rem", letterSpacing: 1 }}>
-          Recovery Metrics
+      <Box>
+        <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mb: 2, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
+          Recovery Progress
         </Typography>
         <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 2 }}>
           <Box>
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
-              Days Since Surgery
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, fontSize: "0.65rem" }}>
+              Day
             </Typography>
-            <Typography variant="h5" sx={{ color: "text.primary", fontWeight: 800 }}>
+            <Typography variant="h6" sx={{ color: "text.primary", fontWeight: 800 }}>
               {progress.daysSinceSurgery}
-              <Typography component="span" variant="caption" sx={{ color: "text.secondary", ml: 0.5, fontWeight: 500 }}>
-                / {progress.totalDaysPlan}
+              <Typography component="span" variant="caption" sx={{ color: "text.secondary", ml: 0.5, fontWeight: 500, fontSize: "0.6rem" }}>
+                /{progress.totalDaysPlan}
               </Typography>
             </Typography>
           </Box>
           <Box>
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
-              Current Phase
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, fontSize: "0.65rem" }}>
+              Phase
             </Typography>
-            <Typography variant="h5" sx={{ color: "primary.main", fontWeight: 800 }}>
+            <Typography variant="h6" sx={{ color: "primary.light", fontWeight: 800 }}>
               {patient.treatmentPlan.currentPhase}
-              <Typography component="span" variant="caption" sx={{ color: "text.secondary", ml: 0.5, fontWeight: 500 }}>
-                / {patient.treatmentPlan.phases.length}
+              <Typography component="span" variant="caption" sx={{ color: "text.secondary", ml: 0.5, fontWeight: 500, fontSize: "0.6rem" }}>
+                /{patient.treatmentPlan.phases.length}
               </Typography>
             </Typography>
           </Box>
           <Box>
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, fontSize: "0.65rem" }}>
               Milestones
             </Typography>
-            <Typography variant="h5" sx={{ color: "success.main", fontWeight: 800 }}>
+            <Typography variant="h6" sx={{ color: "success.main", fontWeight: 800 }}>
               {progress.recentMilestones.length}
             </Typography>
           </Box>
@@ -59,37 +52,32 @@ export function RecoveryTimeline({ patient }: RecoveryTimelineProps) {
 
       {/* Recent Milestones */}
       <Box>
-        <Typography variant="subtitle2" sx={{ color: "primary.light", mb: 2, fontWeight: 700, textTransform: "uppercase", fontSize: "0.75rem", letterSpacing: 1 }}>
-          Recent Achievements
+        <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mb: 1, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
+          Achievements
         </Typography>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
           {progress.recentMilestones.slice(0, 4).map((milestone, idx) => (
-            <Paper
+            <Box
               key={idx}
-              elevation={0}
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 2,
-                p: 1.5,
-                bgcolor: "background.default",
-                borderRadius: 3,
-                border: "1px solid rgba(255, 255, 255, 0.03)",
+                gap: 1.5,
+                py: 1,
+                borderBottom: idx === progress.recentMilestones.slice(0, 4).length - 1 ? "none" : "1px solid rgba(255, 255, 255, 0.03)",
               }}
             >
-              <CheckIcon sx={{ color: "success.main", fontSize: 20 }} />
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="body2" sx={{ color: "text.primary", fontWeight: 600, fontSize: "0.85rem" }}>
-                  {milestone.milestone}
-                </Typography>
-              </Box>
-              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 500 }}>
+              <CheckIcon sx={{ color: "success.main", fontSize: 16 }} />
+              <Typography variant="body2" sx={{ color: "text.primary", fontWeight: 500, fontSize: "0.8rem", flex: 1 }}>
+                {milestone.milestone}
+              </Typography>
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.65rem" }}>
                 {new Date(milestone.achievedDate).toLocaleDateString("en-IN", {
                   day: "numeric",
                   month: "short",
                 })}
               </Typography>
-            </Paper>
+            </Box>
           ))}
         </Box>
       </Box>

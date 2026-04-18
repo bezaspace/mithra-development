@@ -20,9 +20,9 @@ export function AdherenceDoughnut({ adherence, size = 120 }: AdherenceDoughnutPr
     datasets: [
       {
         data: [adherence, 100 - adherence],
-        backgroundColor: ["#5f8787", "#242226"],
-        borderColor: ["#9db7b7", "#3a3439"],
-        borderWidth: 2,
+        backgroundColor: ["#5f8787", "rgba(255, 255, 255, 0.03)"],
+        borderWidth: 0,
+        hoverOffset: 0,
       },
     ],
   };
@@ -30,15 +30,11 @@ export function AdherenceDoughnut({ adherence, size = 120 }: AdherenceDoughnutPr
   const options = {
     responsive: true,
     maintainAspectRatio: true,
-    cutout: "75%",
+    cutout: "82%",
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: "#1a191c",
-        titleColor: "#e4dfd9",
-        bodyColor: "#b8afae",
-        borderColor: "#3a3439",
-        borderWidth: 1,
+        enabled: false,
       },
     },
   };

@@ -97,6 +97,7 @@ export interface PatientDashboard {
   progress: {
     overallAdherence: number;
     weeklyAdherence: number[];
+    dailyAdherence?: number[];
     phaseProgress: number;
     daysSinceSurgery: number;
     totalDaysPlan: number;

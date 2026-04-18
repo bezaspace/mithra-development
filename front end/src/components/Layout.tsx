@@ -29,6 +29,7 @@ import {
   Logout as LogoutIcon,
   Menu as MenuIcon,
   FiberManualRecord as StatusIcon,
+  GridView as OverviewIcon,
 } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { usePatient } from "../PatientContext";
@@ -52,6 +53,7 @@ export function Layout({ children, connectionState }: Props) {
     { text: "Assistant", icon: <MicIcon />, path: "/" },
     { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
     { text: "Schedule", icon: <ScheduleIcon />, path: "/schedule" },
+    { text: "Overview", icon: <OverviewIcon />, path: "/overview" },
   ];
 
   const handleDrawerToggle = () => {

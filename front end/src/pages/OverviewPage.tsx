@@ -13,24 +13,22 @@ import {
 } from "@mui/material";
 import {
   Refresh as RefreshIcon,
+  TrendingUp as TrendingIcon,
   PersonAdd as PersonAddIcon,
 } from "@mui/icons-material";
 
 import { fetchDashboard } from "../components/dashboard/dashboardApi";
 import type { PatientDashboard } from "../components/dashboard/dashboardTypes";
 import { usePatient } from "../PatientContext";
-import { AdherenceDoughnut } from "../components/dashboard/AdherenceDoughnut";
-import { DailyTrendBar } from "../components/dashboard/DailyTrendBar";
-import { ActivityBreakdown } from "../components/dashboard/ActivityBreakdown";
-import { RecoveryTimeline } from "../components/dashboard/RecoveryTimeline";
-import { PhysiotherapyScoreChart } from "../components/dashboard/PhysiotherapyScoreChart";
-import { PainIndexChart } from "../components/dashboard/PainIndexChart";
+import { PatientInfoCard } from "../components/dashboard/PatientInfoCard";
+import { MedicalHistoryCard } from "../components/dashboard/MedicalHistoryCard";
+import { TreatmentPlanCard } from "../components/dashboard/TreatmentPlanCard";
 
 const isGuestUser = (userId: string | null): boolean => {
   return !!userId && userId.startsWith("guest-");
 };
 
-export function DashboardPage() {
+export function OverviewPage() {
   const { userId, adherenceRefreshNonce } = usePatient();
   const [patient, setPatient] = useState<PatientDashboard | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,7 +72,7 @@ export function DashboardPage() {
     return (
       <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
         <CircularProgress sx={{ color: "primary.main" }} />
-        <Typography sx={{ color: "text.secondary", mt: 2 }}>Loading dashboard...</Typography>
+        <Typography sx={{ color: "text.secondary", mt: 2 }}>Loading overview...</Typography>
       </Box>
     );
   }
@@ -102,7 +100,7 @@ export function DashboardPage() {
             <Typography variant="body1" sx={{ color: "text.secondary", mb: 4, maxWidth: 600, mx: "auto" }}>
               You&apos;re currently in guest mode. Start a voice conversation with the AI assistant 
               and it can help create your personalized health profile. Once your profile is created, 
-              you&apos;ll see your health dashboard here.
+              you&apos;ll see your health overview here.
             </Typography>
             <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
               <Paper sx={{ p: 3, bgcolor: "rgba(95, 135, 135, 0.1)", borderRadius: 3, minWidth: 200 }}>
@@ -136,7 +134,7 @@ export function DashboardPage() {
     }
     return (
       <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Alert severity="error">{error || "Failed to load dashboard data."}</Alert>
+        <Alert severity="error">{error || "Failed to load overview data."}</Alert>
       </Container>
     );
   }
@@ -156,7 +154,7 @@ export function DashboardPage() {
         }}
       >
         <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary" }}>
-          Health Dashboard
+          Patient Overview
         </Typography>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -173,7 +171,7 @@ export function DashboardPage() {
               letterSpacing: 0.5
             }}
           />
-          <Tooltip title="Refresh dashboard">
+          <Tooltip title="Refresh overview">
             <IconButton 
               onClick={() => loadDashboard()}
               size="small"
@@ -190,38 +188,48 @@ export function DashboardPage() {
         </Box>
       </Box>
 
-      {/* Metrics Content Area */}
+      {/* Overview Content Area */}
       <Box sx={{ minHeight: "50vh" }}>
-        <Grid container spacing={4}>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Box sx={{ p: 1 }}>
-              <AdherenceDoughnut adherence={patient.progress.overallAdherence} size={160} />
-            </Box>
+        {/* Quick Summary Widgets */}
+        <Grid container spacing={2} sx={{ mb: 4 }}>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Paper sx={{ p: 2, bgcolor: "background.paper", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: 3 }}>
+              <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: 1 }}>Recovery Score</Typography>
+              <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mt: 0.5 }}>
+                <Typography variant="h4" sx={{ color: "primary.light", fontWeight: 700 }}>84%</Typography>
+                <TrendingIcon sx={{ color: "success.main", fontSize: 16 }} />
+              </Box>
+            </Paper>
           </Grid>
-          <Grid size={{ xs: 12, md: 8 }}>
-            <Box sx={{ p: 1, height: "100%" }}>
-              <DailyTrendBar dailyAdherence={patient.progress.dailyAdherence || []} height={180} />
-            </Box>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Paper sx={{ p: 2, bgcolor: "background.paper", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: 3 }}>
+              <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: 1 }}>Next Medication</Typography>
+              <Typography variant="h6" sx={{ color: "text.primary", mt: 0.5, fontWeight: 600 }}>12:30 PM</Typography>
+            </Paper>
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Paper sx={{ p: 2, bgcolor: "background.paper", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: 3 }}>
+              <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: 1 }}>Post-Op Day</Typography>
+              <Typography variant="h4" sx={{ color: "text.primary", mt: 0.5, fontWeight: 700 }}>12</Typography>
+            </Paper>
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Paper sx={{ p: 2, bgcolor: "background.paper", border: "1px solid rgba(255, 255, 255, 0.05)", borderRadius: 3 }}>
+              <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: 1 }}>Care Team</Typography>
+              <Typography variant="h6" sx={{ color: "text.primary", mt: 0.5, fontWeight: 600 }}>3 Active</Typography>
+            </Paper>
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, lg: 5 }}>
+            <PatientInfoCard patient={patient} />
           </Grid>
           <Grid size={{ xs: 12, lg: 7 }}>
-            <Box sx={{ p: 1 }}>
-              <ActivityBreakdown activityBreakdown={patient.progress.activityBreakdown} />
-            </Box>
+            <TreatmentPlanCard patient={patient} />
           </Grid>
-          <Grid size={{ xs: 12, lg: 5 }}>
-            <Box sx={{ p: 1 }}>
-              <RecoveryTimeline patient={patient} />
-            </Box>
-          </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Box sx={{ p: 1 }}>
-              <PhysiotherapyScoreChart physiotherapyHistory={patient.progress.physiotherapyHistory} />
-            </Box>
-          </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Box sx={{ p: 1 }}>
-              <PainIndexChart painIndexHistory={patient.progress.painIndexHistory} />
-            </Box>
+          <Grid size={{ xs: 12 }}>
+            <MedicalHistoryCard patient={patient} />
           </Grid>
         </Grid>
       </Box>

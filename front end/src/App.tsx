@@ -30,6 +30,7 @@ import { AudioPlayer } from "./lib/audioOut";
 import { LiveSocket, type AdherenceReportSavedEvent, type AdherenceStatsEvent, type CurrentActivityEvent, type DoctorCard, type ServerEvent } from "./lib/liveSocket";
 import { SchedulePage } from "./pages/SchedulePage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { OverviewPage } from "./pages/OverviewPage";
 import { PatientSelectionPage } from "./pages/PatientSelectionPage";
 import { PatientProvider, usePatient } from "./PatientContext";
 import { dashboardTheme } from "./components/dashboard/dashboardTheme";
@@ -383,6 +384,7 @@ function AppContent() {
             />
           }
         />
+        <Route path="/overview" element={<OverviewPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route
           path="/schedule"

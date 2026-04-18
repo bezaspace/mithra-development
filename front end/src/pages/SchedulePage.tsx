@@ -25,9 +25,19 @@ import {
   WarningAmber as WarningIcon,
   InfoOutlined as InfoIcon,
   CalendarToday as CalendarIcon,
+  AccessTime as ProgressIcon,
 } from "@mui/icons-material";
+import {
+  Card,
+  CardContent,
+  LinearProgress,
+  Button,
+} from "@mui/material";
 
 import { getTodaySchedule } from "../lib/scheduleApi";
+import { submitAdherenceReport } from "../components/dashboard/dashboardApi";
+import { ScheduleLogForm } from "../components/dashboard/ScheduleLogForm";
+import type { ReportFormData, PatientDashboard } from "../components/dashboard/dashboardTypes";
 import type {
   AdherenceReportSavedEvent,
   AdherenceReportSavedSuccessEvent,
@@ -58,8 +68,73 @@ export function SchedulePage({ backendHttpUrl, userId, liveSnapshot, liveReportU
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [mismatchHint, setMismatchHint] = useState("");
+  const [openFormId, setOpenFormId] = useState<string | null>(null);
+  const [submittingId, setSubmittingId] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const selectedDate = useMemo(() => new Date().toLocaleDateString("en-CA"), []);
+
+  // Helper to map ScheduleItemCard to what ScheduleLogForm expects
+  const mapCardToScheduleItem = (card: ScheduleItemCard): PatientDashboard["dailySchedule"][number] => {
+    return {
+      id: card.scheduleItemId,
+      time: card.windowStartLocal,
+      endTime: card.windowEndLocal,
+      title: card.title,
+      type: (card.activityType === "sleep" ? "rest" : card.activityType === "activity" ? "exercise" : card.activityType) as any,
+      instructions: card.instructions,
+      status: card.latestReport?.status === "done" ? "done" : card.latestReport ? "in-progress" : "pending",
+      latestReport: card.latestReport ? {
+        ...card.latestReport,
+        followedPlan: true, // fallback
+        changesMade: null,
+        feltAfter: null,
+        symptoms: null,
+        notes: null,
+      } : undefined,
+    };
+  };
+
+  const handleSaveReport = async (item: ScheduleItemCard, formData: ReportFormData) => {
+    setSubmittingId(item.scheduleItemId);
+    setSubmitError(null);
+
+    try {
+      const savedReport = await submitAdherenceReport(item.scheduleItemId, {
+        user_id: userId,
+        timezone: browserTimezone,
+        ...formData,
+      });
+
+      // Update local state with the newly saved report
+      const successEvent: AdherenceReportSavedSuccessEvent = {
+        type: "adherence_report_saved",
+        saved: true,
+        reportId: savedReport.reportId,
+        scheduleItemId: item.scheduleItemId,
+        date: snapshot?.date || selectedDate,
+        activityType: item.activityType,
+        status: savedReport.status,
+        alertLevel: savedReport.alertLevel,
+        summary: savedReport.summary,
+        reportedAtIso: savedReport.reportedAtIso,
+        createdAt: savedReport.reportedAtIso,
+        followedPlan: savedReport.followedPlan,
+        changesMade: savedReport.changesMade,
+        feltAfter: savedReport.feltAfter,
+        symptoms: savedReport.symptoms,
+        notes: savedReport.notes,
+        message: "Successfully saved log",
+      };
+
+      setSnapshot((prev) => applyLiveReportUpdate(prev, successEvent));
+      setOpenFormId(null);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Failed to save log.");
+    } finally {
+      setSubmittingId(null);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -129,6 +204,10 @@ export function SchedulePage({ backendHttpUrl, userId, liveSnapshot, liveReportU
     }
   };
 
+  const completedCount = snapshot?.items.filter(item => item.latestReport?.status === 'done').length || 0;
+  const totalCount = snapshot?.items.length || 0;
+  const progressPercent = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
+
   return (
     <Container maxWidth="md" sx={{ py: 0 }}>
       {/* Header Area */}
@@ -143,6 +222,76 @@ export function SchedulePage({ backendHttpUrl, userId, liveSnapshot, liveReportU
           </Typography>
         </Stack>
       </Box>
+
+      {!loading && snapshot && snapshot.items.length > 0 && (
+        <Card
+          elevation={0}
+          sx={{
+            mb: 4,
+            background: "linear-gradient(135deg, #1a191c 0%, #2c282d 100%)",
+            border: "1px solid rgba(255, 255, 255, 0.05)",
+            borderRadius: 4,
+          }}
+        >
+          <CardContent sx={{ p: 3, "&:last-child": { pb: 3 } }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    bgcolor: "rgba(95, 135, 135, 0.1)",
+                    color: "primary.light",
+                  }}
+                >
+                  <ProgressIcon />
+                </Box>
+                <Box>
+                  <Typography variant="h6" sx={{ color: "text.primary", fontWeight: 700, lineHeight: 1.2 }}>
+                    Daily Progress
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 500 }}>
+                    Adherence summary for today
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ textAlign: "right" }}>
+                <Typography variant="h4" sx={{ color: "primary.light", fontWeight: 800, lineHeight: 1 }}>
+                  {progressPercent}%
+                </Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                  Completed
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ mt: 2 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                <Typography variant="body2" sx={{ color: "text.secondary", fontWeight: 500 }}>
+                  {completedCount} of {totalCount} tasks finished
+                </Typography>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={progressPercent}
+                sx={{
+                  height: 8,
+                  borderRadius: 4,
+                  bgcolor: "rgba(255, 255, 255, 0.03)",
+                  "& .MuiLinearProgress-bar": {
+                    bgcolor: progressPercent >= 70 ? "success.main" : progressPercent >= 40 ? "primary.main" : "warning.main",
+                    borderRadius: 4,
+                  },
+                }}
+              />
+            </Box>
+          </CardContent>
+        </Card>
+      )}
 
       {loading ? (
         <Box sx={{ textAlign: "center", py: 8 }}>
@@ -288,6 +437,46 @@ export function SchedulePage({ backendHttpUrl, userId, liveSnapshot, liveReportU
                             </Paper>
                           ))}
                         </Stack>
+                      )}
+
+                      <Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
+                        <Button
+                          size="small"
+                          variant={item.latestReport ? "text" : "outlined"}
+                          onClick={() => {
+                            setSubmitError(null);
+                            setOpenFormId((current) => (current === item.scheduleItemId ? null : item.scheduleItemId));
+                          }}
+                          sx={{
+                            textTransform: "none",
+                            fontWeight: 700,
+                            borderRadius: 2,
+                            px: 2,
+                            color: item.latestReport ? "text.secondary" : "primary.light",
+                            borderColor: "rgba(157, 183, 183, 0.3)",
+                            "&:hover": {
+                              bgcolor: item.latestReport ? "rgba(255, 255, 255, 0.05)" : "rgba(157, 183, 183, 0.1)",
+                              borderColor: "primary.light",
+                            }
+                          }}
+                        >
+                          {item.latestReport ? "Edit Details" : "Log Task"}
+                        </Button>
+                      </Box>
+
+                      {openFormId === item.scheduleItemId && (
+                        <Box sx={{ mt: 2 }}>
+                          <ScheduleLogForm
+                            item={mapCardToScheduleItem(item)}
+                            submitting={submittingId === item.scheduleItemId}
+                            error={submitError}
+                            onCancel={() => {
+                              setOpenFormId(null);
+                              setSubmitError(null);
+                            }}
+                            onSave={(formData) => handleSaveReport(item, formData)}
+                          />
+                        </Box>
                       )}
                     </AccordionDetails>
                   </Accordion>

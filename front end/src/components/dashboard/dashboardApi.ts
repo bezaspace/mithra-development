@@ -315,6 +315,14 @@ function transformApiResponse(apiData: DashboardApiResponse): PatientDashboard {
       })),
       physiotherapyHistory: progress.physiotherapyHistory,
       painIndexHistory: progress.painIndexHistory,
+      // Mock daily adherence for 30 days based on weekly averages
+      dailyAdherence: Array.from({ length: 30 }, (_, i) => {
+        const weekIdx = Math.floor(i / 7);
+        const weeklyBase = progress.weeklyAdherence[weekIdx] || 85;
+        // Add some variation (-10 to +10%) but cap at 100
+        const variation = Math.floor(Math.random() * 21) - 10;
+        return Math.min(100, Math.max(0, weeklyBase + variation));
+      }),
     },
   };
 }

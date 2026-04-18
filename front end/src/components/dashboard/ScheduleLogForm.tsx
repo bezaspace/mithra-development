@@ -61,21 +61,21 @@ export function ScheduleLogForm({ item, submitting = false, error = null, onSave
   return (
     <Box
       sx={{
-        mt: 1.25,
-        p: 1.25,
-        borderRadius: 2,
-        bgcolor: "#1f1d21",
-        border: "1px solid #3a3439",
+        mt: 2,
+        p: 2.5,
+        borderRadius: 3,
+        bgcolor: "rgba(255, 255, 255, 0.02)",
+        border: "1px solid rgba(255, 255, 255, 0.05)",
       }}
     >
-      <Typography variant="subtitle2" sx={{ color: "#9db7b7", mb: 1 }}>
-        Log how this went
+      <Typography variant="subtitle2" sx={{ color: "primary.light", mb: 2, fontWeight: 700, textTransform: "uppercase", fontSize: "0.75rem", letterSpacing: 1 }}>
+        Log Task Progress
       </Typography>
 
-      <Stack spacing={1.25}>
+      <Stack spacing={2.5}>
         <Box>
-          <Typography variant="caption" sx={{ color: "#999", display: "block", mb: 0.75 }}>
-            Outcome
+          <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mb: 1, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
+            Status Outcome
           </Typography>
           <ToggleButtonGroup
             exclusive
@@ -86,13 +86,15 @@ export function ScheduleLogForm({ item, submitting = false, error = null, onSave
             }}
             sx={{
               "& .MuiToggleButton-root": {
-                color: "#b8afae",
-                borderColor: "#3a3439",
+                color: "text.secondary",
+                borderColor: "rgba(255, 255, 255, 0.1)",
                 textTransform: "none",
+                fontWeight: 600,
+                py: 1,
                 "&.Mui-selected": {
-                  color: "#101a1a",
-                  bgcolor: "#8dd6a3",
-                  "&:hover": { bgcolor: "#8dd6a3" },
+                  color: "background.default",
+                  bgcolor: "success.main",
+                  "&:hover": { bgcolor: "success.main" },
                 },
               },
             }}
@@ -112,27 +114,32 @@ export function ScheduleLogForm({ item, submitting = false, error = null, onSave
             fullWidth
             multiline
             minRows={2}
+            placeholder="Describe any deviations from the plan..."
             sx={textFieldSx}
           />
         )}
 
-        <TextField
-          label="How did they feel after?"
-          value={feltAfter}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setFeltAfter(e.target.value)}
-          size="small"
-          fullWidth
-          sx={textFieldSx}
-        />
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
+          <TextField
+            label="How did you feel?"
+            value={feltAfter}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setFeltAfter(e.target.value)}
+            size="small"
+            fullWidth
+            placeholder="e.g. Better, Tired..."
+            sx={textFieldSx}
+          />
 
-        <TextField
-          label="Any symptoms?"
-          value={symptoms}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setSymptoms(e.target.value)}
-          size="small"
-          fullWidth
-          sx={textFieldSx}
-        />
+          <TextField
+            label="Any symptoms?"
+            value={symptoms}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setSymptoms(e.target.value)}
+            size="small"
+            fullWidth
+            placeholder="e.g. Pain, Nausea..."
+            sx={textFieldSx}
+          />
+        </Box>
 
         <TextField
           label="Additional notes"
@@ -142,44 +149,71 @@ export function ScheduleLogForm({ item, submitting = false, error = null, onSave
           fullWidth
           multiline
           minRows={2}
+          placeholder="Anything else for the care team?"
           sx={textFieldSx}
         />
 
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={flagForDoctor}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setFlagForDoctor(e.target.checked)}
-              sx={{ color: "#e78a53", "&.Mui-checked": { color: "#e78a53" } }}
-            />
-          }
-          label={<Typography variant="body2" sx={{ color: "#b8afae" }}>Flag for doctor&apos;s attention</Typography>}
-        />
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1 }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={flagForDoctor}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setFlagForDoctor(e.target.checked)}
+                sx={{ color: "error.main", "&.Mui-checked": { color: "error.main" } }}
+              />
+            }
+            label={<Typography variant="body2" sx={{ color: "text.secondary", fontWeight: 500 }}>Flag for doctor&apos;s attention</Typography>}
+          />
+
+          <Box sx={{ display: "flex", gap: 1.5 }}>
+            <Button 
+              onClick={onCancel} 
+              disabled={submitting} 
+              sx={{ 
+                color: "text.secondary", 
+                textTransform: "none",
+                fontWeight: 600,
+                px: 2
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleSave}
+              disabled={submitting}
+              sx={{
+                textTransform: "none",
+                bgcolor: "primary.main",
+                color: "background.default",
+                fontWeight: 700,
+                borderRadius: 2,
+                px: 3,
+                boxShadow: "0 4px 12px rgba(95, 135, 135, 0.3)",
+                "&:hover": { 
+                  bgcolor: "primary.light",
+                  boxShadow: "0 6px 16px rgba(95, 135, 135, 0.4)",
+                },
+              }}
+            >
+              {submitting ? "Saving..." : "Save Log"}
+            </Button>
+          </Box>
+        </Box>
 
         {error && (
-          <Alert severity="error" sx={{ bgcolor: "#3a1f1f", color: "#f6d7d7", border: "1px solid #7a3636" }}>
+          <Alert 
+            severity="error" 
+            sx={{ 
+              bgcolor: "rgba(231, 138, 83, 0.1)", 
+              color: "error.main", 
+              border: "1px solid rgba(231, 138, 83, 0.2)",
+              borderRadius: 2
+            }}
+          >
             {error}
           </Alert>
         )}
-
-        <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
-          <Button onClick={onCancel} disabled={submitting} sx={{ color: "#999", textTransform: "none" }}>
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleSave}
-            disabled={submitting}
-            sx={{
-              textTransform: "none",
-              bgcolor: "#5f8787",
-              color: "#101a1a",
-              "&:hover": { bgcolor: "#6d9a9a" },
-            }}
-          >
-            {submitting ? "Saving..." : "Save log"}
-          </Button>
-        </Box>
       </Stack>
     </Box>
   );

@@ -40,12 +40,10 @@ export function PainIndexChart({ painIndexHistory, height = 200 }: PainIndexChar
           gradient.addColorStop(1, "rgba(242, 208, 138, 0)");
           return gradient;
         },
-        borderWidth: 2,
-        pointBackgroundColor: "#f2d08a",
-        pointBorderColor: "#fff",
-        pointBorderWidth: 2,
-        pointRadius: 3,
-        pointHoverRadius: 5,
+        borderWidth: 2.5,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        pointHitRadius: 10,
         tension: 0.4,
         fill: true,
       },
@@ -55,14 +53,20 @@ export function PainIndexChart({ painIndexHistory, height = 200 }: PainIndexChar
   const options = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: {
+      intersect: false,
+      mode: "index" as const,
+    },
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: "#1a191c",
+        backgroundColor: "rgba(26, 25, 28, 0.9)",
         titleColor: "#e4dfd9",
         bodyColor: "#b8afae",
-        borderColor: "#3a3439",
+        borderColor: "rgba(255, 255, 255, 0.1)",
         borderWidth: 1,
+        padding: 10,
+        displayColors: false,
         callbacks: {
           label: (context: any) => `Pain Index: ${context.raw}/10`,
         },
@@ -72,15 +76,21 @@ export function PainIndexChart({ painIndexHistory, height = 200 }: PainIndexChar
       y: {
         beginAtZero: true,
         max: 10,
-        grid: { color: "rgba(255, 255, 255, 0.05)" },
-        ticks: { color: "#666", font: { size: 10 } },
+        grid: { 
+          display: false,
+        },
+        border: { display: false },
+        ticks: { 
+          display: false,
+        },
       },
       x: {
         grid: { display: false },
+        border: { display: false },
         ticks: { 
-          color: "#666", 
-          font: { size: 10 },
-          maxTicksLimit: 7,
+          color: "rgba(184, 175, 174, 0.5)", 
+          font: { size: 10, weight: 600 as const },
+          maxTicksLimit: 5,
         },
       },
     },

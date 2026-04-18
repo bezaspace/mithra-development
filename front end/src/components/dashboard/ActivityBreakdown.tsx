@@ -30,13 +30,11 @@ export function ActivityBreakdown({ activityBreakdown }: ActivityBreakdownProps)
       {
         label: "Activity Adherence",
         data: dataValues,
-        backgroundColor: "rgba(95, 135, 135, 0.2)",
-        borderColor: "#5f8787",
+        backgroundColor: "rgba(157, 183, 183, 0.15)",
+        borderColor: "#9db7b7",
         borderWidth: 2,
-        pointBackgroundColor: "#9db7b7",
-        pointBorderColor: "#fff",
-        pointHoverBackgroundColor: "#fff",
-        pointHoverBorderColor: "#5f8787",
+        pointRadius: 0,
+        pointHoverRadius: 0,
       },
     ],
   };
@@ -47,21 +45,21 @@ export function ActivityBreakdown({ activityBreakdown }: ActivityBreakdownProps)
     scales: {
       r: {
         angleLines: {
-          color: "rgba(255, 255, 255, 0.05)",
+          color: "rgba(255, 255, 255, 0.03)",
         },
         grid: {
-          color: "rgba(255, 255, 255, 0.05)",
+          color: "rgba(255, 255, 255, 0.03)",
         },
         pointLabels: {
-          color: "#999",
+          color: "rgba(184, 175, 174, 0.6)",
           font: {
-            size: 11,
+            size: 10,
             weight: 600 as const,
           },
         },
         ticks: {
           display: false,
-          stepSize: 20,
+          stepSize: 25,
         },
         suggestedMin: 0,
         suggestedMax: 100,
@@ -72,33 +70,34 @@ export function ActivityBreakdown({ activityBreakdown }: ActivityBreakdownProps)
         display: false,
       },
       tooltip: {
-        backgroundColor: "#1a191c",
+        backgroundColor: "rgba(26, 25, 28, 0.9)",
         titleColor: "#e4dfd9",
         bodyColor: "#b8afae",
-        borderColor: "#3a3439",
+        borderColor: "rgba(255, 255, 255, 0.1)",
         borderWidth: 1,
+        displayColors: false,
       },
     },
   };
 
   return (
     <Box>
-      <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mb: 3, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
-        Activity Adherence Profile
+      <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mb: 2, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
+        Activity Profile
       </Typography>
-      <Box sx={{ position: "relative", px: 2 }}>
+      <Box sx={{ position: "relative", px: 0 }}>
         <Radar data={data} options={options} />
       </Box>
-      <Box sx={{ mt: 2, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 1.5 }}>
+      <Box sx={{ mt: 2, display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 1 }}>
         {Object.entries(activityBreakdown).map(([activity, value]) => (
           <Box key={activity} sx={{ textAlign: "center" }}>
-             <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "capitalize", display: "block", fontSize: "0.65rem" }}>
+             <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "capitalize", display: "block", fontSize: "0.6rem", opacity: 0.7 }}>
               {activity}
             </Typography>
             <Typography variant="body2" sx={{ 
                 fontWeight: 800, 
                 color: value >= 90 ? "success.light" : value >= 75 ? "primary.light" : "warning.light",
-                fontSize: "0.8rem"
+                fontSize: "0.75rem"
               }}>
               {value}%
             </Typography>

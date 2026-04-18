@@ -4,22 +4,21 @@ import {
   Typography,
   Chip,
   Box,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
+  Grid,
+  Divider,
 } from "@mui/material";
 import {
-  ExpandMore as ExpandMoreIcon,
   Warning as WarningIcon,
   LocalPharmacy as PharmacyIcon,
   Science as ScienceIcon,
   Healing as HealingIcon,
   CheckCircle as CheckCircleIcon,
   Error as ErrorIcon,
+  Label as LabelIcon,
 } from "@mui/icons-material";
 import type { PatientDashboard } from "./dashboardTypes";
 
@@ -44,172 +43,311 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
   const { medicalHistory } = patient;
 
   return (
-    <Card
-      sx={{
-        height: "100%",
-        background: "linear-gradient(135deg, #1a191c 0%, #2c282d 100%)",
-        border: "1px solid #3a3439",
-      }}
-    >
-      <CardContent>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-          <HealingIcon sx={{ color: "#5f8787" }} />
-          <Typography variant="h6" sx={{ color: "#e4dfd9" }}>
-            Medical History
-          </Typography>
-        </Box>
-
-        <Accordion
-          defaultExpanded
-          sx={{
-            bgcolor: "#242226",
-            "&:before": { display: "none" },
-            mb: 1,
-            borderRadius: "8px !important",
-            border: "1px solid #3a3439",
-          }}
-        >
-          <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: "#999" }} />}>
-            <Typography sx={{ color: "#9db7b7", fontSize: "0.9rem" }}>
-              Conditions ({medicalHistory.conditions.length})
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.8 }}>
-              {medicalHistory.conditions.map((condition) => (
-                <Chip
-                  key={condition.name}
-                  label={`${condition.name} - ${condition.status}`}
-                  size="small"
-                  sx={{
-                    bgcolor: `${severityColor[condition.severity]}22`,
-                    border: `1px solid ${severityColor[condition.severity]}`,
-                    color: severityColor[condition.severity],
-                    fontSize: "0.75rem",
-                  }}
-                />
-              ))}
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {/* Conditions Section */}
+      <Card
+        elevation={0}
+        sx={{
+          bgcolor: "background.paper",
+          border: "1px solid rgba(255, 255, 255, 0.05)",
+          borderRadius: 4,
+          background: "linear-gradient(135deg, #1a191c 0%, #222024 100%)",
+        }}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 2,
+                bgcolor: "rgba(95, 135, 135, 0.1)",
+                color: "primary.light",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <HealingIcon />
             </Box>
-          </AccordionDetails>
-        </Accordion>
+            <Box>
+              <Typography variant="h6" sx={{ color: "text.primary", fontWeight: 700, lineHeight: 1.2 }}>
+                Chronic Conditions
+              </Typography>
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 500 }}>
+                {medicalHistory.conditions.length} Active conditions being monitored
+              </Typography>
+            </Box>
+          </Box>
 
-        <Accordion
-          sx={{
-            bgcolor: "#242226",
-            "&:before": { display: "none" },
-            mb: 1,
-            borderRadius: "8px !important",
-            border: "1px solid #3a3439",
-          }}
-        >
-          <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: "#999" }} />}>
-            <Typography sx={{ color: "#9db7b7", fontSize: "0.9rem" }}>
-              Allergies ({medicalHistory.allergies.length})
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <List dense disablePadding>
-              {medicalHistory.allergies.map((allergy) => (
-                <ListItem key={allergy.allergen} sx={{ px: 0 }}>
-                  <ListItemIcon sx={{ minWidth: 32 }}>
-                    <WarningIcon
-                      sx={{
-                        fontSize: 18,
-                        color: allergy.severity === "severe" ? "#e78a53" : "#f2d08a",
-                      }}
-                    />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={allergy.allergen}
-                    secondary={`Reaction: ${allergy.reaction}`}
-                    primaryTypographyProps={{ sx: { color: "#e4dfd9", fontSize: "0.85rem" } }}
-                    secondaryTypographyProps={{ sx: { color: "#b8afae", fontSize: "0.78rem" } }}
-                  />
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+            {medicalHistory.conditions.map((condition) => (
+              <Box
+                key={condition.name}
+                sx={{
+                  p: 2,
+                  borderRadius: 3,
+                  bgcolor: "rgba(255, 255, 255, 0.02)",
+                  border: `1px solid ${severityColor[condition.severity]}30`,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 0.5,
+                  minWidth: 160,
+                }}
+              >
+                <Typography variant="body2" sx={{ color: "text.primary", fontWeight: 700 }}>
+                  {condition.name}
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Chip
-                    label={allergy.severity}
+                    label={condition.status}
                     size="small"
                     sx={{
-                      bgcolor: allergy.severity === "severe" ? "#e78a5322" : "#f2d08a22",
-                      color: allergy.severity === "severe" ? "#e78a53" : "#f2d08a",
-                      fontSize: "0.7rem",
+                      bgcolor: "rgba(255, 255, 255, 0.03)",
+                      color: "text.secondary",
+                      fontSize: "0.65rem",
+                      height: 18,
+                      fontWeight: 700,
+                      borderRadius: 1,
                     }}
                   />
-                </ListItem>
-              ))}
-            </List>
-          </AccordionDetails>
-        </Accordion>
-
-        <Accordion
-          sx={{
-            bgcolor: "#242226",
-            "&:before": { display: "none" },
-            mb: 1,
-            borderRadius: "8px !important",
-            border: "1px solid #3a3439",
-          }}
-        >
-          <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: "#999" }} />}>
-            <Typography sx={{ color: "#9db7b7", fontSize: "0.9rem" }}>
-              Current Medications ({medicalHistory.medications.length})
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <List dense disablePadding>
-              {medicalHistory.medications.map((med) => (
-                <ListItem key={med.name} sx={{ px: 0 }}>
-                  <ListItemIcon sx={{ minWidth: 32 }}>
-                    <PharmacyIcon sx={{ fontSize: 18, color: "#5f8787" }} />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={`${med.name} ${med.dosage}`}
-                    secondary={`${med.frequency} • ${med.purpose}`}
-                    primaryTypographyProps={{ sx: { color: "#e4dfd9", fontSize: "0.85rem" } }}
-                    secondaryTypographyProps={{ sx: { color: "#b8afae", fontSize: "0.78rem" } }}
+                  <Chip
+                    label={condition.severity}
+                    size="small"
+                    sx={{
+                      bgcolor: `${severityColor[condition.severity]}15`,
+                      color: severityColor[condition.severity],
+                      fontSize: "0.65rem",
+                      height: 18,
+                      fontWeight: 800,
+                      borderRadius: 1,
+                      textTransform: "uppercase",
+                    }}
                   />
-                </ListItem>
-              ))}
-            </List>
-          </AccordionDetails>
-        </Accordion>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </CardContent>
+      </Card>
 
-        <Accordion
-          sx={{
-            bgcolor: "#242226",
-            "&:before": { display: "none" },
-            borderRadius: "8px !important",
-            border: "1px solid #3a3439",
-          }}
-        >
-          <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: "#999" }} />}>
-            <Typography sx={{ color: "#9db7b7", fontSize: "0.9rem" }}>
-              Biomarkers ({medicalHistory.biomarkers.length})
+      <Grid container spacing={3}>
+        {/* Allergies Section */}
+        <Grid size={{ xs: 12, lg: 6 }}>
+          <Card
+            elevation={0}
+            sx={{
+              bgcolor: "background.paper",
+              border: "1px solid rgba(255, 255, 255, 0.05)",
+              borderRadius: 4,
+              height: "100%",
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    bgcolor: "rgba(231, 138, 83, 0.1)",
+                    color: "error.main",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <WarningIcon />
+                </Box>
+                <Typography variant="h6" sx={{ color: "text.primary", fontWeight: 700 }}>
+                  Allergies
+                </Typography>
+              </Box>
+
+              <List disablePadding>
+                {medicalHistory.allergies.map((allergy, idx) => (
+                  <Box key={allergy.allergen}>
+                    <ListItem sx={{ px: 0, py: 2 }}>
+                      <ListItemIcon sx={{ minWidth: 40 }}>
+                        <LabelIcon
+                          sx={{
+                            fontSize: 20,
+                            color: allergy.severity === "severe" ? "error.main" : "warning.main",
+                          }}
+                        />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={allergy.allergen}
+                        secondary={`Reaction: ${allergy.reaction}`}
+                        primaryTypographyProps={{ sx: { color: "text.primary", fontWeight: 600 } }}
+                        secondaryTypographyProps={{ sx: { color: "text.secondary", mt: 0.5 } }}
+                      />
+                      <Chip
+                        label={allergy.severity}
+                        size="small"
+                        sx={{
+                          bgcolor: allergy.severity === "severe" ? "error.main" : "warning.main",
+                          color: "background.default",
+                          fontWeight: 800,
+                          fontSize: "0.65rem",
+                          borderRadius: 1,
+                          textTransform: "uppercase",
+                        }}
+                      />
+                    </ListItem>
+                    {idx < medicalHistory.allergies.length - 1 && <Divider sx={{ opacity: 0.05 }} />}
+                  </Box>
+                ))}
+              </List>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Medications Section */}
+        <Grid size={{ xs: 12, lg: 6 }}>
+          <Card
+            elevation={0}
+            sx={{
+              bgcolor: "background.paper",
+              border: "1px solid rgba(255, 255, 255, 0.05)",
+              borderRadius: 4,
+              height: "100%",
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    bgcolor: "rgba(95, 135, 135, 0.1)",
+                    color: "primary.main",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <PharmacyIcon />
+                </Box>
+                <Typography variant="h6" sx={{ color: "text.primary", fontWeight: 700 }}>
+                  Active Medications
+                </Typography>
+              </Box>
+
+              <List disablePadding>
+                {medicalHistory.medications.map((med, idx) => (
+                  <Box key={med.name}>
+                    <ListItem sx={{ px: 0, py: 2 }}>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="body1" sx={{ color: "text.primary", fontWeight: 700 }}>
+                          {med.name}
+                        </Typography>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
+                          <Typography variant="caption" sx={{ color: "primary.light", fontWeight: 700 }}>
+                            {med.dosage}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                            • {med.frequency}
+                          </Typography>
+                        </Box>
+                        <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mt: 0.5, fontStyle: "italic" }}>
+                          Purpose: {med.purpose}
+                        </Typography>
+                      </Box>
+                    </ListItem>
+                    {idx < medicalHistory.medications.length - 1 && <Divider sx={{ opacity: 0.05 }} />}
+                  </Box>
+                ))}
+              </List>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Biomarkers Section */}
+      <Card
+        elevation={0}
+        sx={{
+          bgcolor: "background.paper",
+          border: "1px solid rgba(255, 255, 255, 0.05)",
+          borderRadius: 4,
+        }}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 2,
+                bgcolor: "rgba(157, 183, 183, 0.1)",
+                color: "primary.light",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <ScienceIcon />
+            </Box>
+            <Typography variant="h6" sx={{ color: "text.primary", fontWeight: 700 }}>
+              Health Biomarkers
             </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <List dense disablePadding>
-              {medicalHistory.biomarkers.map((marker) => (
-                <ListItem key={marker.name} sx={{ px: 0 }}>
-                  <ListItemIcon sx={{ minWidth: 32 }}>
-                    <ScienceIcon sx={{ fontSize: 18, color: biomarkerStatusColor[marker.status] }} />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={marker.name}
-                    secondary={`Current: ${marker.value} ${marker.unit} | Target: ${marker.target}`}
-                    primaryTypographyProps={{ sx: { color: "#e4dfd9", fontSize: "0.85rem" } }}
-                    secondaryTypographyProps={{ sx: { color: "#b8afae", fontSize: "0.78rem" } }}
+          </Box>
+
+          <Grid container spacing={2}>
+            {medicalHistory.biomarkers.map((marker) => (
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={marker.name}>
+                <Box
+                  sx={{
+                    p: 2,
+                    borderRadius: 3,
+                    bgcolor: "rgba(255, 255, 255, 0.02)",
+                    border: "1px solid rgba(255, 255, 255, 0.05)",
+                    height: "100%",
+                  }}
+                >
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
+                    <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                      {marker.name}
+                    </Typography>
+                    {marker.status === "normal" ? (
+                      <CheckCircleIcon sx={{ fontSize: 16, color: "success.main" }} />
+                    ) : (
+                      <ErrorIcon sx={{ fontSize: 16, color: biomarkerStatusColor[marker.status] }} />
+                    )}
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5 }}>
+                    <Typography variant="h5" sx={{ color: biomarkerStatusColor[marker.status], fontWeight: 800 }}>
+                      {marker.value}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
+                      {marker.unit}
+                    </Typography>
+                  </Box>
+                  <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mt: 0.5 }}>
+                    Target: {marker.target}
+                  </Typography>
+                  <Chip
+                    label={marker.status}
+                    size="small"
+                    sx={{
+                      mt: 1.5,
+                      bgcolor: `${biomarkerStatusColor[marker.status]}15`,
+                      color: biomarkerStatusColor[marker.status],
+                      fontSize: "0.6rem",
+                      height: 18,
+                      fontWeight: 800,
+                      textTransform: "uppercase",
+                      borderRadius: 1,
+                    }}
                   />
-                  {marker.status === "normal" ? (
-                    <CheckCircleIcon sx={{ fontSize: 18, color: "#8dd6a3" }} />
-                  ) : (
-                    <ErrorIcon sx={{ fontSize: 18, color: biomarkerStatusColor[marker.status] }} />
-                  )}
-                </ListItem>
-              ))}
-            </List>
-          </AccordionDetails>
-        </Accordion>
-      </CardContent>
-    </Card>
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }
