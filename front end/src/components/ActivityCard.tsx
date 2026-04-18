@@ -13,6 +13,8 @@ import {
   Medication as MedicationIcon,
   Hotel as SleepIcon,
   DirectionsRun as ActivityIcon,
+  Psychology as CognitiveIcon,
+  HealthAndSafety as TherapyIcon,
   Schedule as TimeIcon,
   CheckCircle as DoneIcon,
   PendingOutlined as PendingIcon,
@@ -23,7 +25,7 @@ import {
 
 export type ActivityItem = {
   scheduleItemId: string;
-  activityType: "diet" | "medication" | "sleep" | "activity";
+  activityType: "diet" | "medication" | "sleep" | "activity" | "therapy" | "cognitive" | "physical" | "checkup";
   title: string;
   instructions: string[];
   windowStartLocal: string;
@@ -48,7 +50,12 @@ const getActivityIcon = (type: string) => {
       return <MedicationIcon sx={{ fontSize: 20 }} />;
     case "sleep":
       return <SleepIcon sx={{ fontSize: 20 }} />;
+    case "cognitive":
+      return <CognitiveIcon sx={{ fontSize: 20 }} />;
+    case "therapy":
+      return <TherapyIcon sx={{ fontSize: 20 }} />;
     case "activity":
+    case "physical":
     default:
       return <ActivityIcon sx={{ fontSize: 20 }} />;
   }
@@ -57,12 +64,17 @@ const getActivityIcon = (type: string) => {
 const getActivityColor = (type: string) => {
   switch (type) {
     case "diet":
-      return "#8dd6a3"; // green
+      return "#42d6a4"; // green
     case "medication":
-      return "#7eb8da"; // blue
+      return "#ffb443"; // orange
     case "sleep":
-      return "#b8a9d4"; // purple
+      return "#ff6b9d"; // pink
+    case "cognitive":
+      return "#8a85ff"; // purple
+    case "therapy":
+      return "#4ec3ff"; // light blue
     case "activity":
+    case "physical":
     default:
       return "#f2d08a"; // gold
   }

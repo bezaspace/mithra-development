@@ -109,10 +109,11 @@ interface ApiProgress {
   totalDaysPlan: number;
   activityBreakdown: {
     medication: number;
-    exercise: number;
+    physical: number;
     diet: number;
     therapy: number;
-    rest: number;
+    sleep: number;
+    cognitive: number;
   };
   recentMilestones: Array<{ milestone: string; achievedDate: string; phase: number }>;
   physiotherapyHistory: Array<{ date: string; score: number }>;
@@ -303,10 +304,11 @@ function transformApiResponse(apiData: DashboardApiResponse): PatientDashboard {
       totalDaysPlan: progress.totalDaysPlan,
       activityBreakdown: {
         medication: progress.activityBreakdown.medication,
-        exercise: progress.activityBreakdown.exercise,
+        physical: progress.activityBreakdown.physical,
         diet: progress.activityBreakdown.diet,
         therapy: progress.activityBreakdown.therapy,
-        rest: progress.activityBreakdown.rest,
+        sleep: progress.activityBreakdown.sleep,
+        cognitive: progress.activityBreakdown.cognitive,
       },
       recentMilestones: progress.recentMilestones.map((m) => ({
         milestone: m.milestone,

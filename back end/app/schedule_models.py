@@ -15,6 +15,7 @@ class ScheduleActivityType(StrEnum):
     ACTIVITY = "activity"
     THERAPY = "therapy"
     CHECKUP = "checkup"
+    COGNITIVE = "cognitive"
 
 
 ACTIVITY_TYPE_ALIASES = {

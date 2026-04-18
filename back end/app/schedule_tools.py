@@ -75,28 +75,30 @@ def build_schedule_tools(
             "message": result.message,
         }
 
-    def get_adherence_stats(
+    def get_adherence_score(
         tool_context: ToolContext | None = None,
     ) -> dict[str, Any]:
         """
-        Returns adherence statistics including overall percentage, weekly trends, and activity breakdown.
-        Call this when the user asks about their adherence score, adherence percentage, or recovery progress.
-        This provides computed statistics, not raw schedule data.
+        Returns ONLY the adherence compliance score: overall percentage, weekly trend,
+        per-activity breakdown, and today's completed/total counts.
+        Call this when the user asks about adherence, compliance, how well they are following
+        the plan, or their weekly completion. Do NOT call this for physiotherapy score or pain.
         """
         user_id = _resolve_user_id(tool_context)
-        
+
         if dashboard_repository is None:
             return {
                 "type": "adherence_stats",
                 "overallAdherence": 0,
                 "weeklyAdherence": [0, 0, 0, 0],
                 "activityBreakdown": {},
+                "todayCompleted": 0,
+                "todayTotal": 0,
                 "message": "Adherence statistics are not available.",
             }
-        
+
         stats = dashboard_repository.get_adherence_stats(user_id)
-        
-        # Get today's schedule to compute today's completion
+
         schedule = schedule_service.get_today_schedule(
             user_id=user_id,
             timezone_name=None,
@@ -105,19 +107,91 @@ def build_schedule_tools(
         items = schedule.get("items", [])
         today_total = len(items)
         today_completed = sum(
-            1 for item in items 
+            1 for item in items
             if item.get("latestReport") and item["latestReport"].get("status") in ("done", "partial")
         )
-        
+
+        raw_breakdown = stats.get("by_activity", {})
+        activity_breakdown = {
+            "medication": raw_breakdown.get("medication", 0),
+            "physical": raw_breakdown.get("activity", 0),
+            "diet": raw_breakdown.get("diet", 0),
+            "therapy": raw_breakdown.get("therapy", 0),
+            "sleep": raw_breakdown.get("sleep", 0),
+            "cognitive": raw_breakdown.get("cognitive", 0),
+        }
+
         return {
             "type": "adherence_stats",
             "overallAdherence": stats.get("overall", 0),
             "weeklyAdherence": stats.get("weekly", [0, 0, 0, 0]),
-            "activityBreakdown": stats.get("by_activity", {}),
+            "activityBreakdown": activity_breakdown,
             "todayCompleted": today_completed,
             "todayTotal": today_total,
-            "message": f"Your overall adherence is {stats.get('overall', 0)}%. "
-                      f"Today you've completed {today_completed} out of {today_total} scheduled activities.",
+            "message": (
+                f"Your overall adherence is {stats.get('overall', 0)}%. "
+                f"Today you've completed {today_completed} out of {today_total} scheduled activities."
+            ),
+        }
+
+    def get_physiotherapy_score(
+        tool_context: ToolContext | None = None,
+    ) -> dict[str, Any]:
+        """
+        Returns ONLY the physiotherapy recovery score trend (last 30 days) and latest score.
+        Call this when the user asks about physiotherapy score, physio progress, recovery score,
+        or how their physiotherapy is trending. Do NOT call this for adherence or pain.
+        """
+        user_id = _resolve_user_id(tool_context)
+        if dashboard_repository is None:
+            return {
+                "type": "physiotherapy_score",
+                "history": [],
+                "latestScore": None,
+                "message": "Physiotherapy score is not available.",
+            }
+        physio_history = dashboard_repository.get_physiotherapy_history(user_id)
+        history = [{"date": p.date, "score": p.score} for p in physio_history]
+        latest_score = history[-1]["score"] if history else None
+        if latest_score is None:
+            message = "No physiotherapy score is recorded yet."
+        else:
+            message = f"Your latest physiotherapy score is {latest_score} out of 100."
+        return {
+            "type": "physiotherapy_score",
+            "history": history,
+            "latestScore": latest_score,
+            "message": message,
+        }
+
+    def get_pain_index(
+        tool_context: ToolContext | None = None,
+    ) -> dict[str, Any]:
+        """
+        Returns ONLY the pain index trend (last 30 days) and latest pain level (0-10).
+        Call this when the user asks about pain, pain index, pain level, or whether their pain
+        is improving. Do NOT call this for adherence or physiotherapy score.
+        """
+        user_id = _resolve_user_id(tool_context)
+        if dashboard_repository is None:
+            return {
+                "type": "pain_index",
+                "history": [],
+                "latestValue": None,
+                "message": "Pain index is not available.",
+            }
+        pain_history = dashboard_repository.get_pain_index_history(user_id)
+        history = [{"date": p.date, "value": p.value} for p in pain_history]
+        latest_value = history[-1]["value"] if history else None
+        if latest_value is None:
+            message = "No pain index is recorded yet."
+        else:
+            message = f"Your latest pain index is {latest_value} out of 10."
+        return {
+            "type": "pain_index",
+            "history": history,
+            "latestValue": latest_value,
+            "message": message,
         }
 
     def save_adherence_report(
@@ -161,7 +235,14 @@ def build_schedule_tools(
             session_id=session_id,
         )
 
-    return [get_today_schedule, get_current_schedule_item, get_adherence_stats, save_adherence_report]
+    return [
+        get_today_schedule,
+        get_current_schedule_item,
+        get_adherence_score,
+        get_physiotherapy_score,
+        get_pain_index,
+        save_adherence_report,
+    ]
 
 
 def _serialize_item(item: Any) -> dict[str, Any] | None:

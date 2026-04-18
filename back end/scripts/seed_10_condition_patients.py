@@ -716,6 +716,44 @@ def seed_database() -> None:
                         "created_at": report_date.isoformat(),
                     })
 
+            # Seed recovery history (Physiotherapy & Pain Index)
+            base_date = today - timedelta(days=29)
+            # Use patient-specific seed for variation
+            random_seed = sum(ord(c) for c in user_id) % 10
+
+            for i in range(30):
+                date_str = (base_date + timedelta(days=i)).strftime("%Y-%m-%d")
+                
+                # Physiotherapy score: slightly different improvement per patient
+                improvement_rate = 0.8 + (random_seed * 0.1)
+                physio_score = min(100, 45 + int(i * improvement_rate) + (i % 3))
+                
+                session.execute(text("""
+                    INSERT INTO physiotherapy_readings (id, user_id, date, score, created_at)
+                    VALUES (:id, :user_id, :date, :score, :created_at)
+                """), {
+                    "id": f"physio-{uuid4().hex[:8]}",
+                    "user_id": user_id,
+                    "date": date_str,
+                    "score": physio_score,
+                    "created_at": today.isoformat()
+                })
+                
+                # Pain index: slightly different decrease per patient
+                decrease_rate = 0.1 + (random_seed * 0.02)
+                pain_value = max(0, int(7 - (i * decrease_rate) + (i % 2)))
+                
+                session.execute(text("""
+                    INSERT INTO pain_index_readings (id, user_id, date, value, created_at)
+                    VALUES (:id, :user_id, :date, :value, :created_at)
+                """), {
+                    "id": f"pain-{uuid4().hex[:8]}",
+                    "user_id": user_id,
+                    "date": date_str,
+                    "value": pain_value,
+                    "created_at": today.isoformat()
+                })
+
         session.commit()
     print("\nSeeding complete! Added 10 condition-specific patients with full data.")
 

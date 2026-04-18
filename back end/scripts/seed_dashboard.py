@@ -475,6 +475,20 @@ SCHEDULE_ITEMS = [
         "window_end_local": "21:30",
         "display_order": 10,
     },
+    {
+        "id": "sched-dash-011",
+        "activity_type": "cognitive",
+        "title": "Cognitive Brain Training",
+        "instructions": [
+            "Complete 15 minutes of memory exercises",
+            "Practice mindfulness meditation",
+            "Read for 20 minutes to maintain mental focus",
+        ],
+        "window_start_local": "20:00",
+        "window_end_local": "20:45",
+        "display_order": 11,
+        "notes": "Maintaining mental health is crucial for physical recovery",
+    },
 ]
 
 
@@ -527,6 +541,39 @@ def generate_adherence_reports(user_id: str) -> list[dict]:
                 )
 
     return reports
+
+
+def generate_recovery_history(user_id: str) -> tuple[list[dict], list[dict]]:
+    """Generate mock physiotherapy and pain index history."""
+    physio = []
+    pain = []
+    today = datetime.now(timezone.utc)
+    base_date = today - timedelta(days=29)
+
+    for i in range(30):
+        date_str = (base_date + timedelta(days=i)).strftime("%Y-%m-%d")
+        
+        # Physiotherapy score: 50 -> 90 improvement
+        physio_score = min(100, 50 + i + (i % 5))
+        physio.append({
+            "id": f"physio_{uuid4().hex[:16]}",
+            "user_id": user_id,
+            "date": date_str,
+            "score": physio_score,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        
+        # Pain index: 8 -> 2 decrease
+        pain_value = max(0, 8 - (i // 4) + (i % 2))
+        pain.append({
+            "id": f"pain_{uuid4().hex[:16]}",
+            "user_id": user_id,
+            "date": date_str,
+            "value": pain_value,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        
+    return physio, pain
 
 
 def seed_database() -> None:
@@ -680,9 +727,33 @@ def seed_database() -> None:
                 """)
                 session.execute(insert_sql, report)
 
+        # Insert recovery history (Physiotherapy & Pain Index)
+        physio_history, pain_history = generate_recovery_history(plan["user_id"])
+        
+        for p in physio_history:
+            check_sql = text("SELECT COUNT(*) FROM physiotherapy_readings WHERE date = :date AND user_id = :user_id")
+            result = session.execute(check_sql, {"date": p["date"], "user_id": p["user_id"]})
+            if result.scalar() == 0:
+                insert_sql = text("""
+                    INSERT INTO physiotherapy_readings (id, user_id, date, score, created_at)
+                    VALUES (:id, :user_id, :date, :score, :created_at)
+                """)
+                session.execute(insert_sql, p)
+
+        for p in pain_history:
+            check_sql = text("SELECT COUNT(*) FROM pain_index_readings WHERE date = :date AND user_id = :user_id")
+            result = session.execute(check_sql, {"date": p["date"], "user_id": p["user_id"]})
+            if result.scalar() == 0:
+                insert_sql = text("""
+                    INSERT INTO pain_index_readings (id, user_id, date, value, created_at)
+                    VALUES (:id, :user_id, :date, :value, :created_at)
+                """)
+                session.execute(insert_sql, p)
+
         session.commit()
         print(f"Schedule items ({len(SCHEDULE_ITEMS)}) seeded successfully!")
         print(f"Adherence reports ({len(reports)}) generated successfully!")
+        print(f"Recovery history (Physio: {len(physio_history)}, Pain: {len(pain_history)}) seeded successfully!")
         print("\nDashboard mock data seeding complete!")
         print(
             f"\nYou can now access the dashboard at: http://localhost:8000/api/dashboard/{plan['user_id']}"

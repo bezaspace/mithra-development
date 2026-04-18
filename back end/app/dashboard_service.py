@@ -14,11 +14,12 @@ from app.schedule_service import ScheduleService
 
 # Activity type mapping: backend -> frontend
 ACTIVITY_TYPE_MAP = {
-    "activity": "exercise",
-    "sleep": "rest",
+    "activity": "physical",
+    "sleep": "sleep",
     "diet": "diet",
     "medication": "medication",
     "therapy": "therapy",
+    "cognitive": "cognitive",
     "checkup": "checkup",
 }
 
@@ -163,10 +164,11 @@ class DashboardService:
 
         activity_breakdown = ActivityBreakdown(
             medication=adherence_stats.get("by_activity", {}).get("medication", 0),
-            exercise=adherence_stats.get("by_activity", {}).get("activity", 0),
+            physical=adherence_stats.get("by_activity", {}).get("activity", 0),
             diet=adherence_stats.get("by_activity", {}).get("diet", 0),
             therapy=adherence_stats.get("by_activity", {}).get("therapy", 0),
-            rest=adherence_stats.get("by_activity", {}).get("sleep", 0),
+            sleep=adherence_stats.get("by_activity", {}).get("sleep", 0),
+            cognitive=adherence_stats.get("by_activity", {}).get("cognitive", 0),
         )
 
         return DashboardProgress(
@@ -297,10 +299,11 @@ class DashboardService:
             "totalDaysPlan": progress.total_days_plan,
             "activityBreakdown": {
                 "medication": progress.activity_breakdown.medication,
-                "exercise": progress.activity_breakdown.exercise,
+                "physical": progress.activity_breakdown.physical,
                 "diet": progress.activity_breakdown.diet,
                 "therapy": progress.activity_breakdown.therapy,
-                "rest": progress.activity_breakdown.rest,
+                "sleep": progress.activity_breakdown.sleep,
+                "cognitive": progress.activity_breakdown.cognitive,
             },
             "recentMilestones": [
                 {

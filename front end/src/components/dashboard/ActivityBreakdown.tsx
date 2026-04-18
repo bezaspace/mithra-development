@@ -88,7 +88,7 @@ export function ActivityBreakdown({ activityBreakdown }: ActivityBreakdownProps)
       <Box sx={{ position: "relative", px: 0 }}>
         <Radar data={data} options={options} />
       </Box>
-      <Box sx={{ mt: 2, display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 1 }}>
+      <Box sx={{ mt: 2, display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 0.5 }}>
         {Object.entries(activityBreakdown).map(([activity, value]) => (
           <Box key={activity} sx={{ textAlign: "center" }}>
              <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "capitalize", display: "block", fontSize: "0.6rem", opacity: 0.7 }}>

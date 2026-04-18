@@ -197,10 +197,11 @@ class PainIndexRow(SQLModel, table=True):
 
 class ActivityBreakdown(BaseModel):
     medication: int = 0
-    exercise: int = 0
+    physical: int = 0
     diet: int = 0
     therapy: int = 0
-    rest: int = 0
+    sleep: int = 0
+    cognitive: int = 0
 
 
 class DashboardProgress(BaseModel):

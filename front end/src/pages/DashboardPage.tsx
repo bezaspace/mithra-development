@@ -195,7 +195,11 @@ export function DashboardPage() {
         <Grid container spacing={4}>
           <Grid size={{ xs: 12, md: 4 }}>
             <Box sx={{ p: 1 }}>
-              <AdherenceDoughnut adherence={patient.progress.overallAdherence} size={160} />
+              <AdherenceDoughnut 
+                adherence={patient.progress.overallAdherence} 
+                activityBreakdown={patient.progress.activityBreakdown}
+                size={220} 
+              />
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>

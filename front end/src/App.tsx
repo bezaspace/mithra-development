@@ -1,33 +1,27 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import {
   Box,
   Typography,
   Button,
-  Grid,
   Paper,
   Alert,
   Fade,
-  Container,
   Snackbar,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
-import {
-  Mic as MicIcon,
-  Stop as StopIcon,
-  InfoOutlined as InfoIcon,
-} from "@mui/icons-material";
+import { InfoOutlined as InfoIcon } from "@mui/icons-material";
 
 import { BookingUpdates, type BookingUpdate } from "./components/BookingUpdates";
 import { DoctorRecommendations } from "./components/DoctorRecommendations";
 import { AdherenceDoughnut } from "./components/dashboard/AdherenceDoughnut";
+import { PhysiotherapyScoreChart } from "./components/dashboard/PhysiotherapyScoreChart";
+import { PainIndexChart } from "./components/dashboard/PainIndexChart";
 import { ActivityCard } from "./components/ActivityCard";
 import { backendHttpUrl, backendWsUrl } from "./lib/backendUrls";
 import { startMicCapture, type AudioInputController } from "./lib/audioIn";
 import { AudioPlayer } from "./lib/audioOut";
-import { LiveSocket, type AdherenceReportSavedEvent, type AdherenceStatsEvent, type CurrentActivityEvent, type DoctorCard, type ServerEvent } from "./lib/liveSocket";
+import { LiveSocket, type AdherenceReportSavedEvent, type AdherenceStatsEvent, type CurrentActivityEvent, type DoctorCard, type PainIndexEvent, type PhysiotherapyScoreEvent, type ServerEvent } from "./lib/liveSocket";
 import { SchedulePage } from "./pages/SchedulePage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { OverviewPage } from "./pages/OverviewPage";
@@ -39,6 +33,18 @@ import { Layout } from "./components/Layout";
 type ConnectionState = "idle" | "connecting" | "ready" | "error";
 type VoiceVisualState = "idle" | "listening" | "holding" | "awaiting" | "speaking" | "error";
 type ScheduleSnapshotEvent = Extract<ServerEvent, { type: "schedule_snapshot" }>;
+
+// Single-slot visual shown on the voice session page. Only one of these is ever
+// displayed at a time; each new tool response from the agent replaces the prior
+// visual, giving the "focus on one thing at a time" UX.
+type ActiveVisual =
+  | { kind: "adherence"; data: AdherenceStatsEvent }
+  | { kind: "physiotherapy"; data: PhysiotherapyScoreEvent }
+  | { kind: "pain"; data: PainIndexEvent }
+  | { kind: "currentActivity"; data: CurrentActivityEvent }
+  | { kind: "doctors"; data: { symptomsSummary: string; doctors: DoctorCard[] } }
+  | { kind: "booking"; data: BookingUpdate }
+  | null;
 
 const wsUrl = backendWsUrl;
 const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
@@ -52,17 +58,16 @@ function AppContent() {
   const [state, setState] = useState<ConnectionState>("idle");
   const [warning, setWarning] = useState("");
   const [visualState, setVisualState] = useState<VoiceVisualState>("idle");
-  const [symptomsSummary, setSymptomsSummary] = useState("");
-  const [recommendedDoctors, setRecommendedDoctors] = useState<DoctorCard[]>([]);
-  const [bookingUpdates, setBookingUpdates] = useState<BookingUpdate[]>([]);
   const [isPttActive, setIsPttActive] = useState(false);
   const [liveScheduleSnapshot, setLiveScheduleSnapshot] = useState<ScheduleSnapshotEvent | null>(null);
   const [latestAdherenceEvent, setLatestAdherenceEvent] = useState<AdherenceReportSavedEvent | null>(null);
-  const [adherenceStats, setAdherenceStats] = useState<AdherenceStatsEvent | null>(null);
-  const [currentActivity, setCurrentActivity] = useState<CurrentActivityEvent | null>(null);
+  // Single-slot visual shown on the voice session page. Any new visual-bearing
+  // server event replaces the previous one, so only one UI ever shows at a time.
+  const [activeVisual, setActiveVisual] = useState<ActiveVisual>(null);
+  // Retained separately so the adherence toast can resolve activity titles.
+  const [currentActivityTitle, setCurrentActivityTitle] = useState<string | null>(null);
 
   const { userId, setUserId, publishAdherenceEvent } = usePatient();
-  const navigate = useNavigate();
 
   const socket = useMemo(() => new LiveSocket(), []);
   const playerRef = useRef<AudioPlayer | null>(null);
@@ -128,13 +133,10 @@ function AppContent() {
     setState("connecting");
     setVisualState("idle");
     setWarning("");
-    setSymptomsSummary("");
-    setRecommendedDoctors([]);
-    setBookingUpdates([]);
+    setActiveVisual(null);
+    setCurrentActivityTitle(null);
     setLiveScheduleSnapshot(null);
     setLatestAdherenceEvent(null);
-    setAdherenceStats(null);
-    setCurrentActivity(null);
     markPttActive(false);
     assistantSampleRateRef.current = 24000;
 
@@ -225,12 +227,17 @@ function AppContent() {
           return;
         }
         if (evt.type === "doctor_recommendations") {
-          setSymptomsSummary(evt.symptomsSummary);
-          setRecommendedDoctors(evt.doctors);
+          setActiveVisual({
+            kind: "doctors",
+            data: { symptomsSummary: evt.symptomsSummary, doctors: evt.doctors },
+          });
           return;
         }
         if (evt.type === "booking_update") {
-          setBookingUpdates((prev) => [...prev, { status: evt.status, message: evt.message, booking: evt.booking }]);
+          setActiveVisual({
+            kind: "booking",
+            data: { status: evt.status, message: evt.message, booking: evt.booking },
+          });
           return;
         }
         if (evt.type === "schedule_snapshot") {
@@ -249,11 +256,22 @@ function AppContent() {
           return;
         }
         if (evt.type === "adherence_stats") {
-          setAdherenceStats(evt);
+          setActiveVisual({ kind: "adherence", data: evt });
+          return;
+        }
+        if (evt.type === "physiotherapy_score") {
+          setActiveVisual({ kind: "physiotherapy", data: evt });
+          return;
+        }
+        if (evt.type === "pain_index") {
+          setActiveVisual({ kind: "pain", data: evt });
           return;
         }
         if (evt.type === "current_activity") {
-          setCurrentActivity(evt);
+          setActiveVisual({ kind: "currentActivity", data: evt });
+          setCurrentActivityTitle(
+            evt.currentItem?.title ?? evt.upcomingItem?.title ?? null
+          );
           return;
         }
         if (evt.type === "profile_created") {
@@ -371,11 +389,8 @@ function AppContent() {
               state={state}
               visualState={visualState}
               warning={warning}
-              symptomsSummary={symptomsSummary}
-              recommendedDoctors={recommendedDoctors}
-              bookingUpdates={bookingUpdates}
-              adherenceStats={adherenceStats}
-              currentActivity={currentActivity}
+              activeVisual={activeVisual}
+              currentActivityTitle={currentActivityTitle}
               isPttActive={isPttActive}
               onConnect={connect}
               onDisconnect={disconnect}
@@ -455,11 +470,8 @@ function VoiceSessionPage({
   state,
   visualState,
   warning,
-  symptomsSummary,
-  recommendedDoctors,
-  bookingUpdates,
-  adherenceStats,
-  currentActivity,
+  activeVisual,
+  currentActivityTitle,
   isPttActive,
   onConnect,
   onDisconnect,
@@ -469,11 +481,8 @@ function VoiceSessionPage({
   state: ConnectionState;
   visualState: VoiceVisualState;
   warning: string;
-  symptomsSummary: string;
-  recommendedDoctors: DoctorCard[];
-  bookingUpdates: BookingUpdate[];
-  adherenceStats: AdherenceStatsEvent | null;
-  currentActivity: CurrentActivityEvent | null;
+  activeVisual: ActiveVisual;
+  currentActivityTitle: string | null;
   isPttActive: boolean;
   onConnect: () => Promise<void>;
   onDisconnect: () => Promise<void>;
@@ -492,13 +501,9 @@ function VoiceSessionPage({
     if (!latestAdherenceEvent) return;
     if (latestAdherenceEvent === lastToastRef.current) return;
     lastToastRef.current = latestAdherenceEvent;
-    const currentTitle =
-      currentActivity?.currentItem?.title ??
-      currentActivity?.upcomingItem?.title ??
-      null;
-    const formatted = formatAdherenceToast(latestAdherenceEvent, currentTitle);
+    const formatted = formatAdherenceToast(latestAdherenceEvent, currentActivityTitle);
     setToast({ ...formatted, key: Date.now() });
-  }, [latestAdherenceEvent, currentActivity]);
+  }, [latestAdherenceEvent, currentActivityTitle]);
 
   // Add keyboard event listeners for spacebar control
   useEffect(() => {
@@ -556,55 +561,7 @@ function VoiceSessionPage({
         gap: 3,
         maskImage: "linear-gradient(to bottom, black 80%, transparent 100%)"
       }}>
-        {adherenceStats && (
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              bgcolor: "background.paper",
-              border: "1px solid",
-              borderColor: "rgba(255, 255, 255, 0.05)",
-              borderRadius: 4,
-            }}
-          >
-            <AdherenceDoughnut adherence={adherenceStats.overallAdherence} size={160} />
-            {adherenceStats.todayTotal > 0 && (
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  color: "text.secondary", 
-                  textAlign: "center", 
-                  mt: 2,
-                  fontWeight: 500 
-                }}
-              >
-                Today: {adherenceStats.todayCompleted}/{adherenceStats.todayTotal} activities completed
-              </Typography>
-            )}
-          </Paper>
-        )}
-        {currentActivity?.currentItem && (
-          <ActivityCard
-            item={currentActivity.currentItem}
-            status={currentActivity.inWindow ? "pending" : "pending"}
-            isCurrent={currentActivity.inWindow}
-            message={currentActivity.message}
-          />
-        )}
-        {currentActivity?.upcomingItem && !currentActivity?.currentItem && (
-          <ActivityCard
-            item={currentActivity.upcomingItem}
-            status="pending"
-            isUpcoming={true}
-            message={currentActivity.message}
-          />
-        )}
-        {recommendedDoctors.length > 0 && (
-          <DoctorRecommendations symptomsSummary={symptomsSummary} doctors={recommendedDoctors} />
-        )}
-        {bookingUpdates.length > 0 && (
-          <BookingUpdates updates={bookingUpdates} />
-        )}
+        <ActiveVisualSlot activeVisual={activeVisual} />
       </Box>
 
       {/* Floating Status & Controls at Bottom */}
@@ -735,5 +692,161 @@ function VoiceSessionPage({
         ) : undefined}
       </Snackbar>
     </Box>
+  );
+}
+
+// Renders exactly one visual at a time, keyed by activeVisual.kind so that
+// React fully unmounts the previous visual when the agent pivots to a new topic
+// and mounts the next one with a fade-in transition.
+function ActiveVisualSlot({ activeVisual }: { activeVisual: ActiveVisual }) {
+  if (!activeVisual) return null;
+
+  const renderContent = () => {
+    switch (activeVisual.kind) {
+      case "adherence": {
+        const data = activeVisual.data;
+        return (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              bgcolor: "background.paper",
+              border: "1px solid",
+              borderColor: "rgba(255, 255, 255, 0.05)",
+              borderRadius: 4,
+            }}
+          >
+            <AdherenceDoughnut
+              adherence={data.overallAdherence}
+              activityBreakdown={data.activityBreakdown as any}
+              size={220}
+            />
+            {data.todayTotal > 0 && (
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  textAlign: "center",
+                  mt: 2,
+                  fontWeight: 500,
+                }}
+              >
+                Today: {data.todayCompleted}/{data.todayTotal} activities completed
+              </Typography>
+            )}
+          </Paper>
+        );
+      }
+      case "physiotherapy": {
+        const data = activeVisual.data;
+        return (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              bgcolor: "background.paper",
+              border: "1px solid",
+              borderColor: "rgba(255, 255, 255, 0.05)",
+              borderRadius: 4,
+            }}
+          >
+            {data.latestScore !== null && (
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#8dd6a3" }}
+              >
+                {data.latestScore}
+                <Typography component="span" variant="body2" sx={{ color: "text.secondary", ml: 1 }}>
+                  / 100
+                </Typography>
+              </Typography>
+            )}
+            <PhysiotherapyScoreChart physiotherapyHistory={data.history} height={220} />
+          </Paper>
+        );
+      }
+      case "pain": {
+        const data = activeVisual.data;
+        return (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              bgcolor: "background.paper",
+              border: "1px solid",
+              borderColor: "rgba(255, 255, 255, 0.05)",
+              borderRadius: 4,
+            }}
+          >
+            {data.latestValue !== null && (
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#f2d08a" }}
+              >
+                {data.latestValue}
+                <Typography component="span" variant="body2" sx={{ color: "text.secondary", ml: 1 }}>
+                  / 10
+                </Typography>
+              </Typography>
+            )}
+            <PainIndexChart painIndexHistory={data.history} height={220} />
+          </Paper>
+        );
+      }
+      case "currentActivity": {
+        const data = activeVisual.data;
+        if (data.currentItem) {
+          return (
+            <ActivityCard
+              item={data.currentItem}
+              status="pending"
+              isCurrent={data.inWindow}
+              message={data.message}
+            />
+          );
+        }
+        if (data.upcomingItem) {
+          return (
+            <ActivityCard
+              item={data.upcomingItem}
+              status="pending"
+              isUpcoming
+              message={data.message}
+            />
+          );
+        }
+        return (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              bgcolor: "background.paper",
+              border: "1px solid",
+              borderColor: "rgba(255, 255, 255, 0.05)",
+              borderRadius: 4,
+            }}
+          >
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              {data.message}
+            </Typography>
+          </Paper>
+        );
+      }
+      case "doctors":
+        return (
+          <DoctorRecommendations
+            symptomsSummary={activeVisual.data.symptomsSummary}
+            doctors={activeVisual.data.doctors}
+          />
+        );
+      case "booking":
+        return <BookingUpdates updates={[activeVisual.data]} />;
+    }
+  };
+
+  return (
+    <Fade in key={activeVisual.kind} timeout={250}>
+      <Box>{renderContent()}</Box>
+    </Fade>
   );
 }

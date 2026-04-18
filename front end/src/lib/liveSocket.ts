@@ -37,7 +37,7 @@ export type ScheduleItemLatestReport = {
 
 export type ScheduleItemCard = {
   scheduleItemId: string;
-  activityType: "diet" | "medication" | "sleep" | "activity";
+  activityType: "diet" | "medication" | "sleep" | "activity" | "therapy" | "cognitive" | "physical" | "checkup";
   title: string;
   instructions: string[];
   windowStartLocal: string;
@@ -49,7 +49,7 @@ export type ScheduleItemCard = {
 export type ScheduleTimelineEntry = {
   reportId: string;
   scheduleItemId: string;
-  activityType: "diet" | "medication" | "sleep" | "activity";
+  activityType: "diet" | "medication" | "sleep" | "activity" | "therapy" | "cognitive" | "physical" | "checkup";
   status: "done" | "partial" | "skipped" | "delayed";
   followedPlan: boolean;
   changesMade: string | null;
@@ -87,7 +87,7 @@ export type AdherenceReportSavedSuccessEvent = {
   reportId: string;
   scheduleItemId: string;
   date: string;
-  activityType: "diet" | "medication" | "sleep" | "activity";
+  activityType: "diet" | "medication" | "sleep" | "activity" | "therapy" | "cognitive" | "physical" | "checkup";
   status: "done" | "partial" | "skipped" | "delayed";
   alertLevel: "none" | "watch" | "urgent";
   summary: string;
@@ -123,6 +123,20 @@ export type AdherenceStatsEvent = {
   message: string;
 };
 
+export type PhysiotherapyScoreEvent = {
+  type: "physiotherapy_score";
+  history: Array<{ date: string; score: number }>;
+  latestScore: number | null;
+  message: string;
+};
+
+export type PainIndexEvent = {
+  type: "pain_index";
+  history: Array<{ date: string; value: number }>;
+  latestValue: number | null;
+  message: string;
+};
+
 export type CurrentActivityEvent = {
   type: "current_activity";
   timezone: string;
@@ -130,7 +144,7 @@ export type CurrentActivityEvent = {
   inWindow: boolean;
   currentItem: {
     scheduleItemId: string;
-    activityType: "diet" | "medication" | "sleep" | "activity";
+    activityType: "diet" | "medication" | "sleep" | "activity" | "therapy" | "cognitive" | "physical" | "checkup";
     title: string;
     instructions: string[];
     windowStartLocal: string;
@@ -138,7 +152,7 @@ export type CurrentActivityEvent = {
   } | null;
   upcomingItem: {
     scheduleItemId: string;
-    activityType: "diet" | "medication" | "sleep" | "activity";
+    activityType: "diet" | "medication" | "sleep" | "activity" | "therapy" | "cognitive" | "physical" | "checkup";
     title: string;
     instructions: string[];
     windowStartLocal: string;
@@ -175,6 +189,8 @@ export type ServerEvent =
   | ({ type: "schedule_snapshot" } & ScheduleSnapshotPayload)
   | AdherenceReportSavedEvent
   | AdherenceStatsEvent
+  | PhysiotherapyScoreEvent
+  | PainIndexEvent
   | CurrentActivityEvent;
 
 export type LiveSocketHandlers = {

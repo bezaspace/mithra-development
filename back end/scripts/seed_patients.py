@@ -45,7 +45,9 @@ SURGERY_TYPES = [
             {"title": "Knee Slides", "type": "activity", "time": "10:00", "instr": ["3 sets of 15 reps", "Keep back straight"]},
             {"title": "Healthy Lunch", "type": "diet", "time": "13:00", "instr": ["High protein", "Low sodium"]},
             {"title": "Physiotherapy", "type": "therapy", "time": "16:00", "instr": ["Range of motion", "Walking practice"]},
-            {"title": "Evening Meds", "type": "medication", "time": "20:00", "instr": ["Before sleep meds"]}
+            {"title": "Brain Training", "type": "cognitive", "time": "18:00", "instr": ["15 mins memory games"]},
+            {"title": "Evening Meds", "type": "medication", "time": "20:00", "instr": ["Before sleep meds"]},
+            {"title": "Night Routine", "type": "sleep", "time": "22:00", "instr": ["Leg elevation", "Ice pack"]}
         ],
         "milestones": ["First steps without walker", "Stitches removed", "90-degree flexion achieved"]
     },
@@ -57,7 +59,9 @@ SURGERY_TYPES = [
             {"title": "Glute Squeezes", "type": "activity", "time": "11:00", "instr": ["Hold for 5 secs", "10 reps"]},
             {"title": "Nutritious Lunch", "type": "diet", "time": "13:00", "instr": ["Vitamin C rich", "Fiber focus"]},
             {"title": "Short Walk", "type": "activity", "time": "15:00", "instr": ["10 mins in hallway"]},
-            {"title": "Stretching", "type": "therapy", "time": "18:00", "instr": ["Gentle hip abduction"]}
+            {"title": "Mindfulness", "type": "cognitive", "time": "17:00", "instr": ["10 mins meditation"]},
+            {"title": "Stretching", "type": "therapy", "time": "18:00", "instr": ["Gentle hip abduction"]},
+            {"title": "Deep Sleep Prep", "type": "sleep", "time": "21:30", "instr": ["No screens 30 mins before"]}
         ],
         "milestones": ["Stairs climbed with one crutch", "Independent dressing", "Pain-free sleeping"]
     },
@@ -68,8 +72,10 @@ SURGERY_TYPES = [
             {"title": "BP Meds", "type": "medication", "time": "08:30", "instr": ["Check BP first", "Take with water"]},
             {"title": "Cardiac Walk", "type": "activity", "time": "10:30", "instr": ["Slow pace", "5 mins", "Monitor heart rate"]},
             {"title": "Heart-Healthy Diet", "type": "diet", "time": "13:30", "instr": ["No added salt", "Leafy greens"]},
+            {"title": "Cognitive Focus", "type": "cognitive", "time": "15:30", "instr": ["Crossword or puzzle"]},
             {"title": "Breathing Exercises", "type": "therapy", "time": "16:30", "instr": ["Spirometer use", "10 deep breaths"]},
-            {"title": "Statins", "type": "medication", "time": "21:30", "instr": ["Cholesterol management"]}
+            {"title": "Statins", "type": "medication", "time": "21:30", "instr": ["Cholesterol management"]},
+            {"title": "Restful Sleep", "type": "sleep", "time": "22:30", "instr": ["Guided relaxation"]}
         ],
         "milestones": ["5-min walk without fatigue", "Normal ECG reading", "Cardiac rehab phase 1 complete"]
     }

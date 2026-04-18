@@ -831,6 +831,8 @@ class LiveBridge:
             "schedule_snapshot",
             "adherence_report_saved",
             "adherence_stats",
+            "physiotherapy_score",
+            "pain_index",
             "current_activity",
         }:
             return parsed

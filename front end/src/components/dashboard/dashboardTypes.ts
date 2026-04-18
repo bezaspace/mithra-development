@@ -103,10 +103,11 @@ export interface PatientDashboard {
     totalDaysPlan: number;
     activityBreakdown: {
       medication: number;
-      exercise: number;
+      physical: number;
       diet: number;
       therapy: number;
-      rest: number;
+      sleep: number;
+      cognitive: number;
     };
     recentMilestones: Array<{
       milestone: string;
