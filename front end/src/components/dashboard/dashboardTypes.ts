@@ -112,5 +112,13 @@ export interface PatientDashboard {
       achievedDate: string;
       phase: number;
     }>;
+    physiotherapyHistory: Array<{
+      date: string;
+      score: number;
+    }>;
+    painIndexHistory: Array<{
+      date: string;
+      value: number;
+    }>;
   };
 }

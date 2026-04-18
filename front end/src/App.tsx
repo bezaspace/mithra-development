@@ -10,6 +10,7 @@ import {
   Alert,
   Fade,
   Container,
+  Snackbar,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -59,7 +60,7 @@ function AppContent() {
   const [adherenceStats, setAdherenceStats] = useState<AdherenceStatsEvent | null>(null);
   const [currentActivity, setCurrentActivity] = useState<CurrentActivityEvent | null>(null);
 
-  const { userId, setUserId } = usePatient();
+  const { userId, setUserId, publishAdherenceEvent } = usePatient();
   const navigate = useNavigate();
 
   const socket = useMemo(() => new LiveSocket(), []);
@@ -236,11 +237,15 @@ function AppContent() {
           return;
         }
         if (evt.type === "adherence_report_saved") {
+          // Always publish to context so the voice-page Snackbar and the
+          // Dashboard auto-refresh both react, regardless of success/failure.
+          publishAdherenceEvent(evt);
           if (!evt.saved) {
             setWarning(evt.message || "Could not save adherence report.");
             return;
           }
           setLatestAdherenceEvent(evt);
+          return;
         }
         if (evt.type === "adherence_stats") {
           setAdherenceStats(evt);
@@ -406,6 +411,44 @@ export default function App() {
   );
 }
 
+const ACTIVITY_LABELS: Record<string, string> = {
+  diet: "Diet",
+  medication: "Medication",
+  sleep: "Sleep",
+  activity: "Activity",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  done: "done",
+  partial: "partially done",
+  skipped: "skipped",
+  delayed: "delayed",
+};
+
+function formatAdherenceToast(
+  event: AdherenceReportSavedEvent,
+  fallbackTitle?: string | null
+): { severity: "success" | "error"; message: string } {
+  if (event.saved) {
+    const activity =
+      fallbackTitle ||
+      ACTIVITY_LABELS[event.activityType] ||
+      event.activityType ||
+      "Activity";
+    const statusLabel = STATUS_LABELS[event.status] || event.status;
+    return {
+      severity: "success",
+      message: `✓ Logged ${activity} as ${statusLabel}${
+        event.deduped ? " (already recorded)" : ""
+      }`,
+    };
+  }
+  return {
+    severity: "error",
+    message: `Couldn't log activity: ${event.message || "unknown error"}`,
+  };
+}
+
 function VoiceSessionPage({
   state,
   visualState,
@@ -435,6 +478,60 @@ function VoiceSessionPage({
   onBeginPtt: () => void;
   onEndPtt: () => void;
 }) {
+  const { latestAdherenceEvent } = usePatient();
+  const [toast, setToast] = useState<{
+    severity: "success" | "error";
+    message: string;
+    key: number;
+  } | null>(null);
+  const lastToastRef = useRef<AdherenceReportSavedEvent | null>(null);
+
+  useEffect(() => {
+    if (!latestAdherenceEvent) return;
+    if (latestAdherenceEvent === lastToastRef.current) return;
+    lastToastRef.current = latestAdherenceEvent;
+    const currentTitle =
+      currentActivity?.currentItem?.title ??
+      currentActivity?.upcomingItem?.title ??
+      null;
+    const formatted = formatAdherenceToast(latestAdherenceEvent, currentTitle);
+    setToast({ ...formatted, key: Date.now() });
+  }, [latestAdherenceEvent, currentActivity]);
+
+  // Add keyboard event listeners for spacebar control
+  useEffect(() => {
+    const handleKeyDown = (evt: KeyboardEvent) => {
+      if (evt.key === " " && !evt.repeat) {
+        // Prevent default scrolling behavior
+        evt.preventDefault();
+        // Don't trigger if user is typing in an input field
+        const target = evt.target as HTMLElement;
+        const isInputFocused = target.tagName === "INPUT" || 
+                               target.tagName === "TEXTAREA" || 
+                               target.isContentEditable;
+        if (!isInputFocused && state === "ready" && !isPttActive) {
+          onBeginPtt();
+        }
+      }
+    };
+
+    const handleKeyUp = (evt: KeyboardEvent) => {
+      if (evt.key === " ") {
+        evt.preventDefault();
+        if (isPttActive) {
+          onEndPtt();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [state, isPttActive, onBeginPtt, onEndPtt]);
   return (
     <Box sx={{ 
       position: "relative", 
@@ -611,6 +708,30 @@ function VoiceSessionPage({
           )}
         </Box>
       </Box>
+
+      <Snackbar
+        key={toast?.key}
+        open={Boolean(toast)}
+        autoHideDuration={4000}
+        onClose={() => setToast(null)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        {toast ? (
+          <Alert
+            severity={toast.severity}
+            variant="filled"
+            onClose={() => setToast(null)}
+            sx={{
+              borderRadius: 999,
+              fontSize: "0.85rem",
+              fontWeight: 600,
+              boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
+            }}
+          >
+            {toast.message}
+          </Alert>
+        ) : undefined}
+      </Snackbar>
     </Box>
   );
 }

@@ -12,7 +12,7 @@ uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ## Notes
 
 - Set `GEMINI_API_KEY` in `.env`.
-- Default model is pinned to `gemini-2.5-flash-native-audio-preview-12-2025`.
+- Default model is pinned to `gemini-3.1-flash-live-preview`.
 - Deprecated model `gemini-2.0-flash-live-001` is blocked at startup.
 - Live websocket tracing logs are enabled in terminal with session-scoped IDs.
 - Use `LOG_LEVEL=debug` (or `info`) in `.env` to control verbosity.

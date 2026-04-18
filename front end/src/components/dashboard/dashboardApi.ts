@@ -115,6 +115,8 @@ interface ApiProgress {
     rest: number;
   };
   recentMilestones: Array<{ milestone: string; achievedDate: string; phase: number }>;
+  physiotherapyHistory: Array<{ date: string; score: number }>;
+  painIndexHistory: Array<{ date: string; value: number }>;
 }
 
 interface DashboardApiResponse {
@@ -311,6 +313,8 @@ function transformApiResponse(apiData: DashboardApiResponse): PatientDashboard {
         achievedDate: m.achievedDate,
         phase: m.phase,
       })),
+      physiotherapyHistory: progress.physiotherapyHistory,
+      painIndexHistory: progress.painIndexHistory,
     },
   };
 }

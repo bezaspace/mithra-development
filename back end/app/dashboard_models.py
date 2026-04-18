@@ -157,6 +157,44 @@ class MilestoneRow(SQLModel, table=True):
 # ============================================================================
 
 
+class PhysiotherapyReading(BaseModel):
+    date: str
+    score: int  # 0-100 scale, higher is better
+
+
+class PainIndexReading(BaseModel):
+    date: str
+    value: int  # 0-10 scale, lower is better
+
+
+class PhysiotherapyRow(SQLModel, table=True):
+    __tablename__ = "physiotherapy_readings"
+
+    id: str = Field(
+        default_factory=lambda: f"physio_{uuid4().hex[:16]}", primary_key=True, index=True
+    )
+    user_id: str = Field(index=True)
+    date: str = Field(index=True)
+    score: int = Field(ge=0, le=100)
+    created_at: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
+
+
+class PainIndexRow(SQLModel, table=True):
+    __tablename__ = "pain_index_readings"
+
+    id: str = Field(
+        default_factory=lambda: f"pain_{uuid4().hex[:16]}", primary_key=True, index=True
+    )
+    user_id: str = Field(index=True)
+    date: str = Field(index=True)
+    value: int = Field(ge=0, le=10)
+    created_at: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
+
+
 class ActivityBreakdown(BaseModel):
     medication: int = 0
     exercise: int = 0
@@ -175,6 +213,8 @@ class DashboardProgress(BaseModel):
         default_factory=ActivityBreakdown
     )
     recent_milestones: list[MilestoneRecord] = PydanticField(default_factory=list)
+    physiotherapy_history: list[PhysiotherapyReading] = PydanticField(default_factory=list)
+    pain_index_history: list[PainIndexReading] = PydanticField(default_factory=list)
 
 
 # ============================================================================

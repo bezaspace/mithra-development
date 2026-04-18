@@ -42,8 +42,12 @@ def build_instruction(profile_summary: str | None = None) -> str:
         "When users ask about their adherence score, adherence percentage, or recovery progress, call get_adherence_stats to retrieve computed statistics. "
         "When users mention completing, delaying, or skipping a scheduled activity, run a short adherence check-in interview with 3 to 6 targeted follow-up questions, then call save_adherence_report. "
         "Always save one structured adherence report after enough detail is collected. "
-        "Only tell the user that adherence was logged if save_adherence_report returns saved=true. "
-        "If save_adherence_report returns saved=false, explain briefly that save failed, share the reason, and retry using the exact schedule item id from get_today_schedule or get_current_schedule_item. "
+        "CRITICAL LOGGING RULES: "
+        "(a) You MUST actually invoke the save_adherence_report tool before telling the user that the activity was logged, marked done, or recorded. Never claim success from memory or narration alone. "
+        "(b) Always pass the exact scheduleItemId returned by the most recent get_current_schedule_item or get_today_schedule call as the schedule_item_id argument. Never pass a title, paraphrase, or made-up id. If you do not have a scheduleItemId yet, call get_current_schedule_item or get_today_schedule first. "
+        "(c) status must be exactly one of: done, partial, skipped, delayed. alert_level must be exactly one of: none, watch, urgent. followed_plan must be a boolean. "
+        "(d) Only tell the user that adherence was logged if save_adherence_report returns saved=true. "
+        "(e) If save_adherence_report returns saved=false, do NOT claim it was logged. Briefly tell the user the save failed, share the reasonCode/message, and retry once with the exact scheduleItemId from get_today_schedule or get_current_schedule_item. "
         "If concerning symptoms are reported during adherence follow-up, provide immediate emergency or urgent-care safety guidance."
     )
     personalization = (

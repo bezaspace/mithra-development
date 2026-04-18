@@ -39,7 +39,7 @@ Update API key in `back end/.env`:
 
 ```env
 GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE
-GEMINI_MODEL=gemini-2.5-flash-native-audio-preview-12-2025
+GEMINI_MODEL=gemini-3.1-flash-live-preview
 PROFILE_DB_URL=sqlite:///app/data/patient_profiles.db
 PROFILE_SEED_SQL_PATH=app/data/patient_profiles.sql
 SCHEDULE_DB_URL=sqlite:///app/data/patient_profiles.db
@@ -89,8 +89,8 @@ Raksha is explicitly instructed to:
 
 ## Notes on Gemini Live Model
 
-- Pinned default model: `gemini-2.5-flash-native-audio-preview-12-2025`
-- Deprecated/blocked in config: `gemini-2.0-flash-live-001` (shutdown on 2025-12-09)
+- Pinned default model: `gemini-3.1-flash-live-preview`
+- Deprecated/blocked in config: `gemini-2.0-flash-live-001` (shutdown on 2025-12-09), `gemini-2.5-flash-native-audio-preview-12-2025`
 - Verify latest model updates in Google docs before changing defaults.
 
 ## References

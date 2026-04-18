@@ -1,4 +1,4 @@
-import { useState, useEffect, type SyntheticEvent } from "react";
+import { useEffect, useRef, useState, type SyntheticEvent } from "react";
 import {
   Container,
   Box,
@@ -17,7 +17,7 @@ import {
   Refresh as RefreshIcon,
   GridView as OverviewIcon,
   CalendarToday as ScheduleIcon,
-  MedicalServices as TreatmentIcon,
+  BarChart as MetricsIcon,
   History as HistoryIcon,
   TrendingUp as TrendingIcon,
   PersonAdd as PersonAddIcon,
@@ -30,9 +30,14 @@ import { PatientInfoCard } from "../components/dashboard/PatientInfoCard";
 import { MedicalHistoryCard } from "../components/dashboard/MedicalHistoryCard";
 import { TreatmentPlanCard } from "../components/dashboard/TreatmentPlanCard";
 import { DailyScheduleCard } from "../components/dashboard/DailyScheduleCard";
-import { ProgressChartsCard } from "../components/dashboard/ProgressChartsCard";
+import { AdherenceDoughnut } from "../components/dashboard/AdherenceDoughnut";
+import { WeeklyTrendBar } from "../components/dashboard/WeeklyTrendBar";
+import { ActivityBreakdown } from "../components/dashboard/ActivityBreakdown";
+import { RecoveryTimeline } from "../components/dashboard/RecoveryTimeline";
+import { PhysiotherapyScoreChart } from "../components/dashboard/PhysiotherapyScoreChart";
+import { PainIndexChart } from "../components/dashboard/PainIndexChart";
 
-type TabId = "overview" | "schedule" | "treatment" | "history";
+type TabId = "overview" | "schedule" | "metrics" | "history";
 
 const isGuestUser = (userId: string | null): boolean => {
   return !!userId && userId.startsWith("guest-");
@@ -41,36 +46,50 @@ const isGuestUser = (userId: string | null): boolean => {
 const TABS: { id: TabId; label: string; icon: JSX.Element }[] = [
   { id: "overview",  label: "Overview",         icon: <OverviewIcon /> },
   { id: "schedule",  label: "Today's Schedule", icon: <ScheduleIcon /> },
-  { id: "treatment", label: "Treatment Plan",   icon: <TreatmentIcon /> },
+  { id: "metrics",   label: "Metrics",          icon: <MetricsIcon /> },
   { id: "history",   label: "Medical History",  icon: <HistoryIcon /> },
 ];
 
 export function DashboardPage() {
-  const { userId } = usePatient();
+  const { userId, adherenceRefreshNonce } = usePatient();
   const [patient, setPatient] = useState<PatientDashboard | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>("overview");
+  // Mount-time nonce to distinguish the initial load from live-save updates.
+  const mountNonceRef = useRef<number | null>(null);
 
-  const loadDashboard = async () => {
+  const loadDashboard = async (options: { silent?: boolean } = {}) => {
     if (!userId) return;
-    setLoading(true);
+    if (!options.silent) setLoading(true);
     setError(null);
     try {
       const data = await fetchDashboard(userId);
       setPatient(data);
     } catch (err) {
       console.warn("Failed to fetch dashboard from backend:", err);
-      setPatient(null);
+      if (!options.silent) setPatient(null);
       setError("Could not connect to backend. Please check the server and try again.");
     } finally {
-      setLoading(false);
+      if (!options.silent) setLoading(false);
     }
   };
 
   useEffect(() => {
+    mountNonceRef.current = adherenceRefreshNonce;
     loadDashboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
+
+  // Auto-refresh (silent) whenever the assistant successfully logs an
+  // adherence report while the user is viewing the dashboard.
+  useEffect(() => {
+    if (mountNonceRef.current === null) return;
+    if (adherenceRefreshNonce === mountNonceRef.current) return;
+    mountNonceRef.current = adherenceRefreshNonce;
+    loadDashboard({ silent: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adherenceRefreshNonce]);
 
   if (loading) {
     return (
@@ -173,7 +192,7 @@ export function DashboardPage() {
         </Box>
         <Tooltip title="Refresh data">
           <IconButton 
-            onClick={loadDashboard}
+            onClick={() => loadDashboard()}
             sx={{ 
               bgcolor: "background.paper", 
               border: "1px solid", 
@@ -253,11 +272,11 @@ export function DashboardPage() {
       <Box sx={{ minHeight: "50vh" }}>
         {activeTab === "overview" && (
           <Grid container spacing={3}>
-            <Grid size={{ xs: 12, lg: 4 }}>
+            <Grid size={{ xs: 12, lg: 5 }}>
               <PatientInfoCard patient={patient} />
             </Grid>
-            <Grid size={{ xs: 12, lg: 8 }}>
-              <ProgressChartsCard patient={patient} />
+            <Grid size={{ xs: 12, lg: 7 }}>
+              <TreatmentPlanCard patient={patient} />
             </Grid>
           </Grid>
         )}
@@ -266,8 +285,99 @@ export function DashboardPage() {
           <DailyScheduleCard patient={patient} />
         )}
 
-        {activeTab === "treatment" && (
-          <TreatmentPlanCard patient={patient} />
+        {activeTab === "metrics" && (
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  bgcolor: "background.paper",
+                  border: "1px solid",
+                  borderColor: "rgba(255, 255, 255, 0.05)",
+                  borderRadius: 4,
+                  height: "100%",
+                }}
+              >
+                <AdherenceDoughnut adherence={patient.progress.overallAdherence} size={150} />
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  bgcolor: "background.paper",
+                  border: "1px solid",
+                  borderColor: "rgba(255, 255, 255, 0.05)",
+                  borderRadius: 4,
+                  height: "100%",
+                }}
+              >
+                <WeeklyTrendBar weeklyAdherence={patient.progress.weeklyAdherence} height={180} />
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12, lg: 8 }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  bgcolor: "background.paper",
+                  border: "1px solid",
+                  borderColor: "rgba(255, 255, 255, 0.05)",
+                  borderRadius: 4,
+                  height: "100%",
+                }}
+              >
+                <ActivityBreakdown activityBreakdown={patient.progress.activityBreakdown} />
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12, lg: 4 }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  bgcolor: "background.paper",
+                  border: "1px solid",
+                  borderColor: "rgba(255, 255, 255, 0.05)",
+                  borderRadius: 4,
+                  height: "100%",
+                }}
+              >
+                <RecoveryTimeline patient={patient} />
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  bgcolor: "background.paper",
+                  border: "1px solid",
+                  borderColor: "rgba(255, 255, 255, 0.05)",
+                  borderRadius: 4,
+                  height: "100%",
+                }}
+              >
+                <PhysiotherapyScoreChart physiotherapyHistory={patient.progress.physiotherapyHistory} />
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  bgcolor: "background.paper",
+                  border: "1px solid",
+                  borderColor: "rgba(255, 255, 255, 0.05)",
+                  borderRadius: 4,
+                  height: "100%",
+                }}
+              >
+                <PainIndexChart painIndexHistory={patient.progress.painIndexHistory} />
+              </Paper>
+            </Grid>
+          </Grid>
         )}
 
         {activeTab === "history" && (

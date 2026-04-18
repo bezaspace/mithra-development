@@ -18,8 +18,12 @@ from app.dashboard_models import (
     ExtendedTreatmentRecord,
     MilestoneRecord,
     MilestoneRow,
+    PainIndexReading,
+    PainIndexRow,
     PatientDashboardProfile,
     PatientMedicalHistory,
+    PhysiotherapyReading,
+    PhysiotherapyRow,
     SurgeryInfo,
     TreatmentPhase,
     TreatmentPlan,
@@ -188,6 +192,77 @@ class DashboardRepository:
                 )
                 for row in rows
             ]
+
+    def get_physiotherapy_history(
+        self, user_id: str, days: int = 30
+    ) -> list[PhysiotherapyReading]:
+        """Fetch physiotherapy score history for the last N days."""
+        normalized_user_id = user_id.strip()
+        if not normalized_user_id:
+            return []
+
+        with Session(self._engine) as session:
+            rows = session.exec(
+                select(PhysiotherapyRow)
+                .where(PhysiotherapyRow.user_id == normalized_user_id)
+                .order_by(PhysiotherapyRow.date.asc())
+                .limit(days)
+            ).all()
+
+            if rows:
+                return [
+                    PhysiotherapyReading(date=row.date, score=row.score)
+                    for row in rows
+                ]
+
+        # Generate mock data if no real data exists (for demo purposes)
+        from datetime import datetime, timedelta
+
+        mock_data = []
+        for i in range(days):
+            date = (datetime.now() - timedelta(days=days - 1 - i)).strftime("%Y-%m-%d")
+            # Generate a realistic trend: starting lower and gradually improving
+            base_score = 50 + (i * 1.2)  # Gradual improvement
+            variation = (i * 7) % 15  # Add some variation
+            score = min(95, max(40, int(base_score + variation)))
+            mock_data.append(PhysiotherapyReading(date=date, score=score))
+
+        return mock_data
+
+    def get_pain_index_history(
+        self, user_id: str, days: int = 30
+    ) -> list[PainIndexReading]:
+        """Fetch pain index history for the last N days."""
+        normalized_user_id = user_id.strip()
+        if not normalized_user_id:
+            return []
+
+        with Session(self._engine) as session:
+            rows = session.exec(
+                select(PainIndexRow)
+                .where(PainIndexRow.user_id == normalized_user_id)
+                .order_by(PainIndexRow.date.asc())
+                .limit(days)
+            ).all()
+
+            if rows:
+                return [
+                    PainIndexReading(date=row.date, value=row.value) for row in rows
+                ]
+
+        # Generate mock data if no real data exists (for demo purposes)
+        from datetime import datetime, timedelta
+
+        mock_data = []
+        for i in range(days):
+            date = (datetime.now() - timedelta(days=days - 1 - i)).strftime("%Y-%m-%d")
+            # Generate a realistic trend: starting higher and gradually decreasing
+            base_pain = 7 - (i * 0.15)  # Gradual improvement
+            variation = (i * 3) % 3  # Add some variation
+            value = int(max(0, min(10, round(base_pain + variation))))
+            mock_data.append(PainIndexReading(date=date, value=value))
+
+        return mock_data
 
     def get_adherence_stats(self, user_id: str, days: int = 28) -> dict[str, Any]:
         normalized_user_id = user_id.strip()

@@ -52,6 +52,8 @@ class DashboardService:
         treatment_plan = self._dashboard_repo.get_treatment_plan(user_id)
         milestones = self._dashboard_repo.get_milestones(user_id, limit=10)
         adherence_stats = self._dashboard_repo.get_adherence_stats(user_id)
+        physiotherapy_history = self._dashboard_repo.get_physiotherapy_history(user_id)
+        pain_index_history = self._dashboard_repo.get_pain_index_history(user_id)
 
         daily_schedule = self._schedule_service.get_today_schedule(
             user_id=user_id,
@@ -64,6 +66,8 @@ class DashboardService:
             treatment_plan=treatment_plan,
             milestones=milestones,
             adherence_stats=adherence_stats,
+            physiotherapy_history=physiotherapy_history,
+            pain_index_history=pain_index_history,
         )
 
         return {
@@ -129,6 +133,8 @@ class DashboardService:
         treatment_plan: Any,
         milestones: list[MilestoneRecord],
         adherence_stats: dict[str, Any],
+        physiotherapy_history: list[Any],
+        pain_index_history: list[Any],
     ) -> DashboardProgress:
         days_since_surgery = 0
         if treatment_plan and treatment_plan.start_date:
@@ -171,6 +177,8 @@ class DashboardService:
             total_days_plan=90,
             activity_breakdown=activity_breakdown,
             recent_milestones=milestones,
+            physiotherapy_history=physiotherapy_history,
+            pain_index_history=pain_index_history,
         )
 
     @staticmethod
@@ -301,5 +309,11 @@ class DashboardService:
                     "phase": m.phase,
                 }
                 for m in progress.recent_milestones
+            ],
+            "physiotherapyHistory": [
+                {"date": p.date, "score": p.score} for p in progress.physiotherapy_history
+            ],
+            "painIndexHistory": [
+                {"date": p.date, "value": p.value} for p in progress.pain_index_history
             ],
         }
