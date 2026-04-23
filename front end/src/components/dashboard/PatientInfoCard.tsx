@@ -36,7 +36,7 @@ export function PatientInfoCard({ patient }: PatientInfoCardProps) {
         bgcolor: "background.paper",
         border: "1px solid",
         borderColor: "rgba(255, 255, 255, 0.05)",
-        borderRadius: 4,
+        borderRadius: 0,
       }}
     >
       <CardContent sx={{ p: 4 }}>
@@ -87,7 +87,7 @@ export function PatientInfoCard({ patient }: PatientInfoCardProps) {
             p: 2.5, 
             bgcolor: "rgba(255, 255, 255, 0.01)", 
             borderColor: "rgba(255, 255, 255, 0.05)",
-            borderRadius: 3,
+            borderRadius: 0,
             mb: 4
           }}
         >
@@ -125,7 +125,7 @@ export function PatientInfoCard({ patient }: PatientInfoCardProps) {
           </Typography>
           
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: "rgba(255, 255, 255, 0.02)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Box sx={{ width: 36, height: 36, borderRadius: 0, bgcolor: "rgba(255, 255, 255, 0.02)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <PhoneIcon sx={{ fontSize: 18, color: "text.secondary" }} />
             </Box>
             <Box>
@@ -135,7 +135,7 @@ export function PatientInfoCard({ patient }: PatientInfoCardProps) {
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: "rgba(255, 255, 255, 0.02)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Box sx={{ width: 36, height: 36, borderRadius: 0, bgcolor: "rgba(255, 255, 255, 0.02)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <EmailIcon sx={{ fontSize: 18, color: "text.secondary" }} />
             </Box>
             <Box>
@@ -147,7 +147,7 @@ export function PatientInfoCard({ patient }: PatientInfoCardProps) {
           <Divider sx={{ opacity: 0.1 }} />
 
           <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
-            <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: "rgba(231, 138, 83, 0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Box sx={{ width: 36, height: 36, borderRadius: 0, bgcolor: "rgba(231, 138, 83, 0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <EmergencyIcon sx={{ fontSize: 18, color: "error.main" }} />
             </Box>
             <Box>

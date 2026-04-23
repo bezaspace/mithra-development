@@ -1,15 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  Container,
   Box,
   Typography,
   CircularProgress,
   Alert,
   Chip,
   IconButton,
-  Tooltip,
-  Grid,
-  Paper,
 } from "@mui/material";
 import {
   Refresh as RefreshIcon,
@@ -20,8 +16,8 @@ import { fetchDashboard } from "../components/dashboard/dashboardApi";
 import type { PatientDashboard } from "../components/dashboard/dashboardTypes";
 import { usePatient } from "../PatientContext";
 import { AdherenceDoughnut } from "../components/dashboard/AdherenceDoughnut";
+import { AdherenceRadar } from "../components/dashboard/AdherenceRadar";
 import { DailyTrendBar } from "../components/dashboard/DailyTrendBar";
-import { ActivityBreakdown } from "../components/dashboard/ActivityBreakdown";
 import { RecoveryTimeline } from "../components/dashboard/RecoveryTimeline";
 import { PhysiotherapyScoreChart } from "../components/dashboard/PhysiotherapyScoreChart";
 import { PainIndexChart } from "../components/dashboard/PainIndexChart";
@@ -73,169 +69,239 @@ export function DashboardPage() {
   if (loading) {
     return (
       <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
-        <CircularProgress sx={{ color: "primary.main" }} />
-        <Typography sx={{ color: "text.secondary", mt: 2 }}>Loading dashboard...</Typography>
+        <CircularProgress sx={{ color: "primary.main", size: 28 }} />
+        <Typography sx={{ color: "text.secondary", mt: 1.5, fontSize: "0.8rem", fontWeight: 600 }}>Loading...</Typography>
       </Box>
     );
   }
 
   if (!patient) {
-    // Check if this is a guest user - show welcome screen instead of error
     if (isGuestUser(userId)) {
       return (
-        <Container maxWidth="xl" sx={{ py: 6 }}>
-          <Paper
-            elevation={0}
-            sx={{
-              p: 6,
-              textAlign: "center",
-              bgcolor: "background.paper",
-              border: "1px solid",
-              borderColor: "rgba(255, 255, 255, 0.05)",
-              borderRadius: 4,
-            }}
-          >
-            <PersonAddIcon sx={{ fontSize: 64, color: "primary.main", mb: 3 }} />
-            <Typography variant="h4" sx={{ color: "text.primary", fontWeight: 700, mb: 2 }}>
-              Welcome to RAKSHA!
+        <Box sx={{ px: 2, py: 4, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <PersonAddIcon sx={{ fontSize: 48, color: "primary.main" }} />
+          <Box sx={{ textAlign: "center" }}>
+            <Typography sx={{ fontWeight: 800, fontSize: "1.4rem", color: "text.primary", mb: 0.5 }}>
+              Welcome to RAKSHA
             </Typography>
-            <Typography variant="body1" sx={{ color: "text.secondary", mb: 4, maxWidth: 600, mx: "auto" }}>
-              You&apos;re currently in guest mode. Start a voice conversation with the AI assistant 
-              and it can help create your personalized health profile. Once your profile is created, 
-              you&apos;ll see your health dashboard here.
+            <Typography sx={{ color: "text.secondary", fontSize: "0.8125rem", maxWidth: 320, mx: "auto" }}>
+              Start a voice conversation to create your personalized health profile.
             </Typography>
-            <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
-              <Paper sx={{ p: 3, bgcolor: "rgba(95, 135, 135, 0.1)", borderRadius: 3, minWidth: 200 }}>
-                <Typography variant="h6" sx={{ color: "primary.light", fontWeight: 600, mb: 1 }}>
-                  Step 1
+          </Box>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, width: "100%", maxWidth: 360 }}>
+            {["Start a conversation", "Share your health info", "Get personalized care"].map((step, i) => (
+              <Box key={i} sx={{
+                display: "flex", alignItems: "center", gap: 2,
+                bgcolor: "rgba(0,212,170,0.06)", border: "1px solid rgba(0,212,170,0.12)",
+                borderRadius: 0, px: 2.5, py: 1.5,
+              }}>
+                <Typography sx={{
+                  width: 24, height: 24, borderRadius: 0,
+                  bgcolor: "primary.main", color: "#000",
+                  fontSize: "0.7rem", fontWeight: 800,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
+                }}>
+                  {i + 1}
                 </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  Start a conversation
+                <Typography sx={{ fontSize: "0.8125rem", fontWeight: 600, color: "text.primary" }}>
+                  {step}
                 </Typography>
-              </Paper>
-              <Paper sx={{ p: 3, bgcolor: "rgba(95, 135, 135, 0.1)", borderRadius: 3, minWidth: 200 }}>
-                <Typography variant="h6" sx={{ color: "primary.light", fontWeight: 600, mb: 1 }}>
-                  Step 2
-                </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  Share your health info
-                </Typography>
-              </Paper>
-              <Paper sx={{ p: 3, bgcolor: "rgba(95, 135, 135, 0.1)", borderRadius: 3, minWidth: 200 }}>
-                <Typography variant="h6" sx={{ color: "primary.light", fontWeight: 600, mb: 1 }}>
-                  Step 3
-                </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  Get personalized care
-                </Typography>
-              </Paper>
-            </Box>
-          </Paper>
-        </Container>
+              </Box>
+            ))}
+          </Box>
+        </Box>
       );
     }
     return (
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Alert severity="error">{error || "Failed to load dashboard data."}</Alert>
-      </Container>
+      <Box sx={{ px: 2, py: 3 }}>
+        <Alert severity="error" sx={{ borderRadius: 0, fontSize: "0.8125rem" }}>
+          {error || "Failed to load dashboard data."}
+        </Alert>
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth="xl" sx={{ pt: 2, pb: 0 }}>
-      {/* Header Area */}
-      <Box 
-        sx={{ 
-          mb: 4, 
-          borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 2,
-          pb: 2
-        }}
-      >
-        <Typography variant="h5" sx={{ fontWeight: 700, color: "text.primary" }}>
-          Health Dashboard
+    <Box sx={{ pt: 2, pb: 2, px: { xs: 1.5, sm: 2 } }}>
+      {/* Compact Header */}
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2.5 }}>
+        <Typography sx={{ fontWeight: 800, fontSize: "1.15rem", color: "text.primary", letterSpacing: "-0.01em" }}>
+          Dashboard
         </Typography>
-
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Chip
             label="Live"
             size="small"
-            sx={{ 
-              bgcolor: "success.main", 
-              color: "background.default", 
-              fontSize: "0.65rem", 
-              fontWeight: 800, 
+            sx={{
+              bgcolor: "success.main",
+              color: "#000",
+              fontSize: "0.6rem",
+              fontWeight: 800,
               height: 20,
               textTransform: "uppercase",
-              letterSpacing: 0.5
+              letterSpacing: 0.08,
             }}
           />
-          <Tooltip title="Refresh dashboard">
-            <IconButton 
-              onClick={() => loadDashboard()}
-              size="small"
-              sx={{ 
-                bgcolor: "background.paper", 
-                border: "1px solid", 
-                borderColor: "rgba(255, 255, 255, 0.05)",
-                "&:hover": { bgcolor: "rgba(255, 255, 255, 0.05)" }
-              }}
-            >
-              <RefreshIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          <IconButton
+            onClick={() => loadDashboard()}
+            size="small"
+            sx={{
+              width: 28, height: 28,
+              bgcolor: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              "&:hover": { bgcolor: "rgba(255,255,255,0.08)" },
+            }}
+          >
+            <RefreshIcon sx={{ fontSize: 16 }} />
+          </IconButton>
         </Box>
       </Box>
 
-      {/* Metrics Content Area */}
-      <Box sx={{ minHeight: "50vh" }}>
-        <Grid container spacing={4}>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Box sx={{ p: 1 }}>
-              <AdherenceDoughnut 
-                adherence={patient.progress.overallAdherence} 
-                activityBreakdown={patient.progress.activityBreakdown}
-                size={220} 
-              />
-            </Box>
-          </Grid>
-          <Grid size={{ xs: 12, md: 8 }}>
-            <Box sx={{ p: 1, height: "100%" }}>
-              <DailyTrendBar dailyAdherence={patient.progress.dailyAdherence || []} height={180} />
-            </Box>
-          </Grid>
-          <Grid size={{ xs: 12, lg: 7 }}>
-            <Box sx={{ p: 1 }}>
-              <ActivityBreakdown activityBreakdown={patient.progress.activityBreakdown} />
-            </Box>
-          </Grid>
-          <Grid size={{ xs: 12, lg: 5 }}>
-            <Box sx={{ p: 1 }}>
-              <RecoveryTimeline patient={patient} />
-            </Box>
-          </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Box sx={{ p: 1 }}>
-              <PhysiotherapyScoreChart physiotherapyHistory={patient.progress.physiotherapyHistory} />
-            </Box>
-          </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Box sx={{ p: 1 }}>
-              <PainIndexChart painIndexHistory={patient.progress.painIndexHistory} />
-            </Box>
-          </Grid>
-        </Grid>
+      {/* Quick Stats Carousel */}
+      <Box sx={{
+        display: "flex", gap: 1, overflowX: "auto",
+        scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" },
+        mb: 2.5, pb: 0.5,
+      }}>
+        {[
+          { label: "Adherence", value: `${patient.progress.overallAdherence}%`, color: "primary.main" },
+          { label: "Recovery", value: `${Math.round((patient.progress.daysSinceSurgery / patient.progress.totalDaysPlan) * 100)}%`, color: "success.main" },
+          { label: "Pain", value: patient.progress.painIndexHistory?.length ? `${patient.progress.painIndexHistory[patient.progress.painIndexHistory.length - 1].value}/10` : "—", color: "warning.main" },
+          { label: "Physio", value: patient.progress.physiotherapyHistory?.length ? `${patient.progress.physiotherapyHistory[patient.progress.physiotherapyHistory.length - 1].score}` : "—", color: "info.main" },
+        ].map((stat) => (
+          <Box key={stat.label} sx={{
+            flexShrink: 0,
+            width: 80,
+            height: 80,
+            bgcolor: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: 0,
+            p: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+          }}>
+            <Typography sx={{ fontSize: "0.55rem", fontWeight: 700, color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.02em" }}>
+              {stat.label}
+            </Typography>
+            <Typography sx={{ fontWeight: 800, fontSize: "1.05rem", color: stat.color, lineHeight: 1.1, mt: 0.25 }}>
+              {stat.value}
+            </Typography>
+          </Box>
+        ))}
       </Box>
 
-      {/* Compact Footer */}
-      <Box sx={{ mt: 6, pt: 3, borderTop: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "center", pb: 4 }}>
-        <Typography variant="caption" sx={{ color: "text.secondary", opacity: 0.6 }}>
-          Last synchronized: {new Date().toLocaleTimeString()} • Secured medical data
-        </Typography>
+      {/* Charts Grid */}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {/* Adherence Row - Desktop side-by-side */}
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
+          {/* Overall Adherence */}
+          <Box sx={{
+            bgcolor: "background.paper",
+            border: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: 0,
+            p: 2,
+          }}>
+            <Typography sx={{
+              fontSize: "0.7rem", fontWeight: 700, color: "text.secondary",
+              textTransform: "uppercase", letterSpacing: "0.08em", mb: 2,
+            }}>
+              Overall Adherence
+            </Typography>
+            <AdherenceDoughnut
+              adherence={patient.progress.overallAdherence}
+              activityBreakdown={patient.progress.activityBreakdown}
+              size={140}
+            />
+          </Box>
+
+          {/* Activity Radar */}
+          <Box sx={{
+            bgcolor: "background.paper",
+            border: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: 0,
+            p: 2,
+          }}>
+            <Typography sx={{
+              fontSize: "0.7rem", fontWeight: 700, color: "text.secondary",
+              textTransform: "uppercase", letterSpacing: "0.08em", mb: 2,
+            }}>
+              Activity Radar
+            </Typography>
+            <AdherenceRadar
+              activityBreakdown={patient.progress.activityBreakdown}
+              height={200}
+            />
+          </Box>
+        </Box>
+
+        {/* Daily Trend */}
+        <Box sx={{
+          bgcolor: "background.paper",
+          border: "1px solid rgba(255,255,255,0.06)",
+          borderRadius: 0,
+          p: 2,
+        }}>
+          <Typography sx={{
+            fontSize: "0.7rem", fontWeight: 700, color: "text.secondary",
+            textTransform: "uppercase", letterSpacing: "0.08em", mb: 2,
+          }}>
+            30-Day Trend
+          </Typography>
+          <Box sx={{ height: 60 }}>
+            <DailyTrendBar dailyAdherence={patient.progress.dailyAdherence || []} height={60} />
+          </Box>
+        </Box>
+
+        {/* Recovery Timeline */}
+        <Box sx={{
+          bgcolor: "background.paper",
+          border: "1px solid rgba(255,255,255,0.06)",
+          borderRadius: 0,
+          p: 2,
+        }}>
+          <RecoveryTimeline patient={patient} />
+        </Box>
+
+        {/* Charts Row - Desktop side-by-side */}
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
+          <Box sx={{
+            bgcolor: "background.paper",
+            border: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: 0,
+            p: 2,
+          }}>
+            <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5, mb: 1 }}>
+              <Typography sx={{ fontWeight: 800, fontSize: "1.25rem", color: "success.main" }}>
+                {patient.progress.physiotherapyHistory?.length
+                  ? patient.progress.physiotherapyHistory[patient.progress.physiotherapyHistory.length - 1].score
+                  : "—"}
+              </Typography>
+              <Typography sx={{ color: "text.secondary", fontSize: "0.75rem", fontWeight: 600 }}>/100</Typography>
+            </Box>
+            <PhysiotherapyScoreChart physiotherapyHistory={patient.progress.physiotherapyHistory} height={80} />
+          </Box>
+          <Box sx={{
+            bgcolor: "background.paper",
+            border: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: 0,
+            p: 2,
+          }}>
+            <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5, mb: 1 }}>
+              <Typography sx={{ fontWeight: 800, fontSize: "1.25rem", color: "warning.main" }}>
+                {patient.progress.painIndexHistory?.length
+                  ? patient.progress.painIndexHistory[patient.progress.painIndexHistory.length - 1].value
+                  : "—"}
+              </Typography>
+              <Typography sx={{ color: "text.secondary", fontSize: "0.75rem", fontWeight: 600 }}>/10</Typography>
+            </Box>
+            <PainIndexChart painIndexHistory={patient.progress.painIndexHistory} height={80} />
+          </Box>
+        </Box>
       </Box>
-    </Container>
+    </Box>
   );
 }

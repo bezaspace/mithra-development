@@ -1,46 +1,124 @@
 :root {
-  --bg: #121113;
-  --surface: #1a191c;
-  --surface-muted: #242226;
-  --surface-card: #2c282d;
-  --text: #e4dfd9;
-  --text-muted: #b8afae;
-  --accent: #5f8787;
-  --accent-strong: #9db7b7;
-  --border: #3a3439;
-  --border-strong: #554c54;
+  --bg: #000000;
+  --surface: #0D0D0F;
+  --surface-elevated: #151518;
+  --text: #F5F5F7;
+  --text-muted: #8A8A8E;
+  --primary: #00D4AA;
+  --primary-light: #33E0BF;
+  --primary-glow: rgba(0, 212, 170, 0.3);
+  --secondary: #FF9F43;
+  --secondary-glow: rgba(255, 159, 67, 0.3);
+  --error: #FF5757;
+  --border: rgba(255, 255, 255, 0.06);
 
   color-scheme: dark;
 }
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  overscroll-behavior: none;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg);
   color: var(--text);
-  font-family: "Avenir Next", "Segoe UI", "Roboto", sans-serif;
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
 }
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
-/* Orb Animations & States */
+/* ===== GLASS UTILITIES ===== */
+.glass {
+  background: rgba(13, 13, 15, 0.72);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-strong {
+  background: rgba(13, 13, 15, 0.88);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-subtle {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ===== MESH GRADIENT ===== */
+.mesh-gradient {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.mesh-gradient::before,
+.mesh-gradient::after {
+  content: "";
+  position: absolute;
+  border-radius: 0;
+  filter: blur(80px);
+  opacity: 0.15;
+  animation: meshMove 12s ease-in-out infinite alternate;
+}
+
+.mesh-gradient::before {
+  width: 60vw;
+  height: 60vw;
+  background: var(--primary);
+  top: -10%;
+  left: -10%;
+  animation-delay: 0s;
+}
+
+.mesh-gradient::after {
+  width: 50vw;
+  height: 50vw;
+  background: var(--secondary);
+  bottom: -10%;
+  right: -10%;
+  animation-delay: -6s;
+}
+
+@keyframes meshMove {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, 40px) scale(1.1); }
+}
+
+/* ===== ORB REDESIGN ===== */
 .orb {
-  border: 4px solid var(--border-strong);
-  border-radius: 999px;
-  background: var(--surface-muted);
+  border: 3px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0;
+  background: var(--surface);
   position: relative;
   cursor: pointer;
   display: grid;
   place-items: center;
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
+  width: 120px;
+  height: 120px;
 }
 
 .orb:disabled {
@@ -48,90 +126,235 @@ body {
   opacity: 0.4;
 }
 
-.orb:hover:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 0 30px rgba(95, 135, 135, 0.2);
+.orb:active:not(:disabled) {
+  transform: scale(0.92);
 }
 
 .orb-core {
-  width: 60%;
-  height: 60%;
-  border-radius: 999px;
-  background: var(--accent-strong);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 25px rgba(95, 135, 135, 0.6);
-  transition: all 0.3s ease;
-}
-
-.orb::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
-  pointer-events: none;
+  width: 50%;
+  height: 50%;
+  border-radius: 0;
+  background: var(--primary);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 30px var(--primary-glow);
   transition: all 0.4s ease;
 }
 
-.orb-idle::before {
-  background: rgba(95, 135, 135, 0.05);
+.orb-ring {
+  position: absolute;
+  border-radius: 0;
+  border: 1px solid var(--primary);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.orb-idle .orb-core {
+  background: var(--primary);
+  box-shadow: 0 0 20px var(--primary-glow);
+}
+
+.orb-idle .orb-ring {
+  opacity: 0.15;
+}
+
+.orb-listening .orb-core {
+  background: var(--primary-light);
+  box-shadow: 0 0 40px var(--primary-glow);
+  animation: orbBreathe 1.8s ease-in-out infinite;
+}
+
+.orb-listening .orb-ring {
+  opacity: 0.3;
+  animation: orbRingPulse 1.8s ease-in-out infinite;
+}
+
+.orb-listening::before,
+.orb-listening::after {
+  content: "";
+  position: absolute;
+  border-radius: 0;
+  border: 1px solid var(--primary);
+  opacity: 0;
+  animation: orbRipple 2.4s ease-out infinite;
 }
 
 .orb-listening::before {
-  background: rgba(95, 135, 135, 0.25);
-  animation: breathe 2s ease-in-out infinite;
-  box-shadow: inset 0 0 20px rgba(95, 135, 135, 0.5);
+  width: 140px;
+  height: 140px;
+  animation-delay: 0s;
+}
+
+.orb-listening::after {
+  width: 170px;
+  height: 170px;
+  animation-delay: 0.8s;
 }
 
 .orb-speaking .orb-core {
-  background: #fbcb97;
-  box-shadow: 0 0 35px rgba(251, 203, 151, 0.7);
+  background: var(--secondary);
+  box-shadow: 0 0 40px var(--secondary-glow);
+  animation: orbSpeak 0.8s ease-in-out infinite;
+}
+
+.orb-speaking::before,
+.orb-speaking::after {
+  content: "";
+  position: absolute;
+  border-radius: 0;
+  border: 1px solid var(--secondary);
+  opacity: 0;
+  animation: orbRipple 1.5s ease-out infinite;
 }
 
 .orb-speaking::before {
-  background: rgba(251, 203, 151, 0.2);
-  animation: pulse-fast 0.6s ease-in-out infinite;
+  width: 140px;
+  height: 140px;
+  animation-delay: 0s;
 }
 
-.orb-holding::before {
-  background: rgba(95, 135, 135, 0.4);
-  animation: pulse-fast 0.4s ease-in-out infinite;
+.orb-speaking::after {
+  width: 170px;
+  height: 170px;
+  animation-delay: 0.5s;
 }
 
-.orb-awaiting::before {
-  background: rgba(153, 153, 153, 0.2);
-  animation: breathe 1.2s ease-in-out infinite;
+.orb-holding .orb-core {
+  background: var(--primary);
+  box-shadow: 0 0 35px var(--primary-glow);
+  animation: orbPress 0.6s ease-in-out infinite alternate;
+}
+
+.orb-awaiting .orb-core {
+  background: var(--text-muted);
+  box-shadow: none;
+  animation: orbBreatheSlow 2.4s ease-in-out infinite;
 }
 
 .orb-error .orb-core {
-  background: #e78a53;
-  box-shadow: 0 0 25px rgba(231, 138, 83, 0.5);
+  background: var(--error);
+  box-shadow: 0 0 25px rgba(255, 87, 87, 0.4);
 }
 
-@keyframes breathe {
+@keyframes orbBreathe {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+@keyframes orbBreatheSlow {
   0%, 100% { transform: scale(0.95); opacity: 0.6; }
-  50% { transform: scale(1.05); opacity: 1; }
+  50% { transform: scale(1.02); opacity: 0.85; }
 }
 
-@keyframes pulse-fast {
-  0%, 100% { transform: scale(0.98); opacity: 0.8; }
-  50% { transform: scale(1.02); opacity: 1; }
+@keyframes orbSpeak {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
 }
 
-/* Custom Scrollbar for MUI components */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+@keyframes orbPress {
+  0% { transform: scale(1); }
+  100% { transform: scale(0.88); }
 }
 
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
+@keyframes orbRipple {
+  0% { transform: scale(0.8); opacity: 0.4; }
+  100% { transform: scale(1.4); opacity: 0; }
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+@keyframes orbRingPulse {
+  0%, 100% { transform: scale(1); opacity: 0.2; }
+  50% { transform: scale(1.15); opacity: 0.35; }
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+/* ===== PAGE TRANSITIONS ===== */
+.page-enter {
+  opacity: 0;
+  transform: translateY(12px);
 }
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 250ms ease, transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.page-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+.page-exit-active {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+/* ===== PRESS FEEDBACK ===== */
+.pressable:active {
+  transform: scale(0.96);
+  opacity: 0.85;
+}
+
+/* ===== SCROLL SNAP CAROUSEL ===== */
+.snap-x {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.snap-x::-webkit-scrollbar {
+  display: none;
+}
+.snap-start {
+  scroll-snap-align: start;
+}
+.snap-center {
+  scroll-snap-align: center;
+}
+
+/* ===== HIDE SCROLLBARS GLOBALLY ===== */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===== SPARKLINE UTILITIES ===== */
+.sparkline-bar {
+  border-radius: 0;
+  transition: height 0.4s ease;
+}
+
+/* ===== SAFE AREA PADDING ===== */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ===== BOTTOM SHEET ===== */
+.bottom-sheet {
+  animation: sheetSlideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes sheetSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* ===== CUSTOM SCROLLBAR (only where needed) ===== */
+.custom-scroll::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 0;
+}
+
+/* ===== GRADIENT TEXT ===== */
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+

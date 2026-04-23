@@ -50,7 +50,7 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
         sx={{
           bgcolor: "background.paper",
           border: "1px solid rgba(255, 255, 255, 0.05)",
-          borderRadius: 4,
+          borderRadius: 0,
           background: "linear-gradient(135deg, #1a191c 0%, #222024 100%)",
         }}
       >
@@ -60,7 +60,7 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
               sx={{
                 width: 40,
                 height: 40,
-                borderRadius: 2,
+                borderRadius: 0,
                 bgcolor: "rgba(95, 135, 135, 0.1)",
                 color: "primary.light",
                 display: "flex",
@@ -86,7 +86,7 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
                 key={condition.name}
                 sx={{
                   p: 2,
-                  borderRadius: 3,
+                  borderRadius: 0,
                   bgcolor: "rgba(255, 255, 255, 0.02)",
                   border: `1px solid ${severityColor[condition.severity]}30`,
                   display: "flex",
@@ -108,7 +108,7 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
                       fontSize: "0.65rem",
                       height: 18,
                       fontWeight: 700,
-                      borderRadius: 1,
+                      borderRadius: 0,
                     }}
                   />
                   <Chip
@@ -120,7 +120,7 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
                       fontSize: "0.65rem",
                       height: 18,
                       fontWeight: 800,
-                      borderRadius: 1,
+                      borderRadius: 0,
                       textTransform: "uppercase",
                     }}
                   />
@@ -139,7 +139,7 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
             sx={{
               bgcolor: "background.paper",
               border: "1px solid rgba(255, 255, 255, 0.05)",
-              borderRadius: 4,
+              borderRadius: 0,
               height: "100%",
             }}
           >
@@ -149,7 +149,7 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
                   sx={{
                     width: 40,
                     height: 40,
-                    borderRadius: 2,
+                    borderRadius: 0,
                     bgcolor: "rgba(231, 138, 83, 0.1)",
                     color: "error.main",
                     display: "flex",
@@ -190,7 +190,7 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
                           color: "background.default",
                           fontWeight: 800,
                           fontSize: "0.65rem",
-                          borderRadius: 1,
+                          borderRadius: 0,
                           textTransform: "uppercase",
                         }}
                       />
@@ -210,7 +210,7 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
             sx={{
               bgcolor: "background.paper",
               border: "1px solid rgba(255, 255, 255, 0.05)",
-              borderRadius: 4,
+              borderRadius: 0,
               height: "100%",
             }}
           >
@@ -220,7 +220,7 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
                   sx={{
                     width: 40,
                     height: 40,
-                    borderRadius: 2,
+                    borderRadius: 0,
                     bgcolor: "rgba(95, 135, 135, 0.1)",
                     color: "primary.main",
                     display: "flex",
@@ -271,7 +271,7 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
         sx={{
           bgcolor: "background.paper",
           border: "1px solid rgba(255, 255, 255, 0.05)",
-          borderRadius: 4,
+          borderRadius: 0,
         }}
       >
         <CardContent sx={{ p: 3 }}>
@@ -280,7 +280,7 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
               sx={{
                 width: 40,
                 height: 40,
-                borderRadius: 2,
+                borderRadius: 0,
                 bgcolor: "rgba(157, 183, 183, 0.1)",
                 color: "primary.light",
                 display: "flex",
@@ -301,7 +301,7 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
                 <Box
                   sx={{
                     p: 2,
-                    borderRadius: 3,
+                    borderRadius: 0,
                     bgcolor: "rgba(255, 255, 255, 0.02)",
                     border: "1px solid rgba(255, 255, 255, 0.05)",
                     height: "100%",
@@ -339,7 +339,7 @@ export function MedicalHistoryCard({ patient }: MedicalHistoryCardProps) {
                       height: 18,
                       fontWeight: 800,
                       textTransform: "uppercase",
-                      borderRadius: 1,
+                      borderRadius: 0,
                     }}
                   />
                 </Box>

@@ -1,11 +1,9 @@
 import {
   Box,
   Typography,
-  Paper,
   Grid,
   Chip,
   Avatar,
-  Divider,
   List,
   ListItem,
   ListItemText,
@@ -28,24 +26,21 @@ export function DoctorRecommendations({ symptomsSummary, doctors }: Props) {
   if (doctors.length === 0) return null;
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: 3,
-        bgcolor: "background.paper",
-        border: "1px solid",
-        borderColor: "rgba(255, 255, 255, 0.05)",
-        borderRadius: 4,
-      }}
-    >
-      <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1.5 }}>
-        <DoctorIcon color="primary" />
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
+        <Box sx={{
+          display: "flex", alignItems: "center", justifyContent: "center",
+          width: 28, height: 28, borderRadius: 0,
+          bgcolor: "rgba(255,159,67,0.08)", color: "secondary.main",
+        }}>
+          <DoctorIcon sx={{ fontSize: 18 }} />
+        </Box>
         <Box>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Recommended Doctors
+          <Typography sx={{ fontWeight: 700, fontSize: "0.85rem", color: "text.primary", lineHeight: 1.3 }}>
+            Recommended
           </Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            Based on: <strong>{symptomsSummary}</strong>
+          <Typography sx={{ fontSize: "0.6rem", color: "text.secondary", fontWeight: 600 }}>
+            Based on: {symptomsSummary}
           </Typography>
         </Box>
       </Box>
@@ -57,16 +52,20 @@ export function DoctorRecommendations({ symptomsSummary, doctors }: Props) {
               sx={{
                 p: 2.5,
                 height: "100%",
-                borderRadius: 3,
+                borderRadius: 0,
                 bgcolor: "rgba(255, 255, 255, 0.02)",
                 border: "1px solid",
                 borderColor: "rgba(255, 255, 255, 0.05)",
                 display: "flex",
                 flexDirection: "column",
+                aspectRatio: "1/1",
+                overflow: "auto",
+                scrollbarWidth: "none",
+                "&::-webkit-scrollbar": { display: "none" },
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1.5 }}>
-                <Avatar sx={{ bgcolor: "primary.dark", color: "primary.light", fontWeight: 700 }}>
+                <Avatar sx={{ borderRadius: 0, bgcolor: "primary.dark", color: "primary.light", fontWeight: 700 }}>
                   {doctor.name.split(" ").pop()?.[0]}
                 </Avatar>
                 <Box>
@@ -100,9 +99,9 @@ export function DoctorRecommendations({ symptomsSummary, doctors }: Props) {
                 "{doctor.matchReason}"
               </Typography>
 
-              <Divider sx={{ mb: 2, opacity: 0.1 }} />
+              <Box sx={{ borderTop: "1px solid rgba(255,255,255,0.04)", my: 1.5 }} />
 
-              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, textTransform: "uppercase", mb: 1, display: "block", letterSpacing: 0.5 }}>
+              <Typography sx={{ fontSize: "0.6rem", color: "text.secondary", fontWeight: 700, textTransform: "uppercase", mb: 0.75, display: "block", letterSpacing: "0.05em" }}>
                 Available Slots
               </Typography>
               <List dense disablePadding>
@@ -113,7 +112,7 @@ export function DoctorRecommendations({ symptomsSummary, doctors }: Props) {
                       px: 1.5,
                       py: 0.5,
                       mb: 0.5,
-                      borderRadius: 1.5,
+                      borderRadius: 0,
                       bgcolor: slot.isAvailable ? "rgba(95, 135, 135, 0.1)" : "rgba(255, 255, 255, 0.02)",
                       opacity: slot.isAvailable ? 1 : 0.4,
                       border: "1px solid",
@@ -137,6 +136,6 @@ export function DoctorRecommendations({ symptomsSummary, doctors }: Props) {
           </Grid>
         ))}
       </Grid>
-    </Paper>
+    </Box>
   );
 }

@@ -78,11 +78,11 @@ export function TreatmentPlanCard({ patient }: TreatmentPlanCardProps) {
             value={patient.progress.phaseProgress}
             sx={{
               height: 8,
-              borderRadius: 4,
+              borderRadius: 0,
               bgcolor: "#242226",
               "& .MuiLinearProgress-bar": {
                 bgcolor: "#5f8787",
-                borderRadius: 4,
+                borderRadius: 0,
               },
             }}
           />
@@ -94,7 +94,7 @@ export function TreatmentPlanCard({ patient }: TreatmentPlanCardProps) {
               key={index}
               sx={{
                 p: 1.5,
-                borderRadius: 2,
+                borderRadius: 0,
                 bgcolor: phase.status === "active" ? "#5f878715" : "#242226",
                 border: `1px solid ${phase.status === "active" ? "#5f8787" : "#3a3439"}`,
               }}

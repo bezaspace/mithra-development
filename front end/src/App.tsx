@@ -10,7 +10,7 @@ import {
   Fade,
   Snackbar,
 } from "@mui/material";
-import { InfoOutlined as InfoIcon } from "@mui/icons-material";
+import { InfoOutlined as InfoIcon, Mic as MicIcon } from "@mui/icons-material";
 
 import { BookingUpdates, type BookingUpdate } from "./components/BookingUpdates";
 import { DoctorRecommendations } from "./components/DoctorRecommendations";
@@ -505,16 +505,13 @@ function VoiceSessionPage({
     setToast({ ...formatted, key: Date.now() });
   }, [latestAdherenceEvent, currentActivityTitle]);
 
-  // Add keyboard event listeners for spacebar control
   useEffect(() => {
     const handleKeyDown = (evt: KeyboardEvent) => {
       if (evt.key === " " && !evt.repeat) {
-        // Prevent default scrolling behavior
         evt.preventDefault();
-        // Don't trigger if user is typing in an input field
         const target = evt.target as HTMLElement;
-        const isInputFocused = target.tagName === "INPUT" || 
-                               target.tagName === "TEXTAREA" || 
+        const isInputFocused = target.tagName === "INPUT" ||
+                               target.tagName === "TEXTAREA" ||
                                target.isContentEditable;
         if (!isInputFocused && state === "ready" && !isPttActive) {
           onBeginPtt();
@@ -539,141 +536,209 @@ function VoiceSessionPage({
       window.removeEventListener("keyup", handleKeyUp);
     };
   }, [state, isPttActive, onBeginPtt, onEndPtt]);
+
+  const hasVisual = Boolean(activeVisual);
+
   return (
-    <Box sx={{ 
-      position: "relative", 
-      height: "calc(100vh - 64px)", // Only subtract bottom nav/spacing
-      display: "flex", 
+    <Box sx={{
+      position: "relative",
+      height: "100dvh",
+      display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      overflow: "hidden"
+      overflow: "hidden",
+      bgcolor: "background.default",
     }}>
-      {/* Dynamic Background Content - only shown if exists */}
-      <Box sx={{ 
-        flexGrow: 1, 
-        width: "100%", 
-        overflowY: "auto", 
-        pb: 12,
-        px: { xs: 2, md: 4 },
-        display: "flex",
-        flexDirection: "column",
-        gap: 3,
-        maskImage: "linear-gradient(to bottom, black 80%, transparent 100%)"
-      }}>
-        <ActiveVisualSlot activeVisual={activeVisual} />
-      </Box>
+      {/* Mesh Gradient Background */}
+      <Box className="mesh-gradient" sx={{ opacity: state === "ready" ? 0.6 : 0.3 }} />
 
-      {/* Floating Status & Controls at Bottom */}
-      <Box sx={{ 
-        position: "absolute", 
-        bottom: 24, 
-        left: "50%", 
-        transform: "translateX(-50%)",
+      {/* Active Visuals — Bottom Sheet */}
+      {hasVisual && (
+        <Fade in timeout={300}>
+          <Box sx={{
+            position: "absolute",
+            bottom: 180,
+            left: 0,
+            right: 0,
+            zIndex: 5,
+            px: 1,
+            maxHeight: "45vh",
+            overflowY: "auto",
+            overflowX: "hidden",
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { display: "none" },
+          }}>
+            <Box sx={{
+              bgcolor: "rgba(13,13,15,0.92)",
+              backdropFilter: "blur(24px)",
+              borderRadius: 0,
+              border: "1px solid rgba(255,255,255,0.06)",
+              p: 2,
+              boxShadow: "0 -8px 40px rgba(0,0,0,0.5)",
+            }}>
+              <ActiveVisualSlot activeVisual={activeVisual} />
+            </Box>
+          </Box>
+        </Fade>
+      )}
+
+      {/* Center Orb */}
+      <Box sx={{
+        position: "relative",
+        zIndex: 2,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 2,
-        width: "100%",
-        maxWidth: 400,
-        zIndex: 10
+        gap: 3,
       }}>
+        {/* State Label */}
+        <Typography sx={{
+          fontSize: "0.75rem",
+          fontWeight: 700,
+          letterSpacing: "0.15em",
+          textTransform: "uppercase",
+          color: visualState === "speaking" ? "secondary.main" : visualState === "error" ? "error.main" : "primary.main",
+          opacity: state === "idle" ? 0.4 : 0.9,
+          transition: "all 0.3s ease",
+        }}>
+          {state === "idle" ? "Tap to Start" : visualState === "listening" ? "Listening" : visualState === "speaking" ? "Speaking" : visualState === "holding" ? "Hold to Talk" : visualState === "awaiting" ? "Processing" : visualState === "error" ? "Error" : "Ready"}
+        </Typography>
+
+        {/* Orb */}
+        {state === "ready" ? (
+          <button
+            className={`orb orb-${visualState}`}
+            aria-label="Hold to talk"
+            onPointerDown={(evt) => {
+              evt.currentTarget.setPointerCapture(evt.pointerId);
+              onBeginPtt();
+            }}
+            onPointerUp={onEndPtt}
+            onPointerCancel={onEndPtt}
+            onLostPointerCapture={onEndPtt}
+            style={{
+              width: 120,
+              height: 120,
+              borderWidth: 3,
+              background: "transparent",
+            }}
+          >
+            <span className="orb-core" />
+          </button>
+        ) : (
+          <Box sx={{
+            width: 120,
+            height: 120,
+            borderRadius: 0,
+            border: "3px solid rgba(255,255,255,0.08)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            opacity: 0.5,
+          }}>
+            <MicIcon sx={{ fontSize: 40, color: "text.secondary", opacity: 0.5 }} />
+          </Box>
+        )}
+      </Box>
+
+      {/* Bottom Controls */}
+      <Box sx={{
+        position: "absolute",
+        bottom: 90,
+        left: "50%",
+        transform: "translateX(-50%)",
+        zIndex: 10,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 1.5,
+        width: "100%",
+        px: 2,
+      }}>
+        {/* Warning Capsule */}
         {warning && (
           <Fade in={!!warning}>
-            <Alert 
-              severity="warning" 
-              icon={<InfoIcon sx={{ fontSize: 16 }} />}
-              sx={{ 
-                borderRadius: 999, 
-                bgcolor: "rgba(242, 208, 138, 0.15)", 
-                color: "#f2d08a",
-                backdropFilter: "blur(8px)",
-                border: "1px solid rgba(242, 208, 138, 0.3)",
+            <Box sx={{
+              bgcolor: "rgba(255,159,67,0.12)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,159,67,0.25)",
+              borderRadius: 0,
+              px: 2,
+              py: 0.75,
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              maxWidth: "90%",
+            }}>
+              <InfoIcon sx={{ fontSize: 14, color: "secondary.main", flexShrink: 0 }} />
+              <Typography sx={{
                 fontSize: "0.75rem",
-                py: 0,
-                px: 2
-              }}
-            >
-              {warning}
-            </Alert>
+                fontWeight: 600,
+                color: "secondary.light",
+                lineHeight: 1.3,
+              }}>
+                {warning}
+              </Typography>
+            </Box>
           </Fade>
         )}
 
-        <Box sx={{ 
-          display: "flex", 
-          alignItems: "center", 
-          gap: 3,
-          bgcolor: "background.paper",
-          p: 1.5,
-          px: 3,
-          borderRadius: 999,
-          border: "1px solid",
-          borderColor: "rgba(255, 255, 255, 0.05)",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
-          backdropFilter: "blur(12px)"
-        }}>
-          {state !== "ready" ? (
-            <Button
-              variant="text"
-              color={state === "error" ? "error" : "primary"}
-              onClick={state === "idle" || state === "error" ? onConnect : onDisconnect}
-              disabled={state === "connecting"}
-              sx={{ 
-                fontWeight: 700, 
-                textTransform: "none", 
-                borderRadius: 999,
-                fontSize: "0.9rem",
-                letterSpacing: 0.5
-              }}
-            >
-              {state === "connecting" ? "Connecting..." : "Start Session"}
-            </Button>
-          ) : (
-            <>
-              <button
-                className={`orb orb-${visualState}`}
-                aria-label="Hold to talk"
-                onPointerDown={(evt) => {
-                  evt.currentTarget.setPointerCapture(evt.pointerId);
-                  onBeginPtt();
-                }}
-                onPointerUp={onEndPtt}
-                onPointerCancel={onEndPtt}
-                onLostPointerCapture={onEndPtt}
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderWidth: 2
-                }}
-              >
-                <span className="orb-core" style={{ width: "50%", height: "50%" }} />
-              </button>
-              <Button
-                variant="text"
-                color="inherit"
-                onClick={onDisconnect}
-                sx={{ 
-                  fontWeight: 600, 
-                  textTransform: "none", 
-                  borderRadius: 999,
-                  fontSize: "0.8rem",
-                  opacity: 0.5,
-                  "&:hover": { opacity: 1 }
-                }}
-              >
-                End
-              </Button>
-            </>
-          )}
-        </Box>
+        {/* Action Button */}
+        {state !== "ready" && (
+          <Button
+            fullWidth
+            variant="contained"
+            color={state === "error" ? "error" : "primary"}
+            onClick={state === "idle" || state === "error" ? onConnect : onDisconnect}
+            disabled={state === "connecting"}
+            sx={{
+              maxWidth: 360,
+              py: 1.5,
+              fontSize: "0.95rem",
+              fontWeight: 700,
+              letterSpacing: "0.02em",
+              borderRadius: 0,
+              background: state === "connecting"
+                ? "rgba(255,255,255,0.06)"
+                : "linear-gradient(135deg, #00D4AA 0%, #00A885 100%)",
+              boxShadow: "0 8px 24px rgba(0,212,170,0.25)",
+              "&:hover": {
+                boxShadow: "0 12px 32px rgba(0,212,170,0.35)",
+              },
+            }}
+          >
+            {state === "connecting" ? "Connecting..." : state === "error" ? "Retry Connection" : "Start Session"}
+          </Button>
+        )}
+
+        {state === "ready" && (
+          <Button
+            variant="text"
+            color="inherit"
+            onClick={onDisconnect}
+            sx={{
+              fontWeight: 600,
+              fontSize: "0.8rem",
+              opacity: 0.4,
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+              "&:hover": { opacity: 0.7 },
+            }}
+          >
+            End Session
+          </Button>
+        )}
       </Box>
 
+      {/* Toast */}
       <Snackbar
         key={toast?.key}
         open={Boolean(toast)}
-        autoHideDuration={4000}
+        autoHideDuration={3000}
         onClose={() => setToast(null)}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        sx={{ top: "48px !important" }}
       >
         {toast ? (
           <Alert
@@ -681,10 +746,15 @@ function VoiceSessionPage({
             variant="filled"
             onClose={() => setToast(null)}
             sx={{
-              borderRadius: 999,
-              fontSize: "0.85rem",
-              fontWeight: 600,
-              boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
+              borderRadius: 0,
+              fontSize: "0.8rem",
+              fontWeight: 700,
+              py: 0.5,
+              px: 2,
+              boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+              bgcolor: toast.severity === "success" ? "primary.dark" : "error.dark",
+              color: toast.severity === "success" ? "#000" : "#fff",
+              "& .MuiAlert-icon": { fontSize: 18 },
             }}
           >
             {toast.message}
@@ -706,91 +776,68 @@ function ActiveVisualSlot({ activeVisual }: { activeVisual: ActiveVisual }) {
       case "adherence": {
         const data = activeVisual.data;
         return (
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              bgcolor: "background.paper",
-              border: "1px solid",
-              borderColor: "rgba(255, 255, 255, 0.05)",
-              borderRadius: 4,
-            }}
-          >
+          <Box>
+            <Typography sx={{
+              fontSize: "0.7rem",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: "text.secondary",
+              mb: 1.5,
+            }}>
+              Adherence
+            </Typography>
             <AdherenceDoughnut
               adherence={data.overallAdherence}
               activityBreakdown={data.activityBreakdown as any}
-              size={220}
+              size={160}
             />
             {data.todayTotal > 0 && (
               <Typography
-                variant="body2"
                 sx={{
                   color: "text.secondary",
                   textAlign: "center",
-                  mt: 2,
-                  fontWeight: 500,
+                  mt: 1,
+                  fontWeight: 600,
+                  fontSize: "0.75rem",
                 }}
               >
-                Today: {data.todayCompleted}/{data.todayTotal} activities completed
+                {data.todayCompleted}/{data.todayTotal} today
               </Typography>
             )}
-          </Paper>
+          </Box>
         );
       }
       case "physiotherapy": {
         const data = activeVisual.data;
         return (
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              bgcolor: "background.paper",
-              border: "1px solid",
-              borderColor: "rgba(255, 255, 255, 0.05)",
-              borderRadius: 4,
-            }}
-          >
-            {data.latestScore !== null && (
-              <Typography
-                variant="h4"
-                sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#8dd6a3" }}
-              >
-                {data.latestScore}
-                <Typography component="span" variant="body2" sx={{ color: "text.secondary", ml: 1 }}>
-                  / 100
-                </Typography>
+          <Box>
+            <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5, mb: 1 }}>
+              <Typography sx={{ fontWeight: 800, fontSize: "1.5rem", color: "success.main" }}>
+                {data.latestScore !== null ? data.latestScore : "—"}
               </Typography>
-            )}
-            <PhysiotherapyScoreChart physiotherapyHistory={data.history} height={220} />
-          </Paper>
+              <Typography sx={{ color: "text.secondary", fontSize: "0.8rem", fontWeight: 600 }}>
+                /100
+              </Typography>
+            </Box>
+            <PhysiotherapyScoreChart physiotherapyHistory={data.history} height={100} />
+          </Box>
         );
       }
       case "pain": {
         const data = activeVisual.data;
         return (
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              bgcolor: "background.paper",
-              border: "1px solid",
-              borderColor: "rgba(255, 255, 255, 0.05)",
-              borderRadius: 4,
-            }}
-          >
-            {data.latestValue !== null && (
-              <Typography
-                variant="h4"
-                sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#f2d08a" }}
-              >
-                {data.latestValue}
-                <Typography component="span" variant="body2" sx={{ color: "text.secondary", ml: 1 }}>
-                  / 10
-                </Typography>
+          <Box>
+            <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5, mb: 1 }}>
+              <Typography sx={{ fontWeight: 800, fontSize: "1.5rem", color: "warning.main" }}>
+                {data.latestValue !== null ? data.latestValue : "—"}
               </Typography>
-            )}
-            <PainIndexChart painIndexHistory={data.history} height={220} />
-          </Paper>
+              <Typography sx={{ color: "text.secondary", fontSize: "0.8rem", fontWeight: 600 }}>
+                /10
+              </Typography>
+            </Box>
+            <PainIndexChart painIndexHistory={data.history} height={100} />
+          </Box>
         );
       }
       case "currentActivity": {
@@ -816,20 +863,9 @@ function ActiveVisualSlot({ activeVisual }: { activeVisual: ActiveVisual }) {
           );
         }
         return (
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              bgcolor: "background.paper",
-              border: "1px solid",
-              borderColor: "rgba(255, 255, 255, 0.05)",
-              borderRadius: 4,
-            }}
-          >
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              {data.message}
-            </Typography>
-          </Paper>
+          <Typography sx={{ color: "text.secondary", fontSize: "0.8125rem", lineHeight: 1.4 }}>
+            {data.message}
+          </Typography>
         );
       }
       case "doctors":

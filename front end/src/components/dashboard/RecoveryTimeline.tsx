@@ -1,4 +1,4 @@
-import { Box, Typography, Paper } from "@mui/material";
+import { Box, Typography, Chip } from "@mui/material";
 import { CheckCircle as CheckIcon } from "@mui/icons-material";
 import type { PatientDashboard } from "./dashboardTypes";
 
@@ -10,77 +10,80 @@ export function RecoveryTimeline({ patient }: RecoveryTimelineProps) {
   const { progress } = patient;
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      {/* Metrics Row */}
-      <Box>
-        <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mb: 2, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
-          Recovery Progress
-        </Typography>
-        <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 2 }}>
-          <Box>
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, fontSize: "0.65rem" }}>
-              Day
-            </Typography>
-            <Typography variant="h6" sx={{ color: "text.primary", fontWeight: 800 }}>
-              {progress.daysSinceSurgery}
-              <Typography component="span" variant="caption" sx={{ color: "text.secondary", ml: 0.5, fontWeight: 500, fontSize: "0.6rem" }}>
-                /{progress.totalDaysPlan}
-              </Typography>
-            </Typography>
-          </Box>
-          <Box>
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, fontSize: "0.65rem" }}>
-              Phase
-            </Typography>
-            <Typography variant="h6" sx={{ color: "primary.light", fontWeight: 800 }}>
-              {patient.treatmentPlan.currentPhase}
-              <Typography component="span" variant="caption" sx={{ color: "text.secondary", ml: 0.5, fontWeight: 500, fontSize: "0.6rem" }}>
-                /{patient.treatmentPlan.phases.length}
-              </Typography>
-            </Typography>
-          </Box>
-          <Box>
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, fontSize: "0.65rem" }}>
-              Milestones
-            </Typography>
-            <Typography variant="h6" sx={{ color: "success.main", fontWeight: 800 }}>
-              {progress.recentMilestones.length}
-            </Typography>
-          </Box>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+      {/* Compact Metrics Row */}
+      <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 1 }}>
+        <Box sx={{
+          bgcolor: "rgba(255,255,255,0.03)", borderRadius: 0,
+          p: 1.5, display: "flex", flexDirection: "column", alignItems: "center",
+          justifyContent: "center", aspectRatio: "1/1",
+        }}>
+          <Typography sx={{ color: "text.secondary", fontWeight: 700, fontSize: "0.6rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            Day
+          </Typography>
+          <Typography sx={{ color: "text.primary", fontWeight: 800, fontSize: "1.1rem", lineHeight: 1.2, mt: 0.25 }}>
+            {progress.daysSinceSurgery}
+            <Box component="span" sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.65rem", ml: 0.25 }}>
+              /{progress.totalDaysPlan}
+            </Box>
+          </Typography>
+        </Box>
+        <Box sx={{
+          bgcolor: "rgba(255,255,255,0.03)", borderRadius: 0,
+          p: 1.5, display: "flex", flexDirection: "column", alignItems: "center",
+          justifyContent: "center", aspectRatio: "1/1",
+        }}>
+          <Typography sx={{ color: "text.secondary", fontWeight: 700, fontSize: "0.6rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            Phase
+          </Typography>
+          <Typography sx={{ color: "primary.main", fontWeight: 800, fontSize: "1.1rem", lineHeight: 1.2, mt: 0.25 }}>
+            {patient.treatmentPlan.currentPhase}
+            <Box component="span" sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.65rem", ml: 0.25 }}>
+              /{patient.treatmentPlan.phases.length}
+            </Box>
+          </Typography>
+        </Box>
+        <Box sx={{
+          bgcolor: "rgba(255,255,255,0.03)", borderRadius: 0,
+          p: 1.5, display: "flex", flexDirection: "column", alignItems: "center",
+          justifyContent: "center", aspectRatio: "1/1",
+        }}>
+          <Typography sx={{ color: "text.secondary", fontWeight: 700, fontSize: "0.6rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            Done
+          </Typography>
+          <Typography sx={{ color: "success.main", fontWeight: 800, fontSize: "1.1rem", lineHeight: 1.2, mt: 0.25 }}>
+            {progress.recentMilestones.length}
+          </Typography>
         </Box>
       </Box>
 
-      {/* Recent Milestones */}
-      <Box>
-        <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mb: 1, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
-          Achievements
-        </Typography>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-          {progress.recentMilestones.slice(0, 4).map((milestone, idx) => (
-            <Box
+      {/* Horizontal Milestone Chips */}
+      {progress.recentMilestones.length > 0 && (
+        <Box sx={{
+          display: "flex", gap: 0.75, overflowX: "auto",
+          scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" },
+          pb: 0.5,
+        }}>
+          {progress.recentMilestones.slice(0, 8).map((milestone, idx) => (
+            <Chip
               key={idx}
+              icon={<CheckIcon sx={{ fontSize: 14, color: "success.main" }} />}
+              label={milestone.milestone}
+              size="small"
               sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                py: 1,
-                borderBottom: idx === progress.recentMilestones.slice(0, 4).length - 1 ? "none" : "1px solid rgba(255, 255, 255, 0.03)",
+                bgcolor: "rgba(0,212,170,0.08)",
+                border: "1px solid rgba(0,212,170,0.15)",
+                color: "text.primary",
+                fontSize: "0.7rem",
+                fontWeight: 600,
+                height: 28,
+                flexShrink: 0,
+                "& .MuiChip-icon": { color: "success.main", ml: "6px" },
               }}
-            >
-              <CheckIcon sx={{ color: "success.main", fontSize: 16 }} />
-              <Typography variant="body2" sx={{ color: "text.primary", fontWeight: 500, fontSize: "0.8rem", flex: 1 }}>
-                {milestone.milestone}
-              </Typography>
-              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.65rem" }}>
-                {new Date(milestone.achievedDate).toLocaleDateString("en-IN", {
-                  day: "numeric",
-                  month: "short",
-                })}
-              </Typography>
-            </Box>
+            />
           ))}
         </Box>
-      </Box>
+      )}
     </Box>
   );
 }

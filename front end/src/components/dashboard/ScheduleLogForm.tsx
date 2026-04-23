@@ -59,51 +59,47 @@ export function ScheduleLogForm({ item, submitting = false, error = null, onSave
   };
 
   return (
-    <Box
-      sx={{
-        mt: 2,
-        p: 2.5,
-        borderRadius: 3,
-        bgcolor: "rgba(255, 255, 255, 0.02)",
-        border: "1px solid rgba(255, 255, 255, 0.05)",
-      }}
-    >
-      <Typography variant="subtitle2" sx={{ color: "primary.light", mb: 2, fontWeight: 700, textTransform: "uppercase", fontSize: "0.75rem", letterSpacing: 1 }}>
-        Log Task Progress
+    <Box sx={{ pt: 1 }}>
+      <Typography sx={{
+        fontSize: "0.7rem", fontWeight: 700, color: "text.secondary",
+        textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5,
+      }}>
+        Log Progress
       </Typography>
 
-      <Stack spacing={2.5}>
-        <Box>
-          <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mb: 1, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
-            Status Outcome
-          </Typography>
-          <ToggleButtonGroup
-            exclusive
-            fullWidth
-            value={status}
-            onChange={(_e: MouseEvent<HTMLElement>, next: LogStatus | null) => {
-              if (next) setStatus(next);
-            }}
-            sx={{
-              "& .MuiToggleButton-root": {
-                color: "text.secondary",
-                borderColor: "rgba(255, 255, 255, 0.1)",
-                textTransform: "none",
-                fontWeight: 600,
-                py: 1,
-                "&.Mui-selected": {
-                  color: "background.default",
-                  bgcolor: "success.main",
-                  "&:hover": { bgcolor: "success.main" },
-                },
+      <Stack spacing={2}>
+        {/* Status Pills */}
+        <ToggleButtonGroup
+          exclusive
+          fullWidth
+          value={status}
+          onChange={(_e: MouseEvent<HTMLElement>, next: LogStatus | null) => {
+            if (next) setStatus(next);
+          }}
+          sx={{
+            gap: 0.75,
+            "& .MuiToggleButton-root": {
+              borderRadius: 0,
+              border: "1px solid rgba(255,255,255,0.08) !important",
+              color: "text.secondary",
+              textTransform: "none",
+              fontWeight: 700,
+              fontSize: "0.85rem",
+              py: 1.25,
+              flex: 1,
+              "&.Mui-selected": {
+                color: "#000",
+                bgcolor: "success.main",
+                borderColor: "success.main !important",
+                "&:hover": { bgcolor: "success.main" },
               },
-            }}
-          >
-            <ToggleButton value="done">Done</ToggleButton>
-            <ToggleButton value="partial">Partial</ToggleButton>
-            <ToggleButton value="skipped">Skipped</ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
+            },
+          }}
+        >
+          <ToggleButton value="done">Done</ToggleButton>
+          <ToggleButton value="partial">Partial</ToggleButton>
+          <ToggleButton value="skipped">Skipped</ToggleButton>
+        </ToggleButtonGroup>
 
         {needsChangesField && (
           <TextField
@@ -114,12 +110,12 @@ export function ScheduleLogForm({ item, submitting = false, error = null, onSave
             fullWidth
             multiline
             minRows={2}
-            placeholder="Describe any deviations from the plan..."
+            placeholder="Describe any deviations..."
             sx={textFieldSx}
           />
         )}
 
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5 }}>
           <TextField
             label="How did you feel?"
             value={feltAfter}
@@ -129,9 +125,8 @@ export function ScheduleLogForm({ item, submitting = false, error = null, onSave
             placeholder="e.g. Better, Tired..."
             sx={textFieldSx}
           />
-
           <TextField
-            label="Any symptoms?"
+            label="Symptoms?"
             value={symptoms}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setSymptoms(e.target.value)}
             size="small"
@@ -142,7 +137,7 @@ export function ScheduleLogForm({ item, submitting = false, error = null, onSave
         </Box>
 
         <TextField
-          label="Additional notes"
+          label="Notes"
           value={notes}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setNotes(e.target.value)}
           size="small"
@@ -153,28 +148,22 @@ export function ScheduleLogForm({ item, submitting = false, error = null, onSave
           sx={textFieldSx}
         />
 
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
           <FormControlLabel
             control={
               <Checkbox
                 checked={flagForDoctor}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setFlagForDoctor(e.target.checked)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setFlagForDoctor(e.target.checked)}
                 sx={{ color: "error.main", "&.Mui-checked": { color: "error.main" } }}
               />
             }
-            label={<Typography variant="body2" sx={{ color: "text.secondary", fontWeight: 500 }}>Flag for doctor&apos;s attention</Typography>}
+            label={<Typography sx={{ fontSize: "0.75rem", color: "text.secondary", fontWeight: 600 }}>Flag doctor</Typography>}
           />
-
-          <Box sx={{ display: "flex", gap: 1.5 }}>
-            <Button 
-              onClick={onCancel} 
-              disabled={submitting} 
-              sx={{ 
-                color: "text.secondary", 
-                textTransform: "none",
-                fontWeight: 600,
-                px: 2
-              }}
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button
+              onClick={onCancel}
+              disabled={submitting}
+              sx={{ color: "text.secondary", fontWeight: 700, fontSize: "0.85rem", px: 2 }}
             >
               Cancel
             </Button>
@@ -183,16 +172,16 @@ export function ScheduleLogForm({ item, submitting = false, error = null, onSave
               onClick={handleSave}
               disabled={submitting}
               sx={{
-                textTransform: "none",
                 bgcolor: "primary.main",
-                color: "background.default",
-                fontWeight: 700,
-                borderRadius: 2,
+                color: "#000",
+                fontWeight: 800,
+                fontSize: "0.9rem",
                 px: 3,
-                boxShadow: "0 4px 12px rgba(95, 135, 135, 0.3)",
-                "&:hover": { 
+                py: 1,
+                boxShadow: "0 4px 16px rgba(0,212,170,0.25)",
+                "&:hover": {
                   bgcolor: "primary.light",
-                  boxShadow: "0 6px 16px rgba(95, 135, 135, 0.4)",
+                  boxShadow: "0 6px 20px rgba(0,212,170,0.35)",
                 },
               }}
             >
@@ -202,15 +191,11 @@ export function ScheduleLogForm({ item, submitting = false, error = null, onSave
         </Box>
 
         {error && (
-          <Alert 
-            severity="error" 
-            sx={{ 
-              bgcolor: "rgba(231, 138, 83, 0.1)", 
-              color: "error.main", 
-              border: "1px solid rgba(231, 138, 83, 0.2)",
-              borderRadius: 2
-            }}
-          >
+          <Alert severity="error" sx={{
+            bgcolor: "rgba(255,87,87,0.08)", color: "error.main",
+            border: "1px solid rgba(255,87,87,0.15)", borderRadius: 0,
+            fontSize: "0.8rem", fontWeight: 600,
+          }}>
             {error}
           </Alert>
         )}
@@ -221,14 +206,17 @@ export function ScheduleLogForm({ item, submitting = false, error = null, onSave
 
 const textFieldSx = {
   "& .MuiOutlinedInput-root": {
-    color: "#e4dfd9",
-    bgcolor: "#242226",
-    "& fieldset": { borderColor: "#3a3439" },
-    "&:hover fieldset": { borderColor: "#5f8787" },
-    "&.Mui-focused fieldset": { borderColor: "#8dd6a3" },
+    color: "#F5F5F7",
+    bgcolor: "rgba(255,255,255,0.03)",
+    borderRadius: 0,
+    fontSize: "0.85rem",
+    "& fieldset": { borderColor: "rgba(255,255,255,0.08)" },
+    "&:hover fieldset": { borderColor: "rgba(0,212,170,0.3)" },
+    "&.Mui-focused fieldset": { borderColor: "primary.main" },
   },
   "& .MuiInputLabel-root": {
-    color: "#999",
-    "&.Mui-focused": { color: "#8dd6a3" },
+    color: "#8A8A8E",
+    fontSize: "0.8rem",
+    "&.Mui-focused": { color: "primary.main" },
   },
 };

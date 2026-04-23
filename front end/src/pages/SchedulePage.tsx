@@ -1,35 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Container,
   Box,
   Typography,
   Chip,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Paper,
   Alert,
-  List,
-  ListItem,
-  ListItemText,
-  Divider,
   CircularProgress,
-  Stack,
 } from "@mui/material";
 import {
-  ExpandMore as ExpandMoreIcon,
-  EventNote as EventIcon,
-  Schedule as TimeIcon,
   CheckCircle as DoneIcon,
   PendingOutlined as PendingIcon,
   WarningAmber as WarningIcon,
   InfoOutlined as InfoIcon,
-  CalendarToday as CalendarIcon,
-  AccessTime as ProgressIcon,
+  AccessTime as TimeIcon,
+  Add as AddIcon,
+  Edit as EditIcon,
 } from "@mui/icons-material";
 import {
-  Card,
-  CardContent,
   LinearProgress,
   Button,
 } from "@mui/material";
@@ -208,285 +195,270 @@ export function SchedulePage({ backendHttpUrl, userId, liveSnapshot, liveReportU
   const totalCount = snapshot?.items.length || 0;
   const progressPercent = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
 
+  const statusColorMap: Record<string, string> = {
+    done: "#00D4AA",
+    partial: "#FF9F43",
+    skipped: "#FF5757",
+    delayed: "#33A1FF",
+    pending: "#8A8A8E",
+  };
+
   return (
-    <Container maxWidth="md" sx={{ py: 0 }}>
-      {/* Header Area */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-          Daily Schedule
+    <Box sx={{ pt: 2, pb: 2, px: { xs: 1.5, sm: 2 } }}>
+      {/* Compact Header */}
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2.5 }}>
+        <Typography sx={{ fontWeight: 800, fontSize: "1.15rem", color: "text.primary", letterSpacing: "-0.01em" }}>
+          Schedule
         </Typography>
-        <Stack direction="row" spacing={1} alignItems="center">
-          <EventIcon sx={{ color: "text.secondary", fontSize: 20 }} />
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            {snapshot ? `${snapshot.date}` : `${selectedDate}`} • {browserTimezone}
-          </Typography>
-        </Stack>
+        <Chip
+          label={snapshot ? snapshot.date : selectedDate}
+          size="small"
+          sx={{
+            bgcolor: "rgba(255,255,255,0.04)", color: "text.secondary",
+            fontSize: "0.65rem", fontWeight: 700, height: 24,
+            border: "1px solid rgba(255,255,255,0.06)",
+          }}
+        />
       </Box>
 
+      {/* Progress Bar */}
       {!loading && snapshot && snapshot.items.length > 0 && (
-        <Card
-          elevation={0}
-          sx={{
-            mb: 4,
-            background: "linear-gradient(135deg, #1a191c 0%, #2c282d 100%)",
-            border: "1px solid rgba(255, 255, 255, 0.05)",
-            borderRadius: 4,
-          }}
-        >
-          <CardContent sx={{ p: 3, "&:last-child": { pb: 3 } }}>
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: 40,
-                    height: 40,
-                    borderRadius: 2,
-                    bgcolor: "rgba(95, 135, 135, 0.1)",
-                    color: "primary.light",
-                  }}
-                >
-                  <ProgressIcon />
-                </Box>
-                <Box>
-                  <Typography variant="h6" sx={{ color: "text.primary", fontWeight: 700, lineHeight: 1.2 }}>
-                    Daily Progress
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 500 }}>
-                    Adherence summary for today
-                  </Typography>
-                </Box>
-              </Box>
-              <Box sx={{ textAlign: "right" }}>
-                <Typography variant="h4" sx={{ color: "primary.light", fontWeight: 800, lineHeight: 1 }}>
-                  {progressPercent}%
-                </Typography>
-                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                  Completed
-                </Typography>
-              </Box>
-            </Box>
-
-            <Box sx={{ mt: 2 }}>
-              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                <Typography variant="body2" sx={{ color: "text.secondary", fontWeight: 500 }}>
-                  {completedCount} of {totalCount} tasks finished
-                </Typography>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                value={progressPercent}
-                sx={{
-                  height: 8,
-                  borderRadius: 4,
-                  bgcolor: "rgba(255, 255, 255, 0.03)",
-                  "& .MuiLinearProgress-bar": {
-                    bgcolor: progressPercent >= 70 ? "success.main" : progressPercent >= 40 ? "primary.main" : "warning.main",
-                    borderRadius: 4,
-                  },
-                }}
-              />
-            </Box>
-          </CardContent>
-        </Card>
+        <Box sx={{ mb: 2.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.75 }}>
+            <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              {completedCount}/{totalCount} done
+            </Typography>
+            <Typography sx={{ fontSize: "0.75rem", fontWeight: 800, color: progressPercent >= 70 ? "success.main" : progressPercent >= 40 ? "primary.main" : "warning.main" }}>
+              {progressPercent}%
+            </Typography>
+          </Box>
+          <LinearProgress
+            variant="determinate"
+            value={progressPercent}
+            sx={{
+              height: 5,
+              borderRadius: 0,
+              bgcolor: "rgba(255,255,255,0.04)",
+              "& .MuiLinearProgress-bar": {
+                bgcolor: progressPercent >= 70 ? "success.main" : progressPercent >= 40 ? "primary.main" : "warning.main",
+                borderRadius: 0,
+              },
+            }}
+          />
+        </Box>
       )}
 
+      {/* States */}
       {loading ? (
         <Box sx={{ textAlign: "center", py: 8 }}>
-          <CircularProgress size={32} />
-          <Typography sx={{ mt: 2, color: "text.secondary" }}>Synchronizing schedule...</Typography>
+          <CircularProgress size={28} sx={{ color: "primary.main" }} />
+          <Typography sx={{ mt: 1.5, color: "text.secondary", fontSize: "0.8rem", fontWeight: 600 }}>Syncing...</Typography>
         </Box>
       ) : error ? (
         isGuestUser(userId) ? (
-          <Paper sx={{ p: 4, textAlign: "center", bgcolor: "background.paper", borderRadius: 4 }}>
-            <CalendarIcon sx={{ fontSize: 48, color: "primary.main", mb: 2 }} />
-            <Typography variant="h6" sx={{ color: "text.primary", mb: 1 }}>
-              No Schedule Yet
-            </Typography>
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              Start a conversation with the AI assistant and it can help create your personalized health schedule.
-            </Typography>
+          <Paper sx={{ p: 3, textAlign: "center", bgcolor: "background.paper", borderRadius: 0, border: "1px solid rgba(255,255,255,0.06)" }}>
+            <Typography sx={{ fontWeight: 700, fontSize: "0.9rem", color: "text.primary", mb: 0.5 }}>No Schedule Yet</Typography>
+            <Typography sx={{ fontSize: "0.75rem", color: "text.secondary" }}>Start a conversation to create your schedule.</Typography>
           </Paper>
         ) : (
-          <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>
+          <Alert severity="error" sx={{ borderRadius: 0, fontSize: "0.8125rem" }}>{error}</Alert>
         )
       ) : mismatchHint ? (
-        <Alert severity="info" sx={{ mb: 3 }}>{mismatchHint}</Alert>
+        <Alert severity="info" sx={{ borderRadius: 0, fontSize: "0.8125rem", mb: 2 }}>{mismatchHint}</Alert>
       ) : null}
 
+      {/* Timeline */}
       {!loading && snapshot && (
         <Box>
           {snapshot.items.length === 0 ? (
-            <Paper sx={{ p: 4, textAlign: "center", bgcolor: "background.paper", borderRadius: 4 }}>
-              <CalendarIcon sx={{ fontSize: 48, color: "primary.main", mb: 2 }} />
-              <Typography variant="h6" color="text.primary" sx={{ mb: 1 }}>
-                No Activities Scheduled
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {isGuestUser(userId) 
-                  ? "Your personalized schedule will appear here after you create your health profile."
-                  : "Your schedule will appear here once medical tasks are assigned."}
+            <Paper sx={{ p: 3, textAlign: "center", bgcolor: "background.paper", borderRadius: 0, border: "1px solid rgba(255,255,255,0.06)" }}>
+              <Typography sx={{ fontWeight: 700, fontSize: "0.9rem", color: "text.primary", mb: 0.5 }}>No Activities</Typography>
+              <Typography sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
+                {isGuestUser(userId)
+                  ? "Create your profile to get a personalized schedule."
+                  : "Tasks will appear once assigned."}
               </Typography>
             </Paper>
           ) : (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {snapshot.items.map((item) => {
+            <Box sx={{ display: "flex", flexDirection: "column", position: "relative" }}>
+              {/* Vertical connecting line */}
+              <Box sx={{
+                position: "absolute", left: 18, top: 12, bottom: 12,
+                width: 2, bgcolor: "rgba(255,255,255,0.04)", borderRadius: 0,
+              }} />
+
+              {snapshot.items.map((item, idx) => {
                 const itemLogs = getLogsForItem(snapshot.timeline, item.scheduleItemId);
                 const statusInfo = getStatusInfo(item.latestReport?.status);
+                const isOpen = openFormId === item.scheduleItemId;
+                const dotColor = statusColorMap[item.latestReport?.status || "pending"] || "#8A8A8E";
 
                 return (
-                  <Accordion
-                    key={item.scheduleItemId}
-                    elevation={0}
-                    sx={{
-                      bgcolor: "background.paper",
-                      border: "1px solid",
-                      borderColor: "rgba(255, 255, 255, 0.05)",
-                      borderRadius: "16px !important",
-                      overflow: "hidden",
-                      "&:before": { display: "none" },
-                    }}
-                  >
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon sx={{ color: "text.secondary" }} />}
-                      sx={{
-                        px: 3,
-                        py: 1,
-                        "& .MuiAccordionSummary-content": {
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          mr: 2,
-                        },
-                      }}
-                    >
-                      <Box>
-                        <Typography variant="h6" sx={{ fontSize: "1rem", fontWeight: 700 }}>
-                          {item.title}
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: "text.secondary", fontSize: "0.8rem", mt: 0.5 }}>
-                          {item.activityType} • {item.windowStartLocal} - {item.windowEndLocal}
-                        </Typography>
-                      </Box>
-                      <Chip
-                        icon={statusInfo.icon}
-                        label={statusInfo.label}
-                        size="small"
-                        color={statusInfo.color as any}
-                        sx={{ fontWeight: 600, px: 0.5 }}
-                      />
-                    </AccordionSummary>
-                    <AccordionDetails sx={{ px: 3, pb: 3, pt: 0 }}>
-                      <Divider sx={{ mb: 2, opacity: 0.1 }} />
-                      
-                      <Typography variant="subtitle2" sx={{ color: "primary.light", mb: 1, fontWeight: 700, textTransform: "uppercase", fontSize: "0.7rem", letterSpacing: 1 }}>
-                        Plan Details
-                      </Typography>
-                      <List dense sx={{ mb: 3 }}>
-                        {item.instructions.map((instruction, idx) => (
-                          <ListItem key={`${item.scheduleItemId}-${idx}`} sx={{ px: 0, py: 0.5, alignItems: "flex-start" }}>
-                            <Box sx={{ width: 6, height: 6, bgcolor: "primary.main", borderRadius: "50%", mt: 1, mr: 1.5, flexShrink: 0 }} />
-                            <ListItemText 
-                              primary={instruction} 
-                              primaryTypographyProps={{ sx: { color: "text.primary", fontSize: "0.875rem" } }}
-                            />
-                          </ListItem>
-                        ))}
-                      </List>
+                  <Box key={item.scheduleItemId} sx={{ position: "relative", pl: 5, pb: 2 }}>
+                    {/* Timeline dot */}
+                    <Box sx={{
+                      position: "absolute", left: 10, top: 10,
+                      width: 18, height: 18, borderRadius: 0,
+                      bgcolor: "background.default",
+                      border: `3px solid ${dotColor}`,
+                      zIndex: 1,
+                    }} />
 
-                      <Typography variant="subtitle2" sx={{ color: "primary.light", mb: 2, fontWeight: 700, textTransform: "uppercase", fontSize: "0.7rem", letterSpacing: 1 }}>
-                        Adherence Logs
-                      </Typography>
-                      
-                      {itemLogs.length === 0 ? (
-                        <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic" }}>
-                          No activity logged yet.
-                        </Typography>
-                      ) : (
-                        <Stack spacing={2}>
-                          {itemLogs.map((entry) => (
-                            <Paper
-                              key={entry.reportId}
-                              variant="outlined"
+                    {/* Card */}
+                    <Box sx={{
+                      bgcolor: "background.paper",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                      borderRadius: 0,
+                      overflow: "hidden",
+                      borderLeft: `3px solid ${dotColor}`,
+                    }}>
+                      {/* Header row — always visible */}
+                      <Box
+                        onClick={() => {
+                          if (!isOpen) {
+                            setSubmitError(null);
+                            setOpenFormId(isOpen ? null : item.scheduleItemId);
+                          }
+                        }}
+                        sx={{
+                          p: 1.5,
+                          display: "flex", alignItems: "center", justifyContent: "space-between",
+                          cursor: "pointer",
+                          "&:active": { bgcolor: "rgba(255,255,255,0.02)" },
+                        }}
+                      >
+                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                          <Typography sx={{ fontWeight: 700, fontSize: "0.9rem", color: "text.primary", lineHeight: 1.3 }}>
+                            {item.title}
+                          </Typography>
+                          <Typography sx={{ fontSize: "0.65rem", color: "text.secondary", fontWeight: 600, mt: 0.25 }}>
+                            {item.windowStartLocal} — {item.windowEndLocal} • {item.activityType}
+                          </Typography>
+                        </Box>
+                        <Chip
+                          icon={statusInfo.icon}
+                          label={statusInfo.label}
+                          size="small"
+                          sx={{
+                            height: 22, fontSize: "0.6rem", fontWeight: 800,
+                            bgcolor: `${dotColor}15`, color: dotColor,
+                            border: `1px solid ${dotColor}30`,
+                            ml: 1, flexShrink: 0,
+                            "& .MuiChip-icon": { color: dotColor, fontSize: 12 },
+                          }}
+                        />
+                      </Box>
+
+                      {/* Expanded content */}
+                      {isOpen && (
+                        <Box sx={{ px: 1.5, pb: 1.5, pt: 0 }}>
+                          {/* Instructions */}
+                          {item.instructions.length > 0 && (
+                            <Box sx={{ mb: 1.5 }}>
+                              <Typography sx={{
+                                fontSize: "0.6rem", fontWeight: 700, color: "text.secondary",
+                                textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.75,
+                              }}>
+                                Instructions
+                              </Typography>
+                              {item.instructions.map((instruction, i) => (
+                                <Box key={i} sx={{ display: "flex", alignItems: "flex-start", gap: 1, mb: 0.5 }}>
+                                  <Box sx={{ width: 5, height: 5, borderRadius: 0, bgcolor: "primary.main", mt: 0.75, flexShrink: 0 }} />
+                                  <Typography sx={{ fontSize: "0.75rem", color: "text.primary", fontWeight: 500, lineHeight: 1.4 }}>
+                                    {instruction}
+                                  </Typography>
+                                </Box>
+                              ))}
+                            </Box>
+                          )}
+
+                          {/* Logs */}
+                          {itemLogs.length > 0 && (
+                            <Box sx={{ mb: 1.5 }}>
+                              <Typography sx={{
+                                fontSize: "0.6rem", fontWeight: 700, color: "text.secondary",
+                                textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.75,
+                              }}>
+                                Logs
+                              </Typography>
+                              {itemLogs.map((entry) => (
+                                <Box key={entry.reportId} sx={{
+                                  bgcolor: "rgba(255,255,255,0.02)", borderRadius: 0,
+                                  border: `1px solid ${entry.alertLevel === "urgent" ? "rgba(255,87,87,0.2)" : entry.alertLevel === "watch" ? "rgba(255,159,67,0.2)" : "rgba(255,255,255,0.05)"}`,
+                                  p: 1, mb: 0.75,
+                                  borderLeft: `3px solid ${entry.alertLevel === "urgent" ? "#FF5757" : entry.alertLevel === "watch" ? "#FF9F43" : "transparent"}`,
+                                }}>
+                                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
+                                    <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, color: "text.primary", textTransform: "capitalize" }}>
+                                      {entry.status}
+                                    </Typography>
+                                    <Typography sx={{ fontSize: "0.6rem", color: "text.secondary", fontWeight: 600 }}>
+                                      {formatReportedTime(entry.reportedAtIso)}
+                                    </Typography>
+                                  </Box>
+                                  <Typography sx={{ fontSize: "0.7rem", color: "text.primary", mb: 0.5 }}>{entry.summary}</Typography>
+                                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                                    <Chip label={entry.followedPlan ? "Followed" : "Deviated"} size="small" sx={{ height: 16, fontSize: "0.55rem", fontWeight: 700, bgcolor: "rgba(255,255,255,0.04)", color: "text.secondary" }} />
+                                    {entry.feltAfter && <Chip label={entry.feltAfter} size="small" sx={{ height: 16, fontSize: "0.55rem", fontWeight: 700, bgcolor: "rgba(255,255,255,0.04)", color: "text.secondary" }} />}
+                                    {entry.symptoms && <Chip label={entry.symptoms} size="small" sx={{ height: 16, fontSize: "0.55rem", fontWeight: 700, bgcolor: "rgba(255,159,67,0.08)", color: "secondary.main" }} />}
+                                  </Box>
+                                </Box>
+                              ))}
+                            </Box>
+                          )}
+
+                          {/* Log button */}
+                          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                            <Button
+                              size="small"
+                              variant={item.latestReport ? "text" : "contained"}
+                              onClick={() => {
+                                setSubmitError(null);
+                                setOpenFormId(isOpen ? null : item.scheduleItemId);
+                              }}
+                              startIcon={item.latestReport ? <EditIcon sx={{ fontSize: 14 }} /> : <AddIcon sx={{ fontSize: 14 }} />}
                               sx={{
-                                p: 2,
-                                bgcolor: "rgba(255, 255, 255, 0.02)",
-                                borderRadius: 3,
-                                borderColor: entry.alertLevel === "urgent" ? "error.main" : entry.alertLevel === "watch" ? "warning.main" : "rgba(255, 255, 255, 0.05)",
-                                borderLeftWidth: 4,
+                                textTransform: "none",
+                                fontWeight: 700,
+                                fontSize: "0.8rem",
+                                borderRadius: 0,
+                                px: 2,
+                                py: 0.5,
+                                color: item.latestReport ? "text.secondary" : "#000",
+                                bgcolor: item.latestReport ? "transparent" : "primary.main",
+                                "&:hover": {
+                                  bgcolor: item.latestReport ? "rgba(255,255,255,0.04)" : "primary.light",
+                                },
                               }}
                             >
-                              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "text.primary", textTransform: "capitalize" }}>
-                                  {entry.status}
-                                </Typography>
-                                <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                                  {formatReportedTime(entry.reportedAtIso)}
-                                </Typography>
-                              </Box>
-                              <Typography variant="body2" sx={{ color: "text.primary", mb: 1 }}>
-                                {entry.summary}
-                              </Typography>
-                              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                                <Chip label={entry.followedPlan ? "Followed Plan" : "Deviated from Plan"} size="small" variant="outlined" sx={{ fontSize: "0.65rem", height: 20 }} />
-                                {entry.feltAfter && <Chip label={`Felt: ${entry.feltAfter}`} size="small" variant="outlined" sx={{ fontSize: "0.65rem", height: 20 }} />}
-                                {entry.symptoms && <Chip label={`Symptoms: ${entry.symptoms}`} size="small" variant="outlined" sx={{ fontSize: "0.65rem", height: 20, color: "warning.main", borderColor: "warning.main" }} />}
-                              </Box>
-                            </Paper>
-                          ))}
-                        </Stack>
-                      )}
+                              {item.latestReport ? "Edit" : "Log Task"}
+                            </Button>
+                          </Box>
 
-                      <Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
-                        <Button
-                          size="small"
-                          variant={item.latestReport ? "text" : "outlined"}
-                          onClick={() => {
-                            setSubmitError(null);
-                            setOpenFormId((current) => (current === item.scheduleItemId ? null : item.scheduleItemId));
-                          }}
-                          sx={{
-                            textTransform: "none",
-                            fontWeight: 700,
-                            borderRadius: 2,
-                            px: 2,
-                            color: item.latestReport ? "text.secondary" : "primary.light",
-                            borderColor: "rgba(157, 183, 183, 0.3)",
-                            "&:hover": {
-                              bgcolor: item.latestReport ? "rgba(255, 255, 255, 0.05)" : "rgba(157, 183, 183, 0.1)",
-                              borderColor: "primary.light",
-                            }
-                          }}
-                        >
-                          {item.latestReport ? "Edit Details" : "Log Task"}
-                        </Button>
-                      </Box>
-
-                      {openFormId === item.scheduleItemId && (
-                        <Box sx={{ mt: 2 }}>
-                          <ScheduleLogForm
-                            item={mapCardToScheduleItem(item)}
-                            submitting={submittingId === item.scheduleItemId}
-                            error={submitError}
-                            onCancel={() => {
-                              setOpenFormId(null);
-                              setSubmitError(null);
-                            }}
-                            onSave={(formData) => handleSaveReport(item, formData)}
-                          />
+                          {/* Form */}
+                          <Box sx={{ mt: 1.5, pt: 1.5, borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+                            <ScheduleLogForm
+                              item={mapCardToScheduleItem(item)}
+                              submitting={submittingId === item.scheduleItemId}
+                              error={submitError}
+                              onCancel={() => {
+                                setOpenFormId(null);
+                                setSubmitError(null);
+                              }}
+                              onSave={(formData) => handleSaveReport(item, formData)}
+                            />
+                          </Box>
                         </Box>
                       )}
-                    </AccordionDetails>
-                  </Accordion>
+                    </Box>
+                  </Box>
                 );
               })}
             </Box>
           )}
         </Box>
       )}
-    </Container>
+    </Box>
   );
 }
 

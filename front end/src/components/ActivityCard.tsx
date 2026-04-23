@@ -1,13 +1,4 @@
-import {
-  Box,
-  Typography,
-  Paper,
-  Chip,
-  List,
-  ListItem,
-  ListItemText,
-  Divider,
-} from "@mui/material";
+import { Box, Typography, Paper, Chip } from "@mui/material";
 import {
   Restaurant as DietIcon,
   Medication as MedicationIcon,
@@ -20,7 +11,6 @@ import {
   PendingOutlined as PendingIcon,
   WarningAmber as WarningIcon,
   InfoOutlined as InfoIcon,
-  ArrowForward as UpcomingIcon,
 } from "@mui/icons-material";
 
 export type ActivityItem = {
@@ -44,55 +34,38 @@ type Props = {
 
 const getActivityIcon = (type: string) => {
   switch (type) {
-    case "diet":
-      return <DietIcon sx={{ fontSize: 20 }} />;
-    case "medication":
-      return <MedicationIcon sx={{ fontSize: 20 }} />;
-    case "sleep":
-      return <SleepIcon sx={{ fontSize: 20 }} />;
-    case "cognitive":
-      return <CognitiveIcon sx={{ fontSize: 20 }} />;
-    case "therapy":
-      return <TherapyIcon sx={{ fontSize: 20 }} />;
+    case "diet": return <DietIcon sx={{ fontSize: 14 }} />;
+    case "medication": return <MedicationIcon sx={{ fontSize: 14 }} />;
+    case "sleep": return <SleepIcon sx={{ fontSize: 14 }} />;
+    case "cognitive": return <CognitiveIcon sx={{ fontSize: 14 }} />;
+    case "therapy": return <TherapyIcon sx={{ fontSize: 14 }} />;
     case "activity":
     case "physical":
-    default:
-      return <ActivityIcon sx={{ fontSize: 20 }} />;
+    default: return <ActivityIcon sx={{ fontSize: 14 }} />;
   }
 };
 
 const getActivityColor = (type: string) => {
   switch (type) {
-    case "diet":
-      return "#42d6a4"; // green
-    case "medication":
-      return "#ffb443"; // orange
-    case "sleep":
-      return "#ff6b9d"; // pink
-    case "cognitive":
-      return "#8a85ff"; // purple
-    case "therapy":
-      return "#4ec3ff"; // light blue
+    case "diet": return "#00D4AA";
+    case "medication": return "#FF9F43";
+    case "sleep": return "#FF6B9D";
+    case "cognitive": return "#8A85FF";
+    case "therapy": return "#33A1FF";
     case "activity":
     case "physical":
-    default:
-      return "#f2d08a"; // gold
+    default: return "#FF9F43";
   }
 };
 
 const getStatusInfo = (status: ActivityStatus | undefined) => {
   const s = status || "pending";
   switch (s) {
-    case "done":
-      return { color: "success" as const, icon: <DoneIcon fontSize="small" />, label: "Completed" };
-    case "partial":
-      return { color: "warning" as const, icon: <InfoIcon fontSize="small" />, label: "Partial" };
-    case "skipped":
-      return { color: "error" as const, icon: <WarningIcon fontSize="small" />, label: "Skipped" };
-    case "delayed":
-      return { color: "secondary" as const, icon: <TimeIcon fontSize="small" />, label: "Delayed" };
-    default:
-      return { color: "default" as const, icon: <PendingIcon fontSize="small" />, label: "Pending" };
+    case "done": return { color: "success" as const, icon: <DoneIcon fontSize="small" />, label: "Done" };
+    case "partial": return { color: "warning" as const, icon: <InfoIcon fontSize="small" />, label: "Partial" };
+    case "skipped": return { color: "error" as const, icon: <WarningIcon fontSize="small" />, label: "Skipped" };
+    case "delayed": return { color: "secondary" as const, icon: <TimeIcon fontSize="small" />, label: "Delayed" };
+    default: return { color: "default" as const, icon: <PendingIcon fontSize="small" />, label: "Pending" };
   }
 };
 
@@ -102,181 +75,71 @@ export function ActivityCard({ item, status = "pending", isCurrent = false, isUp
   const icon = getActivityIcon(item.activityType);
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        bgcolor: "background.paper",
-        border: "1px solid",
-        borderColor: isCurrent ? activityColor : "rgba(255, 255, 255, 0.05)",
-        borderRadius: 4,
-        overflow: "hidden",
-        position: "relative",
-        transition: "border-color 0.3s ease",
-      }}
-    >
-      {/* Activity Type Indicator Bar */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 3,
-          bgcolor: activityColor,
-          opacity: 0.8,
-        }}
-      />
-
-      <Box sx={{ p: 3 }}>
-        {/* Header */}
-        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", mb: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            <Box
-              sx={{
-                width: 40,
-                height: 40,
-                borderRadius: 2,
-                bgcolor: `${activityColor}20`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: activityColor,
-              }}
-            >
-              {icon}
-            </Box>
-            <Box>
-              <Typography variant="h6" sx={{ fontSize: "1rem", fontWeight: 700, lineHeight: 1.2 }}>
-                {item.title}
-              </Typography>
-              <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "capitalize" }}>
-                {item.activityType}
-              </Typography>
-            </Box>
-          </Box>
-          <Chip
-            icon={statusInfo.icon}
-            label={statusInfo.label}
-            size="small"
-            color={statusInfo.color}
-            sx={{ fontWeight: 600, px: 0.5 }}
-          />
+    <Paper elevation={0} sx={{
+      p: 2,
+      bgcolor: "background.paper",
+      border: "1px solid rgba(255,255,255,0.06)",
+      borderRadius: 0,
+      borderLeft: `3px solid ${isCurrent ? "#00D4AA" : activityColor}`,
+    }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: message || item.instructions.length > 0 ? 1 : 0 }}>
+        <Box sx={{
+          display: "flex", alignItems: "center", justifyContent: "center",
+          width: 28, height: 28, borderRadius: 0,
+          bgcolor: `${activityColor}20`, color: activityColor, flexShrink: 0,
+        }}>
+          {icon}
         </Box>
-
-        {/* Time Window */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            mb: 2,
-            px: 2,
-            py: 1,
-            bgcolor: "rgba(255, 255, 255, 0.03)",
-            borderRadius: 2,
-          }}
-        >
-          <TimeIcon sx={{ fontSize: 16, color: "text.secondary" }} />
-          <Typography variant="body2" sx={{ color: "text.secondary", fontWeight: 500 }}>
-            {item.windowStartLocal} - {item.windowEndLocal}
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography sx={{ fontWeight: 700, fontSize: "0.9rem", color: "text.primary", lineHeight: 1.3 }}>
+            {item.title}
           </Typography>
-          {isCurrent && (
-            <Chip
-              label="NOW"
-              size="small"
-              sx={{
-                ml: "auto",
-                bgcolor: activityColor,
-                color: "#000",
-                fontWeight: 800,
-                fontSize: "0.65rem",
-                height: 20,
-              }}
-            />
-          )}
-          {isUpcoming && (
-            <Chip
-              icon={<UpcomingIcon sx={{ fontSize: "0.8rem !important" }} />}
-              label="UPCOMING"
-              size="small"
-              variant="outlined"
-              sx={{
-                ml: "auto",
-                borderColor: activityColor,
-                color: activityColor,
-                fontWeight: 700,
-                fontSize: "0.65rem",
-                height: 20,
-              }}
-            />
-          )}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mt: 0.25 }}>
+            <Typography sx={{ fontSize: "0.6rem", color: "text.secondary", fontWeight: 600, textTransform: "uppercase" }}>
+              {item.activityType}
+            </Typography>
+            <Typography sx={{ fontSize: "0.6rem", color: "text.secondary", fontWeight: 600 }}>
+              {item.windowStartLocal} — {item.windowEndLocal}
+            </Typography>
+          </Box>
         </Box>
+        <Chip
+          icon={statusInfo.icon}
+          label={statusInfo.label}
+          size="small"
+          sx={{
+            height: 20, fontSize: "0.55rem", fontWeight: 800,
+            bgcolor: `${activityColor}15`, color: activityColor,
+            border: `1px solid ${activityColor}30`, flexShrink: 0,
+            "& .MuiChip-icon": { color: activityColor, fontSize: 12 },
+          }}
+        />
+      </Box>
 
-        {/* Message if provided */}
-        {message && (
-          <Typography
-            variant="body2"
-            sx={{
-              color: "text.secondary",
-              fontStyle: "italic",
-              mb: 2,
-              pl: 0.5,
-            }}
-          >
+      {message && (
+        <Box sx={{
+          display: "flex", alignItems: "flex-start", gap: 1,
+          bgcolor: "rgba(0,212,170,0.03)", p: 1, borderRadius: 0, mb: item.instructions.length > 0 ? 1 : 0,
+        }}>
+          <InfoIcon sx={{ fontSize: 14, color: isUpcoming ? "info.main" : "primary.main", flexShrink: 0, mt: 0.1 }} />
+          <Typography sx={{ fontSize: "0.75rem", color: "text.primary", fontWeight: 500, lineHeight: 1.4 }}>
             {message}
           </Typography>
-        )}
+        </Box>
+      )}
 
-        {/* Instructions */}
-        {item.instructions.length > 0 && (
-          <>
-            <Divider sx={{ mb: 2, opacity: 0.1 }} />
-            <Typography
-              variant="caption"
-              sx={{
-                color: activityColor,
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: 1,
-                mb: 1,
-                display: "block",
-              }}
-            >
-              Instructions
-            </Typography>
-            <List dense disablePadding>
-              {item.instructions.map((instruction, idx) => (
-                <ListItem
-                  key={`${item.scheduleItemId}-instruction-${idx}`}
-                  sx={{
-                    px: 1,
-                    py: 0.5,
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 6,
-                      height: 6,
-                      bgcolor: activityColor,
-                      borderRadius: "50%",
-                      mt: 1,
-                      mr: 1.5,
-                      flexShrink: 0,
-                    }}
-                  />
-                  <ListItemText
-                    primary={instruction}
-                    primaryTypographyProps={{
-                      sx: { color: "text.primary", fontSize: "0.85rem", lineHeight: 1.5 },
-                    }}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </>
-        )}
-      </Box>
+      {item.instructions.length > 0 && (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+          {item.instructions.map((instruction, idx) => (
+            <Box key={idx} sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
+              <Box sx={{ width: 4, height: 4, borderRadius: 0, bgcolor: activityColor, mt: 0.6, flexShrink: 0 }} />
+              <Typography sx={{ fontSize: "0.75rem", color: "text.primary", fontWeight: 500, lineHeight: 1.4 }}>
+                {instruction}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      )}
     </Paper>
   );
 }
