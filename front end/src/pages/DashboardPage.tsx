@@ -158,42 +158,6 @@ export function DashboardPage() {
         </Box>
       </Box>
 
-      {/* Quick Stats Carousel */}
-      <Box sx={{
-        display: "flex", gap: 1, overflowX: "auto",
-        scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" },
-        mb: 2.5, pb: 0.5,
-      }}>
-        {[
-          { label: "Adherence", value: `${patient.progress.overallAdherence}%`, color: "primary.main" },
-          { label: "Recovery", value: `${Math.round((patient.progress.daysSinceSurgery / patient.progress.totalDaysPlan) * 100)}%`, color: "success.main" },
-          { label: "Pain", value: patient.progress.painIndexHistory?.length ? `${patient.progress.painIndexHistory[patient.progress.painIndexHistory.length - 1].value}/10` : "—", color: "warning.main" },
-          { label: "Physio", value: patient.progress.physiotherapyHistory?.length ? `${patient.progress.physiotherapyHistory[patient.progress.physiotherapyHistory.length - 1].score}` : "—", color: "info.main" },
-        ].map((stat) => (
-          <Box key={stat.label} sx={{
-            flexShrink: 0,
-            width: 80,
-            height: 80,
-            bgcolor: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            borderRadius: 0,
-            p: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            textAlign: "center",
-          }}>
-            <Typography sx={{ fontSize: "0.55rem", fontWeight: 700, color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.02em" }}>
-              {stat.label}
-            </Typography>
-            <Typography sx={{ fontWeight: 800, fontSize: "1.05rem", color: stat.color, lineHeight: 1.1, mt: 0.25 }}>
-              {stat.value}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-
       {/* Charts Grid */}
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {/* Adherence Row - Desktop side-by-side */}

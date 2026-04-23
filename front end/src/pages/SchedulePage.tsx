@@ -6,6 +6,7 @@ import {
   Paper,
   Alert,
   CircularProgress,
+  LinearProgress,
 } from "@mui/material";
 import {
   CheckCircle as DoneIcon,
@@ -13,18 +14,10 @@ import {
   WarningAmber as WarningIcon,
   InfoOutlined as InfoIcon,
   AccessTime as TimeIcon,
-  Add as AddIcon,
-  Edit as EditIcon,
+  Mic as MicIcon,
 } from "@mui/icons-material";
-import {
-  LinearProgress,
-  Button,
-} from "@mui/material";
 
 import { getTodaySchedule } from "../lib/scheduleApi";
-import { submitAdherenceReport } from "../components/dashboard/dashboardApi";
-import { ScheduleLogForm } from "../components/dashboard/ScheduleLogForm";
-import type { ReportFormData, PatientDashboard } from "../components/dashboard/dashboardTypes";
 import type {
   AdherenceReportSavedEvent,
   AdherenceReportSavedSuccessEvent,
@@ -55,73 +48,9 @@ export function SchedulePage({ backendHttpUrl, userId, liveSnapshot, liveReportU
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [mismatchHint, setMismatchHint] = useState("");
-  const [openFormId, setOpenFormId] = useState<string | null>(null);
-  const [submittingId, setSubmittingId] = useState<string | null>(null);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [openCardId, setOpenCardId] = useState<string | null>(null);
 
   const selectedDate = useMemo(() => new Date().toLocaleDateString("en-CA"), []);
-
-  // Helper to map ScheduleItemCard to what ScheduleLogForm expects
-  const mapCardToScheduleItem = (card: ScheduleItemCard): PatientDashboard["dailySchedule"][number] => {
-    return {
-      id: card.scheduleItemId,
-      time: card.windowStartLocal,
-      endTime: card.windowEndLocal,
-      title: card.title,
-      type: (card.activityType === "sleep" ? "rest" : card.activityType === "activity" ? "exercise" : card.activityType) as any,
-      instructions: card.instructions,
-      status: card.latestReport?.status === "done" ? "done" : card.latestReport ? "in-progress" : "pending",
-      latestReport: card.latestReport ? {
-        ...card.latestReport,
-        followedPlan: true, // fallback
-        changesMade: null,
-        feltAfter: null,
-        symptoms: null,
-        notes: null,
-      } : undefined,
-    };
-  };
-
-  const handleSaveReport = async (item: ScheduleItemCard, formData: ReportFormData) => {
-    setSubmittingId(item.scheduleItemId);
-    setSubmitError(null);
-
-    try {
-      const savedReport = await submitAdherenceReport(item.scheduleItemId, {
-        user_id: userId,
-        timezone: browserTimezone,
-        ...formData,
-      });
-
-      // Update local state with the newly saved report
-      const successEvent: AdherenceReportSavedSuccessEvent = {
-        type: "adherence_report_saved",
-        saved: true,
-        reportId: savedReport.reportId,
-        scheduleItemId: item.scheduleItemId,
-        date: snapshot?.date || selectedDate,
-        activityType: item.activityType,
-        status: savedReport.status,
-        alertLevel: savedReport.alertLevel,
-        summary: savedReport.summary,
-        reportedAtIso: savedReport.reportedAtIso,
-        createdAt: savedReport.reportedAtIso,
-        followedPlan: savedReport.followedPlan,
-        changesMade: savedReport.changesMade,
-        feltAfter: savedReport.feltAfter,
-        symptoms: savedReport.symptoms,
-        notes: savedReport.notes,
-        message: "Successfully saved log",
-      };
-
-      setSnapshot((prev) => applyLiveReportUpdate(prev, successEvent));
-      setOpenFormId(null);
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Failed to save log.");
-    } finally {
-      setSubmittingId(null);
-    }
-  };
 
   useEffect(() => {
     let cancelled = false;
@@ -290,7 +219,7 @@ export function SchedulePage({ backendHttpUrl, userId, liveSnapshot, liveReportU
               {snapshot.items.map((item, idx) => {
                 const itemLogs = getLogsForItem(snapshot.timeline, item.scheduleItemId);
                 const statusInfo = getStatusInfo(item.latestReport?.status);
-                const isOpen = openFormId === item.scheduleItemId;
+                const isOpen = openCardId === item.scheduleItemId;
                 const dotColor = statusColorMap[item.latestReport?.status || "pending"] || "#8A8A8E";
 
                 return (
@@ -315,10 +244,7 @@ export function SchedulePage({ backendHttpUrl, userId, liveSnapshot, liveReportU
                       {/* Header row — always visible */}
                       <Box
                         onClick={() => {
-                          if (!isOpen) {
-                            setSubmitError(null);
-                            setOpenFormId(isOpen ? null : item.scheduleItemId);
-                          }
+                          setOpenCardId(isOpen ? null : item.scheduleItemId);
                         }}
                         sx={{
                           p: 1.5,
@@ -354,21 +280,38 @@ export function SchedulePage({ backendHttpUrl, userId, liveSnapshot, liveReportU
                         <Box sx={{ px: 1.5, pb: 1.5, pt: 0 }}>
                           {/* Instructions */}
                           {item.instructions.length > 0 && (
-                            <Box sx={{ mb: 1.5 }}>
-                              <Typography sx={{
-                                fontSize: "0.6rem", fontWeight: 700, color: "text.secondary",
-                                textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.75,
+                            <Box sx={{ mb: 2 }}>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+                                <Box sx={{ width: 3, height: 16, bgcolor: dotColor, borderRadius: 0 }} />
+                                <Typography sx={{
+                                  fontSize: "0.65rem", fontWeight: 800, color: "text.secondary",
+                                  textTransform: "uppercase", letterSpacing: "0.1em",
+                                }}>
+                                  How to complete this activity
+                                </Typography>
+                              </Box>
+                              <Box sx={{
+                                bgcolor: "rgba(255,255,255,0.02)",
+                                border: "1px solid rgba(255,255,255,0.04)",
+                                p: 1.5,
                               }}>
-                                Instructions
-                              </Typography>
-                              {item.instructions.map((instruction, i) => (
-                                <Box key={i} sx={{ display: "flex", alignItems: "flex-start", gap: 1, mb: 0.5 }}>
-                                  <Box sx={{ width: 5, height: 5, borderRadius: 0, bgcolor: "primary.main", mt: 0.75, flexShrink: 0 }} />
-                                  <Typography sx={{ fontSize: "0.75rem", color: "text.primary", fontWeight: 500, lineHeight: 1.4 }}>
-                                    {instruction}
-                                  </Typography>
-                                </Box>
-                              ))}
+                                {item.instructions.map((instruction, i) => (
+                                  <Box key={i} sx={{ display: "flex", alignItems: "flex-start", gap: 1.25, mb: i === item.instructions.length - 1 ? 0 : 1.25 }}>
+                                    <Box sx={{
+                                      width: 22, height: 22,
+                                      display: "flex", alignItems: "center", justifyContent: "center",
+                                      bgcolor: `${dotColor}15`, color: dotColor,
+                                      fontSize: "0.65rem", fontWeight: 800,
+                                      flexShrink: 0, mt: 0.1,
+                                    }}>
+                                      {String(i + 1).padStart(2, "0")}
+                                    </Box>
+                                    <Typography sx={{ fontSize: "0.8rem", color: "text.primary", fontWeight: 500, lineHeight: 1.5, pt: 0.15 }}>
+                                      {instruction}
+                                    </Typography>
+                                  </Box>
+                                ))}
+                              </Box>
                             </Box>
                           )}
 
@@ -406,48 +349,6 @@ export function SchedulePage({ backendHttpUrl, userId, liveSnapshot, liveReportU
                               ))}
                             </Box>
                           )}
-
-                          {/* Log button */}
-                          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                            <Button
-                              size="small"
-                              variant={item.latestReport ? "text" : "contained"}
-                              onClick={() => {
-                                setSubmitError(null);
-                                setOpenFormId(isOpen ? null : item.scheduleItemId);
-                              }}
-                              startIcon={item.latestReport ? <EditIcon sx={{ fontSize: 14 }} /> : <AddIcon sx={{ fontSize: 14 }} />}
-                              sx={{
-                                textTransform: "none",
-                                fontWeight: 700,
-                                fontSize: "0.8rem",
-                                borderRadius: 0,
-                                px: 2,
-                                py: 0.5,
-                                color: item.latestReport ? "text.secondary" : "#000",
-                                bgcolor: item.latestReport ? "transparent" : "primary.main",
-                                "&:hover": {
-                                  bgcolor: item.latestReport ? "rgba(255,255,255,0.04)" : "primary.light",
-                                },
-                              }}
-                            >
-                              {item.latestReport ? "Edit" : "Log Task"}
-                            </Button>
-                          </Box>
-
-                          {/* Form */}
-                          <Box sx={{ mt: 1.5, pt: 1.5, borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-                            <ScheduleLogForm
-                              item={mapCardToScheduleItem(item)}
-                              submitting={submittingId === item.scheduleItemId}
-                              error={submitError}
-                              onCancel={() => {
-                                setOpenFormId(null);
-                                setSubmitError(null);
-                              }}
-                              onSave={(formData) => handleSaveReport(item, formData)}
-                            />
-                          </Box>
                         </Box>
                       )}
                     </Box>

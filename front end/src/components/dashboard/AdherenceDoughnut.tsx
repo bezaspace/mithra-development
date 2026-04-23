@@ -55,7 +55,7 @@ export function AdherenceDoughnut({ adherence, activityBreakdown, size = 180 }: 
   ];
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2 }}>
       {/* Ring + Center Text */}
       <Box sx={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
         <SVGRing value={adherence} size={size} color="#00D4AA" />
@@ -74,40 +74,6 @@ export function AdherenceDoughnut({ adherence, activityBreakdown, size = 180 }: 
             OVERALL
           </Typography>
         </Box>
-      </Box>
-
-      {/* Compact Category Bars */}
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75, flex: 1, minWidth: 0 }}>
-        {categories.map((cat) => (
-          <Box key={cat.key} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Box sx={{
-              width: 6, height: 6, borderRadius: 0, bgcolor: CAT_COLORS[cat.key] || "#888",
-              flexShrink: 0,
-            }} />
-            <Typography sx={{
-              fontSize: "0.65rem", fontWeight: 600, color: "text.secondary",
-              textTransform: "capitalize", flexShrink: 0, minWidth: 52,
-            }}>
-              {cat.label}
-            </Typography>
-            <Box sx={{
-              flex: 1, height: 5, borderRadius: 0,
-              bgcolor: "rgba(255,255,255,0.05)", overflow: "hidden",
-            }}>
-              <Box sx={{
-                width: `${cat.value}%`, height: "100%", borderRadius: 0,
-                bgcolor: CAT_COLORS[cat.key] || "#888",
-                transition: "width 0.5s ease",
-              }} />
-            </Box>
-            <Typography sx={{
-              fontSize: "0.7rem", fontWeight: 700, color: "text.primary",
-              flexShrink: 0, minWidth: 28, textAlign: "right",
-            }}>
-              {cat.value}%
-            </Typography>
-          </Box>
-        ))}
       </Box>
     </Box>
   );

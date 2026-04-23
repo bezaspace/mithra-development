@@ -49,10 +49,13 @@ export function RecoveryTimeline({ patient }: RecoveryTimelineProps) {
           justifyContent: "center", aspectRatio: "1/1",
         }}>
           <Typography sx={{ color: "text.secondary", fontWeight: 700, fontSize: "0.6rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-            Done
+            Activities
           </Typography>
           <Typography sx={{ color: "success.main", fontWeight: 800, fontSize: "1.1rem", lineHeight: 1.2, mt: 0.25 }}>
-            {progress.recentMilestones.length}
+            {patient.dailySchedule.filter(item => item.status === "done").length}
+            <Box component="span" sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.65rem", ml: 0.25 }}>
+              /{patient.dailySchedule.length}
+            </Box>
           </Typography>
         </Box>
       </Box>
