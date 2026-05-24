@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: raksha-backend
+    name: raksha-mvp-backend
     runtime: python
     repo: https://github.com/bezaspace/mithra-development.git
     rootDir: "back end"
