@@ -40,14 +40,14 @@ DB_URL = f"sqlite:///{DB_PATH}"
 
 PATIENTS = [
     {
-        "user_id": "user-031",
-        "full_name": "Emily Clark",
+        "user_id": "user-001",
+        "full_name": "Sravani Reddy",
         "age": 62,
         "sex": "Female",
         "phone": "+91 9845 612789",
-        "email": "emily.clark@example.com",
+        "email": "sravani.reddy@example.com",
         "emergency_contact": {
-            "name": "Robert Clark",
+            "name": "Karthik Reddy",
             "relation": "Son",
             "phone": "+91 9845 612790",
         },
@@ -84,11 +84,11 @@ PATIENTS = [
         ],
         "notes": "Recent MI 3 months ago. Currently on dual antiplatelet therapy (DAPT) for 12 months post-MI. Monitor for bleeding signs. Cardiac rehab referral completed.",
         "schedule_items": [
-            {"id": "sched-031-001", "activity_type": "medication", "title": "Morning Heart Medications", "instructions": ["Take Aspirin 81mg with food", "Take Clopidogrel 75mg", "Take Metoprolol 50mg with water"], "window_start_local": "08:00", "window_end_local": "08:30", "display_order": 1},
-            {"id": "sched-031-002", "activity_type": "checkup", "title": "Blood Pressure Check", "instructions": ["Measure BP before medications", "Record in diary", "Report if >140/90 or <90/60"], "window_start_local": "07:30", "window_end_local": "08:00", "display_order": 2},
-            {"id": "sched-031-003", "activity_type": "activity", "title": "Morning Cardiac Walk", "instructions": ["Walk at moderate pace - 20 minutes", "Keep heart rate below 100 bpm", "Stop if chest pain or shortness of breath"], "window_start_local": "10:00", "window_end_local": "10:30", "display_order": 3},
-            {"id": "sched-031-004", "activity_type": "diet", "title": "Heart-Healthy Lunch", "instructions": ["Low sodium meal", "Include omega-3 rich fish", "Avoid processed foods", "Plenty of vegetables"], "window_start_local": "12:30", "window_end_local": "13:15", "display_order": 4},
-            {"id": "sched-031-005", "activity_type": "medication", "title": "Evening Medications", "instructions": ["Take Atorvastatin 80mg at bedtime", "Take Ramipril 5mg", "Take Metoprolol 50mg"], "window_start_local": "20:00", "window_end_local": "20:30", "display_order": 5},
+            {"id": "sched-001-001", "activity_type": "medication", "title": "Morning Heart Medications", "instructions": ["Take Aspirin 81mg with food", "Take Clopidogrel 75mg", "Take Metoprolol 50mg with water"], "window_start_local": "08:00", "window_end_local": "08:30", "display_order": 1},
+            {"id": "sched-001-002", "activity_type": "checkup", "title": "Blood Pressure Check", "instructions": ["Measure BP before medications", "Record in diary", "Report if >140/90 or <90/60"], "window_start_local": "07:30", "window_end_local": "08:00", "display_order": 2},
+            {"id": "sched-001-003", "activity_type": "activity", "title": "Morning Cardiac Walk", "instructions": ["Walk at moderate pace - 20 minutes", "Keep heart rate below 100 bpm", "Stop if chest pain or shortness of breath"], "window_start_local": "10:00", "window_end_local": "10:30", "display_order": 3},
+            {"id": "sched-001-004", "activity_type": "diet", "title": "Heart-Healthy Lunch", "instructions": ["Low sodium meal", "Include omega-3 rich fish", "Avoid processed foods", "Plenty of vegetables"], "window_start_local": "12:30", "window_end_local": "13:15", "display_order": 4},
+            {"id": "sched-001-005", "activity_type": "medication", "title": "Evening Medications", "instructions": ["Take Atorvastatin 80mg at bedtime", "Take Ramipril 5mg", "Take Metoprolol 50mg"], "window_start_local": "20:00", "window_end_local": "20:30", "display_order": 5},
         ],
         "milestones": [
             {"milestone": "Completed cardiac stress test", "achieved_date": "2026-03-01", "phase": 1},
@@ -96,14 +96,14 @@ PATIENTS = [
         ],
     },
     {
-        "user_id": "user-032",
-        "full_name": "David Kim",
+        "user_id": "user-002",
+        "full_name": "Srinivas Rao",
         "age": 71,
         "sex": "Male",
         "phone": "+91 9765 432109",
-        "email": "david.kim@example.com",
+        "email": "srinivas.rao@example.com",
         "emergency_contact": {
-            "name": "Susan Kim",
+            "name": "Lakshmi Rao",
             "relation": "Spouse",
             "phone": "+91 9765 432110",
         },
@@ -136,11 +136,11 @@ PATIENTS = [
         ],
         "notes": "Persistent atrial fibrillation with CHA2DS2-VASc score of 4 (age, hypertension, TIA history). High stroke risk. INR monitoring weekly. Avoid cranberry juice and other vitamin K sources variability.",
         "schedule_items": [
-            {"id": "sched-032-001", "activity_type": "medication", "title": "Warfarin Dose", "instructions": ["Take Warfarin 5mg at same time daily", "Take with water, no food interactions", "Avoid cranberry juice"], "window_start_local": "20:00", "window_end_local": "20:30", "display_order": 1},
-            {"id": "sched-032-002", "activity_type": "medication", "title": "Morning Medications", "instructions": ["Take Diltiazem 120mg", "Take Lisinopril 10mg"], "window_start_local": "08:00", "window_end_local": "08:30", "display_order": 2},
-            {"id": "sched-032-003", "activity_type": "checkup", "title": "Pulse Check", "instructions": ["Check radial pulse for irregularity", "Count for 60 seconds", "Report if very fast or irregular"], "window_start_local": "09:00", "window_end_local": "09:15", "display_order": 3},
-            {"id": "sched-032-004", "activity_type": "checkup", "title": "INR Lab Test (Weekly)", "instructions": ["Fasting not required", "Blood test at lab", "Avoid large dietary changes"], "window_start_local": "08:00", "window_end_local": "10:00", "display_order": 4, "notes": "Weekly INR monitoring"},
-            {"id": "sched-032-005", "activity_type": "activity", "title": "Gentle Walking", "instructions": ["Walk 15-20 minutes", "Avoid strenuous activity", "Rest if palpitations occur"], "window_start_local": "16:00", "window_end_local": "16:30", "display_order": 5},
+            {"id": "sched-002-001", "activity_type": "medication", "title": "Warfarin Dose", "instructions": ["Take Warfarin 5mg at same time daily", "Take with water, no food interactions", "Avoid cranberry juice"], "window_start_local": "20:00", "window_end_local": "20:30", "display_order": 1},
+            {"id": "sched-002-002", "activity_type": "medication", "title": "Morning Medications", "instructions": ["Take Diltiazem 120mg", "Take Lisinopril 10mg"], "window_start_local": "08:00", "window_end_local": "08:30", "display_order": 2},
+            {"id": "sched-002-003", "activity_type": "checkup", "title": "Pulse Check", "instructions": ["Check radial pulse for irregularity", "Count for 60 seconds", "Report if very fast or irregular"], "window_start_local": "09:00", "window_end_local": "09:15", "display_order": 3},
+            {"id": "sched-002-004", "activity_type": "checkup", "title": "INR Lab Test (Weekly)", "instructions": ["Fasting not required", "Blood test at lab", "Avoid large dietary changes"], "window_start_local": "08:00", "window_end_local": "10:00", "display_order": 4, "notes": "Weekly INR monitoring"},
+            {"id": "sched-002-005", "activity_type": "activity", "title": "Gentle Walking", "instructions": ["Walk 15-20 minutes", "Avoid strenuous activity", "Rest if palpitations occur"], "window_start_local": "16:00", "window_end_local": "16:30", "display_order": 5},
         ],
         "milestones": [
             {"milestone": "INR stable in therapeutic range", "achieved_date": "2026-03-05", "phase": 1},
@@ -148,14 +148,14 @@ PATIENTS = [
         ],
     },
     {
-        "user_id": "user-033",
-        "full_name": "Sarah Patel",
+        "user_id": "user-003",
+        "full_name": "Harika Choudary",
         "age": 28,
         "sex": "Female",
         "phone": "+91 8123 456789",
-        "email": "sarah.patel@example.com",
+        "email": "harika.choudary@example.com",
         "emergency_contact": {
-            "name": "Priya Patel",
+            "name": "Padma Choudary",
             "relation": "Mother",
             "phone": "+91 8123 456790",
         },
@@ -190,12 +190,12 @@ PATIENTS = [
         ],
         "notes": "Type 1 diabetic since age 12. Insulin pump user with recurrent hypoglycemia, especially nocturnal. CGM recommended for better monitoring. Educate on beta-blocker avoidance. Emergency glucagon kit available.",
         "schedule_items": [
-            {"id": "sched-033-001", "activity_type": "checkup", "title": "Morning Blood Glucose", "instructions": ["Check glucose before breakfast", "Adjust bolus insulin accordingly", "Log reading in diabetes diary"], "window_start_local": "06:30", "window_end_local": "07:00", "display_order": 1},
-            {"id": "sched-033-002", "activity_type": "medication", "title": "Morning Insulin Bolus", "instructions": ["Calculate carbs and bolus insulin", "Take 15-20 mins before eating", "Adjust for correction factor if high"], "window_start_local": "07:30", "window_end_local": "08:00", "display_order": 2},
-            {"id": "sched-033-003", "activity_type": "checkup", "title": "Pre-Lunch Glucose Check", "instructions": ["Check glucose before lunch", "Correct if needed before eating", "Watch for hypo symptoms"], "window_start_local": "12:00", "window_end_local": "12:15", "display_order": 3},
-            {"id": "sched-033-004", "activity_type": "diet", "title": "Balanced Meals", "instructions": ["Count carbohydrates accurately", "Consistent meal timing", "Keep glucose tablets handy"], "window_start_local": "12:30", "window_end_local": "13:00", "display_order": 4},
-            {"id": "sched-033-005", "activity_type": "checkup", "title": "Bedtime Glucose Check", "instructions": ["Check glucose before bed", "Set overnight pump alerts", "Snack if glucose < 120"], "window_start_local": "22:00", "window_end_local": "22:30", "display_order": 5},
-            {"id": "sched-033-006", "activity_type": "activity", "title": "Light Exercise", "instructions": ["30 min walk or yoga", "Monitor glucose before, during, after", "Carry glucose tablets"], "window_start_local": "17:00", "window_end_local": "17:30", "display_order": 6},
+            {"id": "sched-003-001", "activity_type": "checkup", "title": "Morning Blood Glucose", "instructions": ["Check glucose before breakfast", "Adjust bolus insulin accordingly", "Log reading in diabetes diary"], "window_start_local": "06:30", "window_end_local": "07:00", "display_order": 1},
+            {"id": "sched-003-002", "activity_type": "medication", "title": "Morning Insulin Bolus", "instructions": ["Calculate carbs and bolus insulin", "Take 15-20 mins before eating", "Adjust for correction factor if high"], "window_start_local": "07:30", "window_end_local": "08:00", "display_order": 2},
+            {"id": "sched-003-003", "activity_type": "checkup", "title": "Pre-Lunch Glucose Check", "instructions": ["Check glucose before lunch", "Correct if needed before eating", "Watch for hypo symptoms"], "window_start_local": "12:00", "window_end_local": "12:15", "display_order": 3},
+            {"id": "sched-003-004", "activity_type": "diet", "title": "Balanced Meals", "instructions": ["Count carbohydrates accurately", "Consistent meal timing", "Keep glucose tablets handy"], "window_start_local": "12:30", "window_end_local": "13:00", "display_order": 4},
+            {"id": "sched-003-005", "activity_type": "checkup", "title": "Bedtime Glucose Check", "instructions": ["Check glucose before bed", "Set overnight pump alerts", "Snack if glucose < 120"], "window_start_local": "22:00", "window_end_local": "22:30", "display_order": 5},
+            {"id": "sched-003-006", "activity_type": "activity", "title": "Light Exercise", "instructions": ["30 min walk or yoga", "Monitor glucose before, during, after", "Carry glucose tablets"], "window_start_local": "17:00", "window_end_local": "17:30", "display_order": 6},
         ],
         "milestones": [
             {"milestone": "CGM sensor fitted successfully", "achieved_date": "2026-03-10", "phase": 1},
@@ -203,14 +203,14 @@ PATIENTS = [
         ],
     },
     {
-        "user_id": "user-034",
-        "full_name": "James Nguyen",
+        "user_id": "user-004",
+        "full_name": "Venkat Nagesh",
         "age": 55,
         "sex": "Male",
         "phone": "+91 9988 776655",
-        "email": "james.nguyen@example.com",
+        "email": "venkat.nagesh@example.com",
         "emergency_contact": {
-            "name": "Linh Nguyen",
+            "name": "Sujatha Nagesh",
             "relation": "Spouse",
             "phone": "+91 9988 776656",
         },
@@ -247,11 +247,11 @@ PATIENTS = [
         ],
         "notes": "CKD Stage 4 due to diabetic nephropathy. Pre-dialysis planning phase. Avoid nephrotoxic drugs and contrast dye. EPO injections weekly. Nephrology follow-up monthly. Discuss dialysis access planning.",
         "schedule_items": [
-            {"id": "sched-034-001", "activity_type": "medication", "title": "Morning Medications", "instructions": ["Take Sodium Bicarbonate 650mg", "Take Calcitriol 0.25mcg", "Take Folic Acid 1mg"], "window_start_local": "08:00", "window_end_local": "08:30", "display_order": 1},
-            {"id": "sched-034-002", "activity_type": "medication", "title": "Phosphate Binders with Meals", "instructions": ["Take Sevelamer 800mg with breakfast", "Take with first bite of food", "Space from other medications"], "window_start_local": "08:15", "window_end_local": "08:30", "display_order": 2},
-            {"id": "sched-034-003", "activity_type": "checkup", "title": "Daily Weight Check", "instructions": ["Weigh at same time daily", "Record weight in diary", "Report if gain > 2kg in 2 days"], "window_start_local": "07:00", "window_end_local": "07:15", "display_order": 3},
-            {"id": "sched-034-004", "activity_type": "diet", "title": "Renal Diet Meals", "instructions": ["Low potassium diet", "Low phosphorus diet", "Moderate protein intake", "Limit sodium to 2g/day", "No contrast dye for any imaging"], "window_start_local": "12:30", "window_end_local": "13:15", "display_order": 4},
-            {"id": "sched-034-005", "activity_type": "medication", "title": "EPO Injection Day (Weekly)", "instructions": ["Subcutaneous injection in abdomen or thigh", "Rotate injection sites", "Usually administered at clinic"], "window_start_local": "10:00", "window_end_local": "11:00", "display_order": 5, "notes": "Weekly EPO - clinic day"},
+            {"id": "sched-004-001", "activity_type": "medication", "title": "Morning Medications", "instructions": ["Take Sodium Bicarbonate 650mg", "Take Calcitriol 0.25mcg", "Take Folic Acid 1mg"], "window_start_local": "08:00", "window_end_local": "08:30", "display_order": 1},
+            {"id": "sched-004-002", "activity_type": "medication", "title": "Phosphate Binders with Meals", "instructions": ["Take Sevelamer 800mg with breakfast", "Take with first bite of food", "Space from other medications"], "window_start_local": "08:15", "window_end_local": "08:30", "display_order": 2},
+            {"id": "sched-004-003", "activity_type": "checkup", "title": "Daily Weight Check", "instructions": ["Weigh at same time daily", "Record weight in diary", "Report if gain > 2kg in 2 days"], "window_start_local": "07:00", "window_end_local": "07:15", "display_order": 3},
+            {"id": "sched-004-004", "activity_type": "diet", "title": "Renal Diet Meals", "instructions": ["Low potassium diet", "Low phosphorus diet", "Moderate protein intake", "Limit sodium to 2g/day", "No contrast dye for any imaging"], "window_start_local": "12:30", "window_end_local": "13:15", "display_order": 4},
+            {"id": "sched-004-005", "activity_type": "medication", "title": "EPO Injection Day (Weekly)", "instructions": ["Subcutaneous injection in abdomen or thigh", "Rotate injection sites", "Usually administered at clinic"], "window_start_local": "10:00", "window_end_local": "11:00", "display_order": 5, "notes": "Weekly EPO - clinic day"},
         ],
         "milestones": [
             {"milestone": "Hemoglobin stabilized at 10.5 g/dL", "achieved_date": "2026-03-08", "phase": 1},
@@ -259,14 +259,14 @@ PATIENTS = [
         ],
     },
     {
-        "user_id": "user-035",
-        "full_name": "Rachel Thompson",
+        "user_id": "user-005",
+        "full_name": "Madhavi Goud",
         "age": 35,
         "sex": "Female",
         "phone": "+91 7654 321098",
-        "email": "rachel.thompson@example.com",
+        "email": "madhavi.goud@example.com",
         "emergency_contact": {
-            "name": "Michael Thompson",
+            "name": "Ramesh Goud",
             "relation": "Spouse",
             "phone": "+91 7654 321099",
         },
@@ -301,11 +301,11 @@ PATIENTS = [
         ],
         "notes": "Severe persistent asthma with aspirin-exacerbated respiratory disease (AERD). Requires high-dose ICS/LABA. Avoid all NSAIDs including aspirin. Aspirin desensitization may be considered in future. Carry rescue inhaler at all times. Asthma action plan in place.",
         "schedule_items": [
-            {"id": "sched-035-001", "activity_type": "medication", "title": "Morning ICS/LABA Inhaler", "instructions": ["Use Fluticasone/Salmeterol 500/50mcg", "2 puffs with spacer", "Rinse mouth after use"], "window_start_local": "07:00", "window_end_local": "07:30", "display_order": 1},
-            {"id": "sched-035-002", "activity_type": "checkup", "title": "Peak Flow Measurement", "instructions": ["Measure before medications", "Record in asthma diary", "Report if < 80% personal best"], "window_start_local": "06:45", "window_end_local": "07:00", "display_order": 2},
-            {"id": "sched-035-003", "activity_type": "medication", "title": "Evening ICS/LABA Inhaler", "instructions": ["Use Fluticasone/Salmeterol 500/50mcg", "2 puffs with spacer", "Take Montelukast 10mg after"], "window_start_local": "20:00", "window_end_local": "20:30", "display_order": 3},
-            {"id": "sched-035-004", "activity_type": "checkup", "title": "Symptom Monitoring", "instructions": ["Rate cough, wheeze, breathlessness 0-3", "Note any triggers encountered", "Log rescue inhaler uses"], "window_start_local": "21:00", "window_end_local": "21:15", "display_order": 4},
-            {"id": "sched-035-005", "activity_type": "activity", "title": "Breathing Exercises", "instructions": ["Pursed lip breathing - 10 minutes", "Diaphragmatic breathing practice", "Avoid outdoor exercise if AQI > 100"], "window_start_local": "16:00", "window_end_local": "16:30", "display_order": 5},
+            {"id": "sched-005-001", "activity_type": "medication", "title": "Morning ICS/LABA Inhaler", "instructions": ["Use Fluticasone/Salmeterol 500/50mcg", "2 puffs with spacer", "Rinse mouth after use"], "window_start_local": "07:00", "window_end_local": "07:30", "display_order": 1},
+            {"id": "sched-005-002", "activity_type": "checkup", "title": "Peak Flow Measurement", "instructions": ["Measure before medications", "Record in asthma diary", "Report if < 80% personal best"], "window_start_local": "06:45", "window_end_local": "07:00", "display_order": 2},
+            {"id": "sched-005-003", "activity_type": "medication", "title": "Evening ICS/LABA Inhaler", "instructions": ["Use Fluticasone/Salmeterol 500/50mcg", "2 puffs with spacer", "Take Montelukast 10mg after"], "window_start_local": "20:00", "window_end_local": "20:30", "display_order": 3},
+            {"id": "sched-005-004", "activity_type": "checkup", "title": "Symptom Monitoring", "instructions": ["Rate cough, wheeze, breathlessness 0-3", "Note any triggers encountered", "Log rescue inhaler uses"], "window_start_local": "21:00", "window_end_local": "21:15", "display_order": 4},
+            {"id": "sched-005-005", "activity_type": "activity", "title": "Breathing Exercises", "instructions": ["Pursed lip breathing - 10 minutes", "Diaphragmatic breathing practice", "Avoid outdoor exercise if AQI > 100"], "window_start_local": "16:00", "window_end_local": "16:30", "display_order": 5},
         ],
         "milestones": [
             {"milestone": "PEF stable above 80% for 2 weeks", "achieved_date": "2026-03-12", "phase": 1},
@@ -313,14 +313,14 @@ PATIENTS = [
         ],
     },
     {
-        "user_id": "user-036",
-        "full_name": "Mark Sullivan",
+        "user_id": "user-006",
+        "full_name": "Prakash Varma",
         "age": 58,
         "sex": "Male",
         "phone": "+91 8765 432109",
-        "email": "mark.sullivan@example.com",
+        "email": "prakash.varma@example.com",
         "emergency_contact": {
-            "name": "Karen Sullivan",
+            "name": "Kavitha Varma",
             "relation": "Spouse",
             "phone": "+91 8765 432110",
         },
@@ -359,12 +359,12 @@ PATIENTS = [
         ],
         "notes": "Alcoholic cirrhosis Child-Pugh B. History of hepatic encephalopathy episode 6 months ago. Strictly avoid opioids, benzodiazepines, and all sedatives. Lactulose to maintain 2-3 soft stools daily. Liver transplant evaluation ongoing. GI bleeding risk due to portal hypertension.",
         "schedule_items": [
-            {"id": "sched-036-001", "activity_type": "medication", "title": "Morning Lactulose", "instructions": ["Take Lactulose 30mL orally", "May mix with juice", "Aim for 2-3 soft stools daily"], "window_start_local": "07:00", "window_end_local": "07:30", "display_order": 1},
-            {"id": "sched-036-002", "activity_type": "medication", "title": "Rifaximin and Diuretics", "instructions": ["Take Rifaximin 550mg with breakfast", "Take Spironolactone 100mg", "Take Furosemide 40mg"], "window_start_local": "08:00", "window_end_local": "08:30", "display_order": 2},
-            {"id": "sched-036-003", "activity_type": "medication", "title": "Afternoon Lactulose", "instructions": ["Take Lactulose 30mL", "Adjust dose based on stool frequency"], "window_start_local": "14:00", "window_end_local": "14:30", "display_order": 3},
-            {"id": "sched-036-004", "activity_type": "checkup", "title": "Daily Weight Check", "instructions": ["Weigh same time and clothes daily", "Record in diary", "Report if gain > 1kg/day or 2kg/week"], "window_start_local": "07:00", "window_end_local": "07:15", "display_order": 4},
-            {"id": "sched-036-005", "activity_type": "diet", "title": "Liver-Friendly Diet", "instructions": ["Low sodium (< 2g/day)", "Adequate protein (1.2g/kg)", "Avoid alcohol completely", "Small frequent meals"], "window_start_local": "12:30", "window_end_local": "13:15", "display_order": 5},
-            {"id": "sched-036-006", "activity_type": "medication", "title": "Nighttime Lactulose", "instructions": ["Take Lactulose 30mL at bedtime", "May need to adjust based on morning stools"], "window_start_local": "21:00", "window_end_local": "21:30", "display_order": 6},
+            {"id": "sched-006-001", "activity_type": "medication", "title": "Morning Lactulose", "instructions": ["Take Lactulose 30mL orally", "May mix with juice", "Aim for 2-3 soft stools daily"], "window_start_local": "07:00", "window_end_local": "07:30", "display_order": 1},
+            {"id": "sched-006-002", "activity_type": "medication", "title": "Rifaximin and Diuretics", "instructions": ["Take Rifaximin 550mg with breakfast", "Take Spironolactone 100mg", "Take Furosemide 40mg"], "window_start_local": "08:00", "window_end_local": "08:30", "display_order": 2},
+            {"id": "sched-006-003", "activity_type": "medication", "title": "Afternoon Lactulose", "instructions": ["Take Lactulose 30mL", "Adjust dose based on stool frequency"], "window_start_local": "14:00", "window_end_local": "14:30", "display_order": 3},
+            {"id": "sched-006-004", "activity_type": "checkup", "title": "Daily Weight Check", "instructions": ["Weigh same time and clothes daily", "Record in diary", "Report if gain > 1kg/day or 2kg/week"], "window_start_local": "07:00", "window_end_local": "07:15", "display_order": 4},
+            {"id": "sched-006-005", "activity_type": "diet", "title": "Liver-Friendly Diet", "instructions": ["Low sodium (< 2g/day)", "Adequate protein (1.2g/kg)", "Avoid alcohol completely", "Small frequent meals"], "window_start_local": "12:30", "window_end_local": "13:15", "display_order": 5},
+            {"id": "sched-006-006", "activity_type": "medication", "title": "Nighttime Lactulose", "instructions": ["Take Lactulose 30mL at bedtime", "May need to adjust based on morning stools"], "window_start_local": "21:00", "window_end_local": "21:30", "display_order": 6},
         ],
         "milestones": [
             {"milestone": "No encephalopathy episodes for 6 months", "achieved_date": "2026-03-15", "phase": 1},
@@ -372,14 +372,14 @@ PATIENTS = [
         ],
     },
     {
-        "user_id": "user-037",
-        "full_name": "Lisa Chang",
+        "user_id": "user-007",
+        "full_name": "Lalitha Devi",
         "age": 70,
         "sex": "Female",
         "phone": "+91 6543 210987",
-        "email": "lisa.chang@example.com",
+        "email": "lalitha.devi@example.com",
         "emergency_contact": {
-            "name": "David Chang",
+            "name": "Sai Kiran",
             "relation": "Son",
             "phone": "+91 6543 210988",
         },
@@ -414,11 +414,11 @@ PATIENTS = [
         ],
         "notes": "Severe postmenopausal osteoporosis with T-score -3.2 spine. Two vertebral compression fractures in past year. On weekly alendronate - must sit upright 30 min after. Weight-bearing exercise encouraged. Fall prevention critical - home safety assessment completed.",
         "schedule_items": [
-            {"id": "sched-037-001", "activity_type": "medication", "title": "Weekly Alendronate", "instructions": ["Take on empty stomach", "Take with full glass of water", "Sit upright for 30 minutes", "Do not eat or drink for 30 minutes after"], "window_start_local": "06:30", "window_end_local": "07:00", "display_order": 1, "notes": "Once weekly - Monday mornings"},
-            {"id": "sched-037-002", "activity_type": "medication", "title": "Daily Supplements", "instructions": ["Take Calcium 600mg with breakfast", "Take Vitamin D3 1000IU with lunch", "Space from Alendronate by 2+ hours"], "window_start_local": "08:00", "window_end_local": "08:30", "display_order": 2},
-            {"id": "sched-037-003", "activity_type": "activity", "title": "Weight-Bearing Exercise", "instructions": ["30 min walking - use sturdy shoes", "Chair exercises for balance", "Avoid high-impact activities", "Stop if back pain increases"], "window_start_local": "10:00", "window_end_local": "10:30", "display_order": 3},
-            {"id": "sched-037-004", "activity_type": "medication", "title": "Calcitonin Nasal Spray", "instructions": ["200 IU in one nostril", "Alternate nostrils daily", "Use for fracture pain relief"], "window_start_local": "20:00", "window_end_local": "20:30", "display_order": 4},
-            {"id": "sched-037-005", "activity_type": "activity", "title": "Balance and Fall Prevention", "instructions": ["Practice standing on one foot (hold support)", "Tai chi or yoga for seniors", "Ensure well-lit pathways at home", "Remove loose rugs"], "window_start_local": "16:00", "window_end_local": "16:30", "display_order": 5},
+            {"id": "sched-007-001", "activity_type": "medication", "title": "Weekly Alendronate", "instructions": ["Take on empty stomach", "Take with full glass of water", "Sit upright for 30 minutes", "Do not eat or drink for 30 minutes after"], "window_start_local": "06:30", "window_end_local": "07:00", "display_order": 1, "notes": "Once weekly - Monday mornings"},
+            {"id": "sched-007-002", "activity_type": "medication", "title": "Daily Supplements", "instructions": ["Take Calcium 600mg with breakfast", "Take Vitamin D3 1000IU with lunch", "Space from Alendronate by 2+ hours"], "window_start_local": "08:00", "window_end_local": "08:30", "display_order": 2},
+            {"id": "sched-007-003", "activity_type": "activity", "title": "Weight-Bearing Exercise", "instructions": ["30 min walking - use sturdy shoes", "Chair exercises for balance", "Avoid high-impact activities", "Stop if back pain increases"], "window_start_local": "10:00", "window_end_local": "10:30", "display_order": 3},
+            {"id": "sched-007-004", "activity_type": "medication", "title": "Calcitonin Nasal Spray", "instructions": ["200 IU in one nostril", "Alternate nostrils daily", "Use for fracture pain relief"], "window_start_local": "20:00", "window_end_local": "20:30", "display_order": 4},
+            {"id": "sched-007-005", "activity_type": "activity", "title": "Balance and Fall Prevention", "instructions": ["Practice standing on one foot (hold support)", "Tai chi or yoga for seniors", "Ensure well-lit pathways at home", "Remove loose rugs"], "window_start_local": "16:00", "window_end_local": "16:30", "display_order": 5},
         ],
         "milestones": [
             {"milestone": "DEXA scan showing stable T-score", "achieved_date": "2026-03-10", "phase": 1},
@@ -426,14 +426,14 @@ PATIENTS = [
         ],
     },
     {
-        "user_id": "user-038",
-        "full_name": "Tom Rodriguez",
+        "user_id": "user-008",
+        "full_name": "Naveen Kumar",
         "age": 45,
         "sex": "Male",
         "phone": "+91 5432 109876",
-        "email": "tom.rodriguez@example.com",
+        "email": "naveen.kumar@example.com",
         "emergency_contact": {
-            "name": "Maria Rodriguez",
+            "name": "Sireesha Kumar",
             "relation": "Sister",
             "phone": "+91 5432 109877",
         },
@@ -466,11 +466,11 @@ PATIENTS = [
         ],
         "notes": "Treatment-resistant schizophrenia on clozapine 300mg. Requires weekly ANC monitoring (REMS program). Limit caffeine intake to < 200mg/day due to clozapine interaction. Monitor for metabolic syndrome. BMI currently 28 - weight management important. Long-acting injectable consideration if non-adherence risk.",
         "schedule_items": [
-            {"id": "sched-038-001", "activity_type": "medication", "title": "Evening Clozapine", "instructions": ["Take Clozapine 300mg at bedtime", "Limit caffeine throughout day", "Take with or without food", "Report excessive sedation"], "window_start_local": "21:00", "window_end_local": "21:30", "display_order": 1},
-            {"id": "sched-038-002", "activity_type": "medication", "title": "Morning Benztropine", "instructions": ["Take Benztropine 2mg", "May cause dry mouth - stay hydrated", "Report urinary difficulty"], "window_start_local": "08:00", "window_end_local": "08:30", "display_order": 2},
-            {"id": "sched-038-003", "activity_type": "checkup", "title": "Weekly ANC Blood Test", "instructions": ["Blood draw for Absolute Neutrophil Count", "Required for clozapine REMS", "Do not skip - medication held if ANC low"], "window_start_local": "09:00", "window_end_local": "10:00", "display_order": 3, "notes": "Weekly ANC monitoring"},
-            {"id": "sched-038-004", "activity_type": "checkup", "title": "Weight Check", "instructions": ["Weekly weight measurement", "Report gain > 2kg in a week", "Monitor for metabolic changes"], "window_start_local": "08:00", "window_end_local": "08:15", "display_order": 4},
-            {"id": "sched-038-005", "activity_type": "activity", "title": "Daily Routine Activities", "instructions": ["Structured daily activities", "Light walking 20 minutes", "Social skills practice", "Limit caffeine - max 1 cup coffee"], "window_start_local": "14:00", "window_end_local": "15:00", "display_order": 5},
+            {"id": "sched-008-001", "activity_type": "medication", "title": "Evening Clozapine", "instructions": ["Take Clozapine 300mg at bedtime", "Limit caffeine throughout day", "Take with or without food", "Report excessive sedation"], "window_start_local": "21:00", "window_end_local": "21:30", "display_order": 1},
+            {"id": "sched-008-002", "activity_type": "medication", "title": "Morning Benztropine", "instructions": ["Take Benztropine 2mg", "May cause dry mouth - stay hydrated", "Report urinary difficulty"], "window_start_local": "08:00", "window_end_local": "08:30", "display_order": 2},
+            {"id": "sched-008-003", "activity_type": "checkup", "title": "Weekly ANC Blood Test", "instructions": ["Blood draw for Absolute Neutrophil Count", "Required for clozapine REMS", "Do not skip - medication held if ANC low"], "window_start_local": "09:00", "window_end_local": "10:00", "display_order": 3, "notes": "Weekly ANC monitoring"},
+            {"id": "sched-008-004", "activity_type": "checkup", "title": "Weight Check", "instructions": ["Weekly weight measurement", "Report gain > 2kg in a week", "Monitor for metabolic changes"], "window_start_local": "08:00", "window_end_local": "08:15", "display_order": 4},
+            {"id": "sched-008-005", "activity_type": "activity", "title": "Daily Routine Activities", "instructions": ["Structured daily activities", "Light walking 20 minutes", "Social skills practice", "Limit caffeine - max 1 cup coffee"], "window_start_local": "14:00", "window_end_local": "15:00", "display_order": 5},
         ],
         "milestones": [
             {"milestone": "ANC stable above 2000 for 3 months", "achieved_date": "2026-03-15", "phase": 1},
@@ -478,14 +478,14 @@ PATIENTS = [
         ],
     },
     {
-        "user_id": "user-039",
-        "full_name": "Ava Wilson",
+        "user_id": "user-009",
+        "full_name": "Bhavya Naidu",
         "age": 32,
         "sex": "Female",
         "phone": "+91 4321 098765",
-        "email": "ava.wilson@example.com",
+        "email": "bhavya.naidu@example.com",
         "emergency_contact": {
-            "name": "James Wilson",
+            "name": "Srinivas Naidu",
             "relation": "Father",
             "phone": "+91 4321 098766",
         },
@@ -522,11 +522,11 @@ PATIENTS = [
         ],
         "notes": "Class IV lupus nephritis confirmed by biopsy. On mycophenolate and hydroxychloroquine. Steroid taper ongoing. Strictly avoid sulfonamides and other sulfa-containing medications. Sun protection essential. Reproductive counseling - mycophenolate teratogenic. Renal follow-up every 3 months.",
         "schedule_items": [
-            {"id": "sched-039-001", "activity_type": "medication", "title": "Morning Medications", "instructions": ["Take Hydroxychloroquine 200mg", "Take Mycophenolate 1000mg with food", "Take Prednisone 10mg", "Take Losartan 50mg"], "window_start_local": "08:00", "window_end_local": "08:30", "display_order": 1},
-            {"id": "sched-039-002", "activity_type": "medication", "title": "Evening Mycophenolate", "instructions": ["Take Mycophenolate 1000mg with food", "Avoid crushing tablets", "Report anyGI symptoms"], "window_start_local": "20:00", "window_end_local": "20:30", "display_order": 2},
-            {"id": "sched-039-003", "activity_type": "checkup", "title": "Urine Protein Check (Weekly)", "instructions": ["Morning urine sample", "Dipstick test for protein", "Report if 2+ or greater"], "window_start_local": "07:00", "window_end_local": "07:30", "display_order": 3},
-            {"id": "sched-039-004", "activity_type": "activity", "title": "Gentle Exercise", "instructions": ["30 min gentle walking indoors", "Yoga or stretching", "Avoid direct sun exposure", "Stay hydrated"], "window_start_local": "16:00", "window_end_local": "16:30", "display_order": 4},
-            {"id": "sched-039-005", "activity_type": "diet", "title": "Renal-Friendly Diet", "instructions": ["Low sodium diet", "Moderate protein (0.8g/kg)", "Avoid raw/undercooked foods", "No sulfa-containing supplements"], "window_start_local": "12:30", "window_end_local": "13:15", "display_order": 5},
+            {"id": "sched-009-001", "activity_type": "medication", "title": "Morning Medications", "instructions": ["Take Hydroxychloroquine 200mg", "Take Mycophenolate 1000mg with food", "Take Prednisone 10mg", "Take Losartan 50mg"], "window_start_local": "08:00", "window_end_local": "08:30", "display_order": 1},
+            {"id": "sched-009-002", "activity_type": "medication", "title": "Evening Mycophenolate", "instructions": ["Take Mycophenolate 1000mg with food", "Avoid crushing tablets", "Report anyGI symptoms"], "window_start_local": "20:00", "window_end_local": "20:30", "display_order": 2},
+            {"id": "sched-009-003", "activity_type": "checkup", "title": "Urine Protein Check (Weekly)", "instructions": ["Morning urine sample", "Dipstick test for protein", "Report if 2+ or greater"], "window_start_local": "07:00", "window_end_local": "07:30", "display_order": 3},
+            {"id": "sched-009-004", "activity_type": "activity", "title": "Gentle Exercise", "instructions": ["30 min gentle walking indoors", "Yoga or stretching", "Avoid direct sun exposure", "Stay hydrated"], "window_start_local": "16:00", "window_end_local": "16:30", "display_order": 4},
+            {"id": "sched-009-005", "activity_type": "diet", "title": "Renal-Friendly Diet", "instructions": ["Low sodium diet", "Moderate protein (0.8g/kg)", "Avoid raw/undercooked foods", "No sulfa-containing supplements"], "window_start_local": "12:30", "window_end_local": "13:15", "display_order": 5},
         ],
         "milestones": [
             {"milestone": "Proteinuria reduced to 0.3 g/g", "achieved_date": "2026-03-08", "phase": 1},
@@ -534,14 +534,14 @@ PATIENTS = [
         ],
     },
     {
-        "user_id": "user-040",
-        "full_name": "Ben Harris",
+        "user_id": "user-010",
+        "full_name": "Raghavendra Prasad",
         "age": 66,
         "sex": "Male",
         "phone": "+91 3210 987654",
-        "email": "ben.harris@example.com",
+        "email": "raghavendra.prasad@example.com",
         "emergency_contact": {
-            "name": "Patricia Harris",
+            "name": "Nandini Prasad",
             "relation": "Daughter",
             "phone": "+91 3210 987655",
         },
@@ -576,12 +576,12 @@ PATIENTS = [
         ],
         "notes": "Type 2 diabetes with diabetic nephropathy. CKD Stage 3 (eGFR 42). Metformin discontinued due to CKD. SGLT2 inhibitor provides dual benefit for glucose and renal protection. Avoid sulfonylureas and metformin. Nephrology co-management. Annual eye exam for diabetic retinopathy screening.",
         "schedule_items": [
-            {"id": "sched-040-001", "activity_type": "medication", "title": "Morning Medications", "instructions": ["Take Empagliflozin 10mg", "Take Linagliptin 5mg", "Take Amlodipine 5mg"], "window_start_local": "07:30", "window_end_local": "08:00", "display_order": 1},
-            {"id": "sched-040-002", "activity_type": "medication", "title": "Losartan", "instructions": ["Take Losartan 100mg", "Take with water", "Monitor for dizziness"], "window_start_local": "20:00", "window_end_local": "20:30", "display_order": 2},
-            {"id": "sched-040-003", "activity_type": "checkup", "title": "Blood Sugar Check", "instructions": ["Fasting glucose in morning", "Log readings", "Report if < 70 or > 200"], "window_start_local": "07:00", "window_end_local": "07:15", "display_order": 3},
-            {"id": "sched-040-004", "activity_type": "checkup", "title": "Blood Pressure Monitoring", "instructions": ["Measure BP twice daily", "Record both readings", "Report if > 140/90 consistently"], "window_start_local": "08:00", "window_end_local": "08:15", "display_order": 4},
-            {"id": "sched-040-005", "activity_type": "diet", "title": "Diabetic Renal Diet", "instructions": ["Low sodium diet", "Moderate carbohydrate", "Adequate but not excess protein", "Stay well hydrated (SGLT2i)"], "window_start_local": "12:30", "window_end_local": "13:15", "display_order": 5},
-            {"id": "sched-040-006", "activity_type": "activity", "title": "Daily Walk", "instructions": ["Walk 30 minutes", "Wear comfortable shoes (SGLT2i UTI prevention)", "Stay hydrated", "Report any genital infections"], "window_start_local": "16:00", "window_end_local": "16:30", "display_order": 6},
+            {"id": "sched-010-001", "activity_type": "medication", "title": "Morning Medications", "instructions": ["Take Empagliflozin 10mg", "Take Linagliptin 5mg", "Take Amlodipine 5mg"], "window_start_local": "07:30", "window_end_local": "08:00", "display_order": 1},
+            {"id": "sched-010-002", "activity_type": "medication", "title": "Losartan", "instructions": ["Take Losartan 100mg", "Take with water", "Monitor for dizziness"], "window_start_local": "20:00", "window_end_local": "20:30", "display_order": 2},
+            {"id": "sched-010-003", "activity_type": "checkup", "title": "Blood Sugar Check", "instructions": ["Fasting glucose in morning", "Log readings", "Report if < 70 or > 200"], "window_start_local": "07:00", "window_end_local": "07:15", "display_order": 3},
+            {"id": "sched-010-004", "activity_type": "checkup", "title": "Blood Pressure Monitoring", "instructions": ["Measure BP twice daily", "Record both readings", "Report if > 140/90 consistently"], "window_start_local": "08:00", "window_end_local": "08:15", "display_order": 4},
+            {"id": "sched-010-005", "activity_type": "diet", "title": "Diabetic Renal Diet", "instructions": ["Low sodium diet", "Moderate carbohydrate", "Adequate but not excess protein", "Stay well hydrated (SGLT2i)"], "window_start_local": "12:30", "window_end_local": "13:15", "display_order": 5},
+            {"id": "sched-010-006", "activity_type": "activity", "title": "Daily Walk", "instructions": ["Walk 30 minutes", "Wear comfortable shoes (SGLT2i UTI prevention)", "Stay hydrated", "Report any genital infections"], "window_start_local": "16:00", "window_end_local": "16:30", "display_order": 6},
         ],
         "milestones": [
             {"milestone": "HbA1c reduced from 8.5% to 7.2%", "achieved_date": "2026-03-05", "phase": 1},
@@ -593,26 +593,26 @@ PATIENTS = [
 
 def seed_database() -> None:
     """Seed the database with 10 condition-specific patients."""
-    print(f"Seeding 10 condition patients to: {DB_PATH}")
+    print(f"Resetting and seeding 10 Telugu patient profiles to: {DB_PATH}")
 
     connect_args = {"check_same_thread": False}
     engine = create_engine(DB_URL, connect_args=connect_args)
     SQLModel.metadata.create_all(engine)
 
     with Session(engine) as session:
+        session.execute(text("DELETE FROM adherence_reports"))
+        session.execute(text("DELETE FROM physiotherapy_readings"))
+        session.execute(text("DELETE FROM pain_index_readings"))
+        session.execute(text("DELETE FROM milestones"))
+        session.execute(text("DELETE FROM schedule_items"))
+        session.execute(text("DELETE FROM treatment_plans"))
+        session.execute(text("DELETE FROM patient_profiles"))
+        session.commit()
+
         today = datetime.now(timezone.utc)
 
         for patient in PATIENTS:
             user_id = patient["user_id"]
-
-            # Check if patient already exists
-            existing = (
-                session.query(PatientProfileRow).filter_by(user_id=user_id).first()
-            )
-
-            if existing:
-                print(f"Patient {user_id} already exists, skipping...")
-                continue
 
             print(f"Creating patient: {user_id} - {patient['full_name']}")
 
@@ -755,7 +755,7 @@ def seed_database() -> None:
                 })
 
         session.commit()
-    print("\nSeeding complete! Added 10 condition-specific patients with full data.")
+    print("\nSeeding complete! Reset database to 10 Telugu patient profiles with full data.")
 
 
 if __name__ == "__main__":
