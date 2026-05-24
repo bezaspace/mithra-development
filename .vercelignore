@@ -1,0 +1,5 @@
+Android frontend/
+back end/
+**/__pycache__/
+*.pyc
+.antigravitycli/
