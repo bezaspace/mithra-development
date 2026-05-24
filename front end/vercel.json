@@ -6,11 +6,11 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://raksha-mvp-backend.onrender.com/api/$1"
+      "destination": "https://raksha-mvp-backend-2faq.onrender.com/api/$1"
     },
     {
       "source": "/health",
-      "destination": "https://raksha-mvp-backend.onrender.com/health"
+      "destination": "https://raksha-mvp-backend-2faq.onrender.com/health"
     },
     {
       "source": "/(.*)",

@@ -10,5 +10,5 @@ export const backendHttpUrl = (
 export const backendWsUrl =
   import.meta.env.VITE_BACKEND_WS_URL ??
   (import.meta.env.PROD
-    ? "wss://raksha-mvp-backend.onrender.com/ws/live"
+    ? "wss://raksha-mvp-backend-2faq.onrender.com/ws/live"
     : `${backendHttpUrl.replace(/^http/i, "ws")}/ws/live`);
